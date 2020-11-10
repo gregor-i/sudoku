@@ -1,3 +1,5 @@
+package model
+
 import org.scalatest.funsuite.AnyFunSuite
 
 class SudokuBoardTest extends AnyFunSuite {
@@ -17,28 +19,28 @@ class SudokuBoardTest extends AnyFunSuite {
 
   }
 
-  test("SudokuBoard.row(i)") {
+  test("model.SudokuBoard.row(i)") {
     assert(SudokuBoard.row(0)(Dimensions(2, 2)) == Seq((0, 0), (1, 0), (2, 0), (3, 0)))
     assert(SudokuBoard.row(1)(Dimensions(2, 2)) == Seq((0, 1), (1, 1), (2, 1), (3, 1)))
     assert(SudokuBoard.row(2)(Dimensions(2, 2)) == Seq((0, 2), (1, 2), (2, 2), (3, 2)))
     assert(SudokuBoard.row(3)(Dimensions(2, 2)) == Seq((0, 3), (1, 3), (2, 3), (3, 3)))
   }
 
-  test("SudokuBoard.column(i)") {
+  test("model.SudokuBoard.column(i)") {
     assert(SudokuBoard.column(0)(Dimensions(2, 2)) == Seq((0, 0), (0, 1), (0, 2), (0, 3)))
     assert(SudokuBoard.column(1)(Dimensions(2, 2)) == Seq((1, 0), (1, 1), (1, 2), (1, 3)))
     assert(SudokuBoard.column(2)(Dimensions(2, 2)) == Seq((2, 0), (2, 1), (2, 2), (2, 3)))
     assert(SudokuBoard.column(3)(Dimensions(2, 2)) == Seq((3, 0), (3, 1), (3, 2), (3, 3)))
   }
 
-  test("SudokuBoard.block(i)") {
+  test("model.SudokuBoard.block(i)") {
     assert(SudokuBoard.block(0)(Dimensions(2, 2)) == Seq((0, 0), (1, 0), (0, 1), (1, 1)))
     assert(SudokuBoard.block(1)(Dimensions(2, 2)) == Seq((2, 0), (3, 0), (2, 1), (3, 1)))
     assert(SudokuBoard.block(2)(Dimensions(2, 2)) == Seq((0, 2), (1, 2), (0, 3), (1, 3)))
     assert(SudokuBoard.block(3)(Dimensions(2, 2)) == Seq((2, 2), (3, 2), (2, 3), (3, 3)))
   }
 
-  test("SudokuBoard.rows") {
+  test("model.SudokuBoard.rows") {
     val dim = Dimensions(2, 2)
     assert(
       SudokuBoard.rows(dim) == Seq(
@@ -50,7 +52,7 @@ class SudokuBoardTest extends AnyFunSuite {
     )
   }
 
-  test("SudokuBoard.columns") {
+  test("model.SudokuBoard.columns") {
     val dim = Dimensions(2, 2)
     assert(
       SudokuBoard.columns(dim) == Seq(
@@ -62,7 +64,7 @@ class SudokuBoardTest extends AnyFunSuite {
     )
   }
 
-  test("SudokuBoard.blocks") {
+  test("model.SudokuBoard.blocks") {
     val dim = Dimensions(2, 2)
     assert(
       SudokuBoard.blocks(dim) == Seq(
@@ -74,14 +76,40 @@ class SudokuBoardTest extends AnyFunSuite {
     )
   }
 
-  def invariantTest(dim: Dimensions) = {
+  for (dim <- DimensionExamples.examples)
     test(s"each position is in block, row and column (${dim}") {
-      assert(SudokuBoard.rows(dim).flatten.toSet == dim.positions.toSet)
-      assert(SudokuBoard.columns(dim).flatten.toSet == dim.positions.toSet)
-      assert(SudokuBoard.blocks(dim).flatten.toSet == dim.positions.toSet)
+      assert(SudokuBoard.rows(dim).flatten.toSet == SudokuBoard.positions(dim).toSet)
+      assert(SudokuBoard.columns(dim).flatten.toSet == SudokuBoard.positions(dim).toSet)
+      assert(SudokuBoard.blocks(dim).flatten.toSet == SudokuBoard.positions(dim).toSet)
     }
-  }
 
   for (dim <- DimensionExamples.examples)
-    invariantTest(dim)
+    test(s"rowOf (${dim}") {
+      for {
+        row <- SudokuBoard.rows(dim)
+        pos <- row
+      } {
+        assert(SudokuBoard.rowOf(pos)(dim) == row)
+      }
+    }
+
+  for (dim <- DimensionExamples.examples)
+    test(s"columnOf (${dim}") {
+      for {
+        column <- SudokuBoard.columns(dim)
+        pos    <- column
+      } {
+        assert(SudokuBoard.columnOf(pos)(dim) == column)
+      }
+    }
+
+  for (dim <- DimensionExamples.examples)
+    test(s"blockOf (${dim}") {
+      for {
+        block <- SudokuBoard.blocks(dim)
+        pos   <- block
+      } {
+        assert(SudokuBoard.blockOf(pos)(dim) == block)
+      }
+    }
 }

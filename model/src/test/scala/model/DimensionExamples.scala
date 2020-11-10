@@ -1,3 +1,5 @@
+package model
+
 object DimensionExamples {
   val examples = Seq(
     Dimensions(1, 1),
