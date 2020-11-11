@@ -5,7 +5,8 @@ import snabbdom.Node
 
 object Pages {
   val all: Seq[Page[_ <: PageState]] = Seq(
-    ErrorPage
+    ErrorPage,
+    SudokuSolverPage
   )
 
   def selectPage[State <: PageState](nutriaState: State): Page[State] =

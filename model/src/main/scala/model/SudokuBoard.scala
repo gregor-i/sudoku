@@ -67,5 +67,5 @@ object SudokuBoard {
       y <- 0 until dim.blockSize
     } yield (x, y)
 
-  def values(dim: Dimensions): Seq[Int] = 1 to dim.blockSize
+  def values(dim: Dimensions): Range = 1 to dim.blockSize
 }

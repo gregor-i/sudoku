@@ -3,6 +3,12 @@ package model
 object Solver {
 
   def apply(board: SudokuBoard[Option]): LazyList[SudokuBoard[Id]] =
+    if (Validate.noError(board))
+      loop(board)
+    else
+      LazyList.empty
+
+  private def loop(board: SudokuBoard[Option]): LazyList[SudokuBoard[Id]] =
     SudokuBoard
       .positions(board.dim)
       .filter(board.get(_).isEmpty)
