@@ -1,25 +1,20 @@
 package frontend.components
 
-import frontend.{Context, PageState}
 import model.{Dimensions, SudokuBoard}
 import model.OpenSudokuBoard
-import monocle.Lens
-import org.scalajs.dom.KeyboardEvent
-import snabbdom.{Node, Snabbdom}
+import snabbdom.Node
 
-object SudokuInput {
-  def apply[S <: PageState](lens: Lens[S, OpenSudokuBoard])(implicit context: Context[S]): Node = {
-    val board = lens.get(context.local)
-    val dim   = board.dim
+object SudokuBoardSVG {
+  type Interaction = ((Int, Int), Node) => Node
+
+  def apply(board: OpenSudokuBoard, interaction: Option[Interaction]): Node = {
+    val dim = board.dim
 
     Node("svg.sudoku-input")
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .attr("viewBox", s"0 0 ${20 * dim.blockSize} ${20 * dim.blockSize}")
-      .children(
-        interactionRects(board, lens),
-        grid(dim),
-        values(board)
-      )
+      .childOptional(interaction.map(interactionRects(board, _)))
+      .children(grid(dim), values(board))
   }
 
   private def grid(dim: Dimensions): Node =
@@ -82,44 +77,21 @@ object SudokuInput {
           )
       }
 
-  private def interactionRects[S <: PageState](board: OpenSudokuBoard, lens: Lens[S, OpenSudokuBoard])(
-      implicit context: Context[S]
-  ): Node =
+  private def interactionRects(board: OpenSudokuBoard, interaction: Interaction): Node =
     Node("g")
       .attr("id", "interationRects")
       .child {
         for {
           pos <- SudokuBoard.positions(board.dim)
-        } yield {
-          Node("a")
-            .attr("xlink:href", "#")
-            .child(
-              Node("rect")
-                .attr("x", (pos._1 * 20).toString)
-                .attr("y", (pos._2 * 20).toString)
-                .attr("width", "20")
-                .attr("height", "20")
-                .attr("fill", "rgba(0, 0, 0, 0)")
-                .attr("stroke", "rgba(0, 0, 0, 0)")
-            )
-            .event(
-              "keydown",
-              Snabbdom.specificEvent[KeyboardEvent] { event =>
-                mapKeydownEvent(event, board.dim) match {
-                  case Some(v) =>
-                    context.update(lens.modify(_.set(pos, v))(context.local))
-                  case None => ()
-                }
-              }
-            )
-        }
+        } yield interaction(
+          pos,
+          Node("rect")
+            .attr("x", (pos._1 * 20).toString)
+            .attr("y", (pos._2 * 20).toString)
+            .attr("width", "20")
+            .attr("height", "20")
+            .attr("fill", "rgba(0, 0, 0, 0)")
+            .attr("stroke", "rgba(0, 0, 0, 0)")
+        )
       }
-
-  def mapKeydownEvent(event: KeyboardEvent, dim: Dimensions): Option[Option[Int]] =
-    (event.key, event.key.toIntOption) match {
-      case ("Backspace", _)                                    => Some(None)
-      case ("Delete", _)                                       => Some(None)
-      case (_, Some(i)) if SudokuBoard.values(dim).contains(i) => Some(Some(i))
-      case _                                                   => None
-    }
 }
