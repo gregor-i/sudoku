@@ -6,76 +6,85 @@ import snabbdom.Node
 object InputNumberSVG {
   type Interaction = (Int, Node) => Node
 
+  val scale    = (1d / 20d).toString
+  val fontSize = 0.8.toString
+
   def apply(dim: Dimensions, interaction: Option[Interaction]): Node = {
+    val cell = Math.ceil(Math.sqrt(dim.blockSize)).toInt
     Node("svg.number-input")
       .attr("xmlns", "http://www.w3.org/2000/svg")
-      .attr("viewBox", s"0 0 ${20 * dim.width} ${20 * dim.height}")
-      .childOptional(interaction.map(interactionRects(dim, _)))
-      .children(grid(dim), values(dim))
+      .attr("viewBox", s"0 0 $cell $cell")
+      .childOptional(interaction.map(interactionRects(dim, cell, _)))
+      .children(grid(cell), values(dim, cell))
   }
 
-  private def grid(dim: Dimensions): Node =
+  private def grid(cell: Int): Node =
     Node("g")
       .attr("id", "grid")
       .style("pointer-events", "none")
       .child {
-        for (column <- 0 to dim.blockSize)
+        for (column <- 0 to cell)
           yield Node("line")
-            .attr("x1", (20 * column).toString)
-            .attr("x2", (20 * column).toString)
+            .attr("x1", column.toString)
+            .attr("x2", column.toString)
             .attr("y1", "0")
-            .attr("y2", (20 * dim.blockSize).toString)
+            .attr("y2", cell.toString)
             .attr("stroke", "black")
+            .attr("stroke-width", scale)
       }
       .child {
-        for (row <- 0 to dim.blockSize)
+        for (row <- 0 to cell)
           yield Node("line")
             .attr("x1", "0")
-            .attr("x2", (20 * dim.blockSize).toString)
-            .attr("y1", (20 * row).toString)
-            .attr("y2", (20 * row).toString)
+            .attr("x2", cell.toString)
+            .attr("y1", row.toString)
+            .attr("y2", row.toString)
             .attr("stroke", "black")
+            .attr("stroke-width", scale)
       }
 
-  private def values(dim: Dimensions): Node =
+  private def values(dim: Dimensions, cell: Int): Node =
     Node("g")
       .attr("id", "values")
       .style("pointer-events", "none")
       .child {
         for {
-          x <- 0 until dim.width
-          y <- 0 until dim.height
-          value = x + y * dim.width + 1
+          x <- 0 until cell
+          y <- 0 until cell
+          value = x + y * cell
+          if value < dim.blockSize
         } yield Node("text")
-          .attr("transform", s"translate(${x * 20} ${y * 20})")
+          .attr("transform", s"translate($x $y)")
           .attr("text-anchor", "middle")
+          .attr("font-size", fontSize)
           .child(
             Node("tspan")
-              .attr("x", "10")
-              .attr("y", "10")
+              .attr("x", "0.5")
+              .attr("y", "0.5")
               .attr("alignment-baseline", "central")
               .attr("fill", "currentColor")
-              .text(value.toString)
+              .text((value + 1).toString)
           )
       }
 
-  private def interactionRects(dim: Dimensions, interaction: Interaction): Node =
+  private def interactionRects(dim: Dimensions, cell: Int, interaction: Interaction): Node =
     Node("g")
       .attr("id", "interationRects")
       .child {
         for {
-          x <- 0 until dim.width
-          y <- 0 until dim.height
-          value = x + y * dim.width + 1
+          x <- 0 until cell
+          y <- 0 until cell
+          value = x + y * cell
+          if value < dim.blockSize
         } yield interaction(
-          value,
+          value + 1,
           Node("rect")
-            .attr("x", (x * 20).toString)
-            .attr("y", (y * 20).toString)
-            .attr("width", "20")
-            .attr("height", "20")
+            .attr("x", x.toString)
+            .attr("y", y.toString)
+            .attr("width", "1")
+            .attr("height", "1")
             .attr("fill", "rgba(0, 0, 0, 0)")
-            .attr("stroke", "rgba(0, 0, 0, 0)")
+            .attr("stroke", "none")
         )
       }
 }

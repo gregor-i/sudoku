@@ -6,13 +6,15 @@ import snabbdom.Node
 
 object SudokuBoardSVG {
   type Interaction = ((Int, Int), Node) => Node
+  val strokeWidth = (1.0 / 20.0).toString
+  val fontSize    = 0.8.toString
 
   def apply(board: OpenSudokuBoard, interaction: Option[Interaction]): Node = {
     val dim = board.dim
 
     Node("svg.sudoku-input")
       .attr("xmlns", "http://www.w3.org/2000/svg")
-      .attr("viewBox", s"0 0 ${20 * dim.blockSize} ${20 * dim.blockSize}")
+      .attr("viewBox", s"0 0 ${dim.blockSize} ${dim.blockSize}")
       .childOptional(interaction.map(interactionRects(board, _)))
       .children(grid(dim), values(board))
   }
@@ -24,38 +26,42 @@ object SudokuBoardSVG {
       .child {
         for (column <- 0 to dim.blockSize; if column % dim.width != 0)
           yield Node("line")
-            .attr("x1", (20 * column).toString)
-            .attr("x2", (20 * column).toString)
+            .attr("x1", column.toString)
+            .attr("x2", column.toString)
             .attr("y1", "0")
-            .attr("y2", (20 * dim.blockSize).toString)
+            .attr("y2", dim.blockSize.toString)
             .attr("stroke", "lightgrey")
+            .attr("stroke-width", strokeWidth)
       }
       .child {
         for (row <- 0 to dim.blockSize; if row % dim.height != 0)
           yield Node("line")
             .attr("x1", "0")
-            .attr("x2", (20 * dim.blockSize).toString)
-            .attr("y1", (20 * row).toString)
-            .attr("y2", (20 * row).toString)
+            .attr("x2", dim.blockSize.toString)
+            .attr("y1", row.toString)
+            .attr("y2", row.toString)
             .attr("stroke", "lightgrey")
+            .attr("stroke-width", strokeWidth)
       }
       .child {
         for (column <- 0 to dim.blockSize by dim.width)
           yield Node("line")
-            .attr("x1", (20 * column).toString)
-            .attr("x2", (20 * column).toString)
+            .attr("x1", column.toString)
+            .attr("x2", column.toString)
             .attr("y1", "0")
-            .attr("y2", (20 * dim.blockSize).toString)
+            .attr("y2", dim.blockSize.toString)
             .attr("stroke", "black")
+            .attr("stroke-width", strokeWidth)
       }
       .child {
         for (row <- 0 to dim.blockSize by dim.height)
           yield Node("line")
             .attr("x1", "0")
-            .attr("x2", (20 * dim.blockSize).toString)
-            .attr("y1", (20 * row).toString)
-            .attr("y2", (20 * row).toString)
+            .attr("x2", dim.blockSize.toString)
+            .attr("y1", row.toString)
+            .attr("y2", row.toString)
             .attr("stroke", "black")
+            .attr("stroke-width", strokeWidth)
       }
 
   private def values(board: OpenSudokuBoard): Node =
@@ -67,12 +73,13 @@ object SudokuBoardSVG {
           pos   <- SudokuBoard.positions(board.dim)
           value <- board.get(pos)
         } yield Node("text")
-          .attr("transform", s"translate(${pos._1 * 20} ${pos._2 * 20})")
+          .attr("transform", s"translate(${pos._1} ${pos._2 * 1})")
           .attr("text-anchor", "middle")
+          .attr("font-size", fontSize)
           .child(
             Node("tspan")
-              .attr("x", "10")
-              .attr("y", "10")
+              .attr("x", "0.5")
+              .attr("y", "0.5")
               .attr("alignment-baseline", "central")
               .attr("fill", "currentColor")
               .text(value.toString)
@@ -81,19 +88,19 @@ object SudokuBoardSVG {
 
   private def interactionRects(board: OpenSudokuBoard, interaction: Interaction): Node =
     Node("g")
-      .attr("id", "interationRects")
+      .attr("id", "interactionRects")
       .child {
         for {
           pos <- SudokuBoard.positions(board.dim)
         } yield interaction(
           pos,
           Node("rect")
-            .attr("x", (pos._1 * 20).toString)
-            .attr("y", (pos._2 * 20).toString)
-            .attr("width", "20")
-            .attr("height", "20")
+            .attr("x", pos._1.toString)
+            .attr("y", pos._2.toString)
+            .attr("width", "1")
+            .attr("height", "1")
             .attr("fill", "rgba(0, 0, 0, 0)")
-            .attr("stroke", "rgba(0, 0, 0, 0)")
+            .attr("stroke", "none")
         )
       }
 }

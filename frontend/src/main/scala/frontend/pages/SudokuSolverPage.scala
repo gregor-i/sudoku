@@ -71,6 +71,7 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
             }
           }
         )
+        .event("dblclick", Action(SudokuSolverState.board.modify(_.set(pos, None))))
 
   private def globalEventListener(node: Node)(implicit context: Context): Node = {
     val dim = context.local.board.dim
