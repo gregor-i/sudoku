@@ -1,3 +1,4 @@
 package object model {
-  type Id[A] = A
+  type SolvedSudokuBoard = SudokuBoard[Int]
+  type OpenSudokuBoard   = SudokuBoard[Option[Int]]
 }

@@ -2,12 +2,13 @@ package frontend.components
 
 import frontend.{Context, PageState}
 import model.{Dimensions, SudokuBoard}
+import model.OpenSudokuBoard
 import monocle.Lens
 import org.scalajs.dom.KeyboardEvent
 import snabbdom.{Node, Snabbdom}
 
 object SudokuInput {
-  def apply[S <: PageState](lens: Lens[S, SudokuBoard[Option]])(implicit context: Context[S]): Node = {
+  def apply[S <: PageState](lens: Lens[S, OpenSudokuBoard])(implicit context: Context[S]): Node = {
     val board = lens.get(context.local)
     val dim   = board.dim
 
@@ -61,7 +62,7 @@ object SudokuInput {
             .attr("stroke", "black")
       }
 
-  private def values(board: SudokuBoard[Option]): Node =
+  private def values(board: OpenSudokuBoard): Node =
     Node("g")
       .attr("id", "values")
       .child {
@@ -81,7 +82,7 @@ object SudokuInput {
           )
       }
 
-  private def interactionRects[S <: PageState](board: SudokuBoard[Option], lens: Lens[S, SudokuBoard[Option]])(
+  private def interactionRects[S <: PageState](board: OpenSudokuBoard, lens: Lens[S, OpenSudokuBoard])(
       implicit context: Context[S]
   ): Node =
     Node("g")

@@ -1,7 +1,7 @@
 package model
 
 object CalculateOptions {
-  def apply(board: SudokuBoard[Option], position: (Int, Int)): Seq[Int] = {
+  def apply(board: OpenSudokuBoard, position: (Int, Int)): Seq[Int] = {
     board.get(position._1, position._2) match {
       case Some(_) => Seq.empty
       case None =>

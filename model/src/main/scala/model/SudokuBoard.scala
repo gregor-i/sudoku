@@ -2,7 +2,7 @@ package model
 
 import scala.util.Try
 
-class SudokuBoard[F[_]](val dim: Dimensions, val data: Vector[F[Int]]) {
+class SudokuBoard[A](val dim: Dimensions, val data: Vector[A]) {
   import dim._
   require(boardSize == data.length, s"required size is ${boardSize}, but is actually ${data.length}")
 
@@ -14,26 +14,26 @@ class SudokuBoard[F[_]](val dim: Dimensions, val data: Vector[F[Int]]) {
     y * blockSize + x
   }
 
-  def get(x: Int, y: Int): F[Int] =
+  def get(x: Int, y: Int): A =
     data(toIndex(x, y))
 
-  def get(pos: (Int, Int)): F[Int] =
+  def get(pos: (Int, Int)): A =
     get(pos._1, pos._2)
 
-  def set(x: Int, y: Int, value: F[Int]): SudokuBoard[F] =
-    new SudokuBoard[F](dim, data.updated(toIndex(x, y), value))
+  def set(x: Int, y: Int, value: A): SudokuBoard[A] =
+    new SudokuBoard[A](dim, data.updated(toIndex(x, y), value))
 
-  def set(pos: (Int, Int), value: F[Int]): SudokuBoard[F] =
+  def set(pos: (Int, Int), value: A): SudokuBoard[A] =
     set(pos._1, pos._2, value)
 }
 
 object SudokuBoard {
-  def empty(dim: Dimensions): SudokuBoard[Option] =
-    new SudokuBoard[Option](dim, Vector.fill[Option[Int]](dim.blockSize * dim.blockSize)(None))
+  def empty(dim: Dimensions): OpenSudokuBoard =
+    new OpenSudokuBoard(dim, Vector.fill[Option[Int]](dim.blockSize * dim.blockSize)(None))
 
-  def fromString(dimensions: Dimensions)(string: String): Option[SudokuBoard[Option]] =
+  def fromString(dimensions: Dimensions)(string: String): Option[OpenSudokuBoard] =
     Try {
-      new SudokuBoard(
+      new OpenSudokuBoard(
         dimensions,
         string
           .split("\\s")

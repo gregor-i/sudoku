@@ -3,13 +3,13 @@ package frontend.pages
 import frontend.Router.{Path, QueryParameter}
 import frontend.components.{Button, ButtonList, Header, SudokuInput}
 import frontend.{GlobalState, Page, PageState}
-import model.{Dimensions, Solver, SudokuBoard}
+import model.{Dimensions, Solver, SudokuBoard, OpenSudokuBoard}
 import monocle.macros.Lenses
 import snabbdom.{Node, Snabbdom}
 
 @Lenses
 case class SudokuSolverState(
-    board: SudokuBoard[Option]
+    board: OpenSudokuBoard
 ) extends PageState
 
 object SudokuSolverPage extends Page[SudokuSolverState] {
