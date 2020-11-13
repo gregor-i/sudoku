@@ -20,6 +20,7 @@ object SudokuBoardSVG {
   private def grid(dim: Dimensions): Node =
     Node("g")
       .attr("id", "grid")
+      .style("pointer-events", "none")
       .child {
         for (column <- 0 to dim.blockSize; if column % dim.width != 0)
           yield Node("line")
@@ -60,6 +61,7 @@ object SudokuBoardSVG {
   private def values(board: OpenSudokuBoard): Node =
     Node("g")
       .attr("id", "values")
+      .style("pointer-events", "none")
       .child {
         for {
           pos   <- SudokuBoard.positions(board.dim)

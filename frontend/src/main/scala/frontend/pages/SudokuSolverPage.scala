@@ -1,19 +1,25 @@
 package frontend.pages
 
 import frontend.Router.{Path, QueryParameter}
-import frontend.components.{Button, ButtonList, Header, SudokuBoardSVG}
+import frontend.components.{Button, ButtonList, Header, InputNumberSVG, SudokuBoardSVG}
 import frontend.{GlobalState, Page, PageState}
 import model.{Dimensions, OpenSudokuBoard, Solver, SudokuBoard}
 import monocle.macros.Lenses
+import org.scalajs.dom
+import org.scalajs.dom.html.Element
+import org.scalajs.dom.raw.ClientRect
 import org.scalajs.dom.{KeyboardEvent, document}
+import org.w3c.dom.html.HTMLElement
 import snabbdom.{Node, Snabbdom}
 
 import scala.scalajs.js
+import scala.util.chaining._
 
 @Lenses
 case class SudokuSolverState(
     board: OpenSudokuBoard,
-    focus: (Int, Int)
+    focus: (Int, Int),
+    contextMenu: Option[((Int, Int), ClientRect)]
 ) extends PageState
 
 object SudokuSolverPage extends Page[SudokuSolverState] {
@@ -31,7 +37,7 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
         case _ =>
           SudokuBoard.empty(Dimensions(3, 3))
       }
-      SudokuSolverState(board, (0, 0))
+      SudokuSolverState(board, focus = (0, 0), contextMenu = None)
   }
 
   override def stateToUrl(state: State): Option[(Path, QueryParameter)] =
@@ -48,6 +54,7 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
       Node("div.no-scroll")
         .child(Header.renderHeader())
         .child(SudokuBoardSVG(context.local.board, Some(rectInteraction)).classes("grower"))
+        .childOptional(contextMenu())
         .child(solveButton())
     }
 
@@ -55,7 +62,15 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
     (pos, node) =>
       node
         .`class`("active", context.local.focus == pos)
-        .event("click", Action(SudokuSolverState.focus.set(pos)))
+        .event(
+          "click",
+          Snabbdom.event { event =>
+            if (context.local.board.get(pos).isEmpty) {
+              val bounding = event.currentTarget.asInstanceOf[Element].getBoundingClientRect()
+              context.update(SudokuSolverState.contextMenu.set(Some((pos, bounding)))(context.local))
+            }
+          }
+        )
 
   private def globalEventListener(node: Node)(implicit context: Context): Node = {
     val dim = context.local.board.dim
@@ -92,6 +107,47 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
       .hook("insert", hook)
       .hook("postpatch", hook)
   }
+
+  private def contextMenu()(implicit context: Context): Option[Node] =
+    context.local.contextMenu.map {
+      case (pos, clientRect) =>
+        Node("div")
+          .styles(
+            Seq(
+              "position" -> "absolute",
+              "left"     -> s"0",
+              "top"      -> s"0",
+              "right"    -> s"0",
+              "bottom"   -> s"0"
+            )
+          )
+          .event("click", Action(SudokuSolverState.contextMenu.set(None)))
+          .child {
+            InputNumberSVG(
+              context.local.board.dim,
+              interaction = Some { (value, node) =>
+                node.event(
+                  "click",
+                  Snabbdom.event(
+                    _ =>
+                      (SudokuSolverState.contextMenu.set(None) andThen
+                        SudokuSolverState.board.modify(_.set(pos, Some(value))))
+                        .apply(context.local)
+                        .pipe(context.update)
+                  )
+                )
+              }
+            ).styles(
+              Seq(
+                "position" -> "absolute",
+                "left"     -> s"${clientRect.left.toString}px",
+                "top"      -> s"${clientRect.top.toString}px",
+                "width"    -> s"${clientRect.width.toString}px",
+                "height"   -> s"${clientRect.height.toString}px"
+              )
+            )
+          }
+    }
 
   private def solveButton()(implicit context: Context): Node =
     ButtonList(
