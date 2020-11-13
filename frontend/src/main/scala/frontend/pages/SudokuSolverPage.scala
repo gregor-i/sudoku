@@ -140,11 +140,14 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
               }
             ).styles(
               Seq(
-                "position" -> "absolute",
-                "left"     -> s"${clientRect.left.toString}px",
-                "top"      -> s"${clientRect.top.toString}px",
-                "width"    -> s"${clientRect.width.toString}px",
-                "height"   -> s"${clientRect.height.toString}px"
+                "position"   -> "absolute",
+                "left"       -> s"${clientRect.left.toString}px",
+                "top"        -> s"${clientRect.top.toString}px",
+                "width"      -> s"${clientRect.width.toString}px",
+                "height"     -> s"${clientRect.height.toString}px",
+                "background" -> "white",
+                "transform"  -> "scale(2.5)",
+                "box-shadow" -> "2px 2px 3px 4px rgba(0,0,0,0.2)"
               )
             )
           }
