@@ -2,6 +2,7 @@ package frontend.pages
 
 import frontend.Router.{Path, QueryParameter}
 import frontend.components.{Button, ButtonList, Header, InputNumberSVG, SudokuBoardSVG}
+import frontend.toasts.{ToastType, Toasts}
 import frontend.{GlobalState, Page, PageState}
 import model.{Dimensions, OpenSudokuBoard, Solver, SudokuBoard}
 import monocle.macros.Lenses
@@ -12,6 +13,8 @@ import org.scalajs.dom.{KeyboardEvent, document}
 import org.w3c.dom.html.HTMLElement
 import snabbdom.{Node, Snabbdom}
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.scalajs.js
 import scala.util.chaining._
 
@@ -158,10 +161,19 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
       Button(
         "Solve",
         Snabbdom.event { _ =>
-          Solver(context.local.board) match {
-            case Seq(solution) => println(s"solution: ${solution.data}")
-            case Seq()         => println("no solution")
-            case _             => println("multiple solutions")
+          val process = Future {
+            Solver(context.local.board)
+              .take(2)
+              .toList
+          }
+
+          Toasts.futureToast("solving ...", process) {
+            case scala.util.Success(Seq(solution)) =>
+              context.update(SolvedSudokuState(solution))
+              (frontend.toasts.Success, "solved!")
+            case scala.util.Success(Seq()) => (frontend.toasts.Warning, "No solution found. Maybe some numbers are wrong?")
+            case scala.util.Success(_)     => (frontend.toasts.Warning, "Multiple solutions found. Maybe some numbers are missing?")
+            case scala.util.Failure(_)     => (frontend.toasts.Danger, "Something went wrong ...")
           }
         }
       )

@@ -1,7 +1,7 @@
 package frontend.components
 
-import model.{Dimensions, SudokuBoard}
-import model.OpenSudokuBoard
+import frontend.components
+import model.{Dimensions, OpenSudokuBoard, SolvedSudokuBoard, SudokuBoard}
 import snabbdom.Node
 
 object SudokuBoardSVG {
@@ -9,7 +9,7 @@ object SudokuBoardSVG {
   val strokeWidth = (1.0 / 20.0).toString
   val fontSize    = 0.8.toString
 
-  def apply(board: OpenSudokuBoard, interaction: Option[Interaction]): Node = {
+  def apply[S: DisplayValue](board: SudokuBoard[S], interaction: Option[Interaction]): Node = {
     val dim = board.dim
 
     Node("svg.sudoku-input")
@@ -64,14 +64,14 @@ object SudokuBoardSVG {
             .attr("stroke-width", strokeWidth)
       }
 
-  private def values(board: OpenSudokuBoard): Node =
+  private def values[S: DisplayValue](board: SudokuBoard[S]): Node =
     Node("g")
       .attr("id", "values")
       .style("pointer-events", "none")
       .child {
         for {
           pos   <- SudokuBoard.positions(board.dim)
-          value <- board.get(pos)
+          value <- implicitly[DisplayValue[S]].apply(board.get(pos))
         } yield Node("text")
           .attr("transform", s"translate(${pos._1} ${pos._2 * 1})")
           .attr("text-anchor", "middle")
@@ -82,11 +82,11 @@ object SudokuBoardSVG {
               .attr("y", "0.5")
               .attr("alignment-baseline", "central")
               .attr("fill", "currentColor")
-              .text(value.toString)
+              .text(value)
           )
       }
 
-  private def interactionRects(board: OpenSudokuBoard, interaction: Interaction): Node =
+  private def interactionRects(board: SudokuBoard[_], interaction: Interaction): Node =
     Node("g")
       .attr("id", "interactionRects")
       .child {
@@ -103,4 +103,13 @@ object SudokuBoardSVG {
             .attr("stroke", "none")
         )
       }
+}
+
+trait DisplayValue[S] {
+  def apply(s: S): Option[String]
+}
+
+object DisplayValue {
+  implicit val displayOptionInt: DisplayValue[Option[Int]] = _.map(_.toString)
+  implicit val displayInt: DisplayValue[Int]               = s => Some(s.toString)
 }
