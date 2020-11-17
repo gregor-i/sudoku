@@ -112,6 +112,7 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
   private def contextMenu()(implicit context: Context): Option[Node] =
     context.local.contextMenu.map {
       case (pos, clientRect) =>
+        val scale = 2.5
         Node("div")
           .styles(
             Seq(
@@ -141,12 +142,11 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
             ).styles(
               Seq(
                 "position"   -> "absolute",
-                "left"       -> s"${clientRect.left.toString}px",
-                "top"        -> s"${clientRect.top.toString}px",
-                "width"      -> s"${clientRect.width.toString}px",
-                "height"     -> s"${clientRect.height.toString}px",
+                "left"       -> s"min(calc(100vw - ${clientRect.width * scale}px), max(0px, ${clientRect.left - clientRect.width * (scale - 1.0) / 2.0}px))",
+                "top"        -> s"${clientRect.top - clientRect.height * (scale - 1.0) / 2.0}px",
+                "width"      -> s"${clientRect.width * scale}px",
+                "height"     -> s"${clientRect.height * scale}px",
                 "background" -> "white",
-                "transform"  -> "scale(2.5)",
                 "box-shadow" -> "2px 2px 3px 4px rgba(0,0,0,0.2)"
               )
             )
