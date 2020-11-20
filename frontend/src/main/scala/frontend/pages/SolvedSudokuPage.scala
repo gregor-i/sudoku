@@ -31,5 +31,5 @@ object SolvedSudokuPage extends Page[SolvedSudokuState] {
   override def render(implicit context: Context): Node =
     Node("div.no-scroll")
       .child(Header.renderHeader())
-      .child(SudokuBoardSVG(context.local.board, None).classes("grower"))
+      .child(SudokuBoardSVG(context.local.board.map(_.toString), None).classes("grower"))
 }

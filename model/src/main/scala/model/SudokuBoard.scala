@@ -14,6 +14,9 @@ class SudokuBoard[A](val dim: Dimensions, val data: Vector[A]) {
     y * blockSize + x
   }
 
+  def map[S](f: A => S): SudokuBoard[S] =
+    new SudokuBoard[S](dim, data.map(f))
+
   def get(x: Int, y: Int): A =
     data(toIndex(x, y))
 

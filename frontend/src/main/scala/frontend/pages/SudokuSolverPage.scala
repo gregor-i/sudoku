@@ -56,7 +56,7 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
     globalEventListener {
       Node("div.no-scroll")
         .child(Header.renderHeader())
-        .child(SudokuBoardSVG(context.local.board, Some(rectInteraction)).classes("grower"))
+        .child(SudokuBoardSVG(context.local.board.map(_.fold("")(_.toString)), Some(rectInteraction)).classes("grower"))
         .childOptional(contextMenu())
         .child(solveButton())
     }

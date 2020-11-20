@@ -1,7 +1,6 @@
 package frontend.components
 
-import frontend.components
-import model.{Dimensions, OpenSudokuBoard, SolvedSudokuBoard, SudokuBoard}
+import model.{Dimensions, SudokuBoard}
 import snabbdom.Node
 
 object SudokuBoardSVG {
@@ -9,7 +8,7 @@ object SudokuBoardSVG {
   val strokeWidth = (1.0 / 30.0)
   val fontSize    = 0.8.toString
 
-  def apply[S: DisplayValue](board: SudokuBoard[S], interaction: Option[Interaction]): Node = {
+  def apply(board: SudokuBoard[String], interaction: Option[Interaction]): Node = {
     val dim = board.dim
 
     Node("svg.sudoku-input")
@@ -65,14 +64,13 @@ object SudokuBoardSVG {
             .attr("stroke-linecap", "square")
       }
 
-  private def values[S: DisplayValue](board: SudokuBoard[S]): Node =
+  private def values(board: SudokuBoard[String]): Node =
     Node("g")
       .attr("id", "values")
       .style("pointer-events", "none")
       .child {
         for {
-          pos   <- SudokuBoard.positions(board.dim)
-          value <- implicitly[DisplayValue[S]].apply(board.get(pos))
+          pos <- SudokuBoard.positions(board.dim)
         } yield Node("text")
           .attr("transform", s"translate(${pos._1} ${pos._2 * 1})")
           .attr("text-anchor", "middle")
@@ -83,7 +81,7 @@ object SudokuBoardSVG {
               .attr("y", "0.5")
               .attr("alignment-baseline", "central")
               .attr("fill", "currentColor")
-              .text(value)
+              .text(board.get(pos))
           )
       }
 
@@ -104,13 +102,4 @@ object SudokuBoardSVG {
             .attr("stroke", "none")
         )
       }
-}
-
-trait DisplayValue[S] {
-  def apply(s: S): Option[String]
-}
-
-object DisplayValue {
-  implicit val displayOptionInt: DisplayValue[Option[Int]] = _.map(_.toString)
-  implicit val displayInt: DisplayValue[Int]               = s => Some(s.toString)
 }
