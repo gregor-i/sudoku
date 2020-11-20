@@ -1,28 +1,22 @@
 package frontend.pages
 
 import frontend.Router.{Path, QueryParameter}
-import frontend.components.{Button, ButtonList, Header, InputNumberSVG, SudokuBoardSVG}
-import frontend.toasts.{ToastType, Toasts}
+import frontend.components._
+import frontend.toasts.Toasts
 import frontend.{GlobalState, Page, PageState}
 import model.{Dimensions, OpenSudokuBoard, Solver, SudokuBoard}
 import monocle.macros.Lenses
-import org.scalajs.dom
-import org.scalajs.dom.html.Element
-import org.scalajs.dom.raw.ClientRect
 import org.scalajs.dom.{KeyboardEvent, document}
-import org.w3c.dom.html.HTMLElement
 import snabbdom.{Node, Snabbdom}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.scalajs.js
-import scala.util.chaining._
 
 @Lenses
 case class SudokuSolverState(
     board: OpenSudokuBoard,
-    focus: (Int, Int),
-    contextMenu: Option[((Int, Int), ClientRect)]
+    focus: Option[(Int, Int)]
 ) extends PageState
 
 object SudokuSolverPage extends Page[SudokuSolverState] {
@@ -40,7 +34,7 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
         case _ =>
           SudokuBoard.empty(Dimensions(3, 3))
       }
-      SudokuSolverState(board, focus = (0, 0), contextMenu = None)
+      SudokuSolverState(board, focus = None)
   }
 
   override def stateToUrl(state: State): Option[(Path, QueryParameter)] =
@@ -64,22 +58,19 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
   private def rectInteraction(implicit context: Context): SudokuBoardSVG.Interaction =
     (pos, node) =>
       node
-        .`class`("active", context.local.focus == pos)
         .event(
           "click",
-          Snabbdom.event { event =>
-            if (context.local.board.get(pos).isEmpty) {
-              val bounding = event.currentTarget.asInstanceOf[Element].getBoundingClientRect()
-              context.update(SudokuSolverState.contextMenu.set(Some((pos, bounding)))(context.local))
-            }
-          }
+          Action(SudokuSolverState.focus.set(Some(pos)))
         )
         .event("dblclick", Action(SudokuSolverState.board.modify(_.set(pos, None))))
 
   private def globalEventListener(node: Node)(implicit context: Context): Node = {
     val dim = context.local.board.dim
-    def setValue(pos: (Int, Int), value: Option[Int]) =
-      context.update(SudokuSolverState.board.modify(_.set(pos, value))(context.local))
+    def setValue(pos: (Int, Int), value: Option[Int]) = {
+      val clearFocus = SudokuSolverState.focus.set(None)
+      val set        = SudokuSolverState.board.modify(_.set(pos, value))
+      context.update((set andThen clearFocus).apply(context.local))
+    }
 
     def rotate(pos: (Int, Int)): (Int, Int) =
       (
@@ -87,7 +78,7 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
         (pos._2 + dim.blockSize) % dim.blockSize
       )
     def setFocus(pos: (Int, Int)) =
-      context.update(SudokuSolverState.focus.set(rotate(pos))(context.local))
+      context.update(SudokuSolverState.focus.set(Some(rotate(pos)))(context.local))
 
     object ValidNumber {
       def unapply(str: String): Option[Int] = str.toIntOption.filter(SudokuBoard.values(dim).contains)
@@ -96,14 +87,14 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
     val hook: js.Function0[Unit] = () =>
       document.body.onkeydown = (event: KeyboardEvent) => {
         (event.key, context.local.focus) match {
-          case ("Backspace", pos)     => setValue(pos, None)
-          case ("Delete", pos)        => setValue(pos, None)
-          case (ValidNumber(i), pos)  => setValue(pos, Some(i))
-          case ("ArrowUp", (x, y))    => setFocus(x, y - 1)
-          case ("ArrowDown", (x, y))  => setFocus(x, y + 1)
-          case ("ArrowLeft", (x, y))  => setFocus(x - 1, y)
-          case ("ArrowRight", (x, y)) => setFocus(x + 1, y)
-          case _                      => ()
+          case ("Backspace", Some(pos))     => setValue(pos, None)
+          case ("Delete", Some(pos))        => setValue(pos, None)
+          case (ValidNumber(i), Some(pos))  => setValue(pos, Some(i))
+          case ("ArrowUp", Some((x, y)))    => setFocus(x, y - 1)
+          case ("ArrowDown", Some((x, y)))  => setFocus(x, y + 1)
+          case ("ArrowLeft", Some((x, y)))  => setFocus(x - 1, y)
+          case ("ArrowRight", Some((x, y))) => setFocus(x + 1, y)
+          case _                            => ()
         }
       }
 
@@ -113,47 +104,45 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
   }
 
   private def contextMenu()(implicit context: Context): Option[Node] =
-    context.local.contextMenu.map {
-      case (pos, clientRect) =>
-        val scale = 2.5
-        Node("div")
-          .styles(
+    context.local.focus.map { pos =>
+      val scale      = 2.5
+      val clientRect = document.getElementById(s"cell_${pos._1}_${pos._2}").getBoundingClientRect()
+      Node("div")
+        .styles(
+          Seq(
+            "position"   -> "absolute",
+            "left"       -> s"0",
+            "top"        -> s"0",
+            "right"      -> s"0",
+            "bottom"     -> s"0",
+            "background" -> "rgba(0, 0, 0, 0.2)"
+          )
+        )
+        .event("click", Action(SudokuSolverState.focus.set(None)))
+        .child {
+          InputNumberSVG(
+            context.local.board.dim,
+            interaction = Some { (value, node) =>
+              node.event(
+                "click",
+                Action {
+                  SudokuSolverState.focus.set(None) andThen
+                    SudokuSolverState.board.modify(_.set(pos, Some(value)))
+                }
+              )
+            }
+          ).styles(
             Seq(
-              "position" -> "absolute",
-              "left"     -> s"0",
-              "top"      -> s"0",
-              "right"    -> s"0",
-              "bottom"   -> s"0"
+              "position"   -> "absolute",
+              "left"       -> s"min(calc(100vw - ${clientRect.width * scale}px), max(0px, ${clientRect.left - clientRect.width * (scale - 1.0) / 2.0}px))",
+              "top"        -> s"min(calc(100vh - ${clientRect.height * scale}px), max(0px, ${clientRect.top - clientRect.height * (scale - 1.0) / 2.0}px))",
+              "width"      -> s"${clientRect.width * scale}px",
+              "height"     -> s"${clientRect.height * scale}px",
+              "background" -> "white",
+              "box-shadow" -> "2px 2px 3px 4px rgba(0,0,0,0.2)"
             )
           )
-          .event("click", Action(SudokuSolverState.contextMenu.set(None)))
-          .child {
-            InputNumberSVG(
-              context.local.board.dim,
-              interaction = Some { (value, node) =>
-                node.event(
-                  "click",
-                  Snabbdom.event(
-                    _ =>
-                      (SudokuSolverState.contextMenu.set(None) andThen
-                        SudokuSolverState.board.modify(_.set(pos, Some(value))))
-                        .apply(context.local)
-                        .pipe(context.update)
-                  )
-                )
-              }
-            ).styles(
-              Seq(
-                "position"   -> "absolute",
-                "left"       -> s"min(calc(100vw - ${clientRect.width * scale}px), max(0px, ${clientRect.left - clientRect.width * (scale - 1.0) / 2.0}px))",
-                "top"        -> s"${clientRect.top - clientRect.height * (scale - 1.0) / 2.0}px",
-                "width"      -> s"${clientRect.width * scale}px",
-                "height"     -> s"${clientRect.height * scale}px",
-                "background" -> "white",
-                "box-shadow" -> "2px 2px 3px 4px rgba(0,0,0,0.2)"
-              )
-            )
-          }
+        }
     }
 
   private def solveButton()(implicit context: Context): Node =

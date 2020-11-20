@@ -94,6 +94,7 @@ object SudokuBoardSVG {
         } yield interaction(
           pos,
           Node("rect")
+            .attr("id", s"cell_${pos._1}_${pos._2}")
             .attr("x", pos._1.toString)
             .attr("y", pos._2.toString)
             .attr("width", "1")
