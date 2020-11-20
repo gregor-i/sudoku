@@ -164,7 +164,7 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
             case scala.util.Failure(_)     => (frontend.toasts.Danger, "Something went wrong ...")
           }
         }
-      ).classes("is-primary")
-    ).classes("m-2")
+      ).classes("is-primary", "mr-0")
+    ).classes("my-2")
 
 }
