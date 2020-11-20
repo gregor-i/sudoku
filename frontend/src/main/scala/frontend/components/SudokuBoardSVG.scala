@@ -6,7 +6,7 @@ import snabbdom.Node
 
 object SudokuBoardSVG {
   type Interaction = ((Int, Int), Node) => Node
-  val strokeWidth = (1.0 / 20.0).toString
+  val strokeWidth = (1.0 / 30.0)
   val fontSize    = 0.8.toString
 
   def apply[S: DisplayValue](board: SudokuBoard[S], interaction: Option[Interaction]): Node = {
@@ -14,7 +14,7 @@ object SudokuBoardSVG {
 
     Node("svg.sudoku-input")
       .attr("xmlns", "http://www.w3.org/2000/svg")
-      .attr("viewBox", s"0 0 ${dim.blockSize} ${dim.blockSize}")
+      .attr("viewBox", s"${-strokeWidth / 2} ${-strokeWidth / 2} ${dim.blockSize + strokeWidth} ${dim.blockSize + strokeWidth}")
       .childOptional(interaction.map(interactionRects(board, _)))
       .children(grid(dim), values(board))
   }
@@ -31,7 +31,7 @@ object SudokuBoardSVG {
             .attr("y1", "0")
             .attr("y2", dim.blockSize.toString)
             .attr("stroke", "lightgrey")
-            .attr("stroke-width", strokeWidth)
+            .attr("stroke-width", strokeWidth.toString)
       }
       .child {
         for (row <- 0 to dim.blockSize; if row % dim.height != 0)
@@ -41,7 +41,7 @@ object SudokuBoardSVG {
             .attr("y1", row.toString)
             .attr("y2", row.toString)
             .attr("stroke", "lightgrey")
-            .attr("stroke-width", strokeWidth)
+            .attr("stroke-width", strokeWidth.toString)
       }
       .child {
         for (column <- 0 to dim.blockSize by dim.width)
@@ -51,7 +51,7 @@ object SudokuBoardSVG {
             .attr("y1", "0")
             .attr("y2", dim.blockSize.toString)
             .attr("stroke", "black")
-            .attr("stroke-width", strokeWidth)
+            .attr("stroke-width", strokeWidth.toString)
       }
       .child {
         for (row <- 0 to dim.blockSize by dim.height)
@@ -61,7 +61,8 @@ object SudokuBoardSVG {
             .attr("y1", row.toString)
             .attr("y2", row.toString)
             .attr("stroke", "black")
-            .attr("stroke-width", strokeWidth)
+            .attr("stroke-width", strokeWidth.toString)
+            .attr("stroke-linecap", "square")
       }
 
   private def values[S: DisplayValue](board: SudokuBoard[S]): Node =
