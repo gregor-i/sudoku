@@ -11,7 +11,7 @@ object SudokuBoardSVG {
   def apply(board: SudokuBoard[String], interaction: Option[Interaction]): Node = {
     val dim = board.dim
 
-    Node("svg.sudoku-input")
+    Node("svg")
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .attr("viewBox", s"${-strokeWidth / 2} ${-strokeWidth / 2} ${dim.blockSize + strokeWidth} ${dim.blockSize + strokeWidth}")
       .childOptional(interaction.map(interactionRects(board, _)))

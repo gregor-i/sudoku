@@ -50,9 +50,14 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
     globalEventListener {
       Node("div.no-scroll")
         .child(Header.renderHeader())
-        .child(SudokuBoardSVG(context.local.board.map(_.fold("")(_.toString)), Some(rectInteraction)).classes("grower"))
-        .childOptional(contextMenu())
-        .child(solveButton())
+        .child(
+          Node("div.content-column.is-flex-grow-1")
+            .child(
+              SudokuBoardSVG(context.local.board.map(_.fold("")(_.toString)), Some(rectInteraction)).classes("is-flex-grow-1")
+            )
+            .childOptional(contextMenu())
+            .child(solveButton())
+        )
     }
 
   private def rectInteraction(implicit context: Context): SudokuBoardSVG.Interaction =
@@ -107,17 +112,9 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
     context.local.focus.map { pos =>
       val scale      = 2.5
       val clientRect = document.getElementById(s"cell_${pos._1}_${pos._2}").getBoundingClientRect()
-      Node("div")
-        .styles(
-          Seq(
-            "position"   -> "absolute",
-            "left"       -> s"0",
-            "top"        -> s"0",
-            "right"      -> s"0",
-            "bottom"     -> s"0",
-            "background" -> "rgba(0, 0, 0, 0.2)"
-          )
-        )
+      Node("div.is-overlay")
+        .style("background", "rgba(0, 0, 0, 0.2)")
+        .style("z-index", "1")
         .event("click", Action(SudokuSolverState.focus.set(None)))
         .child {
           InputNumberSVG(
@@ -147,8 +144,10 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
 
   private def solveButton()(implicit context: Context): Node =
     ButtonList(
+      Button("Clear", Icons.clear, Action(SudokuSolverState.board.modify(_.map(_ => None)))),
       Button(
         "Solve",
+        Icons.solve,
         Snabbdom.event { _ =>
           val process = Future {
             Solver(context.local.board)
@@ -165,7 +164,7 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
             case scala.util.Failure(_)     => (frontend.toasts.Danger, "Something went wrong ...")
           }
         }
-      )
-    )
+      ).classes("is-primary")
+    ).classes("m-2")
 
 }
