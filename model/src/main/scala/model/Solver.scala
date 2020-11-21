@@ -1,7 +1,6 @@
 package model
 
 object Solver {
-
   def apply(board: OpenSudokuBoard): LazyList[SolvedSudokuBoard] =
     if (Validate.noError(board))
       loop(board)
