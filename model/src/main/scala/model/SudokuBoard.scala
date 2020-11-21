@@ -55,9 +55,10 @@ object SudokuBoard {
       x <- 0 until dim.width
     } yield (x + (i % dim.height) * dim.width, y + (i / dim.height) * dim.height)
 
-  def rows(dim: Dimensions): Seq[Seq[(Int, Int)]]    = for (y <- 0 until dim.blockSize) yield row(y)(dim)
-  def columns(dim: Dimensions): Seq[Seq[(Int, Int)]] = for (x <- 0 until dim.blockSize) yield column(x)(dim)
-  def blocks(dim: Dimensions): Seq[Seq[(Int, Int)]]  = for (i <- 0 until dim.blockSize) yield block(i)(dim)
+  def rows(dim: Dimensions): Seq[Seq[(Int, Int)]]       = for (y <- 0 until dim.blockSize) yield row(y)(dim)
+  def columns(dim: Dimensions): Seq[Seq[(Int, Int)]]    = for (x <- 0 until dim.blockSize) yield column(x)(dim)
+  def blocks(dim: Dimensions): Seq[Seq[(Int, Int)]]     = for (i <- 0 until dim.blockSize) yield block(i)(dim)
+  def allSubsets(dim: Dimensions): Seq[Seq[(Int, Int)]] = rows(dim) ++ columns(dim) ++ blocks(dim)
 
   def rowOf(position: (Int, Int))(dim: Dimensions): Seq[(Int, Int)]    = row(position._2)(dim)
   def columnOf(position: (Int, Int))(dim: Dimensions): Seq[(Int, Int)] = column(position._1)(dim)

@@ -2,30 +2,32 @@ package model
 
 object Validate {
   def apply(board: OpenSudokuBoard): Option[SolvedSudokuBoard] =
-    if (board.data.flatten.length == board.dim.blockSize * board.dim.blockSize)
-      Some(new SolvedSudokuBoard(board.dim, board.data.flatten))
-        .filter(correct)
+    if (board.data.forall(_.isDefined))
+      Some(board.map(_.get)).filter(correct)
     else
       None
 
   def noError(board: OpenSudokuBoard): Boolean =
-    subsetNoError(board, SudokuBoard.columns(board.dim)) &&
-      subsetNoError(board, SudokuBoard.rows(board.dim)) &&
-      subsetNoError(board, SudokuBoard.blocks(board.dim))
-
-  def correct(board: SolvedSudokuBoard): Boolean =
-    subsetCompleted(board, SudokuBoard.columns(board.dim)) &&
-      subsetCompleted(board, SudokuBoard.rows(board.dim)) &&
-      subsetCompleted(board, SudokuBoard.blocks(board.dim))
-
-  private def subsetNoError(board: OpenSudokuBoard, subset: Seq[Seq[(Int, Int)]]): Boolean =
-    subset.forall { positions =>
-      val values = positions.flatMap { case (x, y) => board.get(x, y) }
+    SudokuBoard.allSubsets(board.dim).forall { positions =>
+      val values = positions.flatMap(board.get)
       values == values.distinct
     }
 
-  private def subsetCompleted(board: SolvedSudokuBoard, subset: Seq[Seq[(Int, Int)]]): Boolean =
-    subset.forall {
-      _.map { case (x, y) => board.get(x, y) }.sorted == SudokuBoard.values(board.dim)
+  def findErrors(board: OpenSudokuBoard): Set[(Int, Int)] =
+    (for {
+      subset <- SudokuBoard.allSubsets(board.dim)
+      errorValues = subset
+        .flatMap(board.get)
+        .groupBy(identity)
+        .collect {
+          case (key, values) if values.size > 1 => key
+        }
+        .toSet
+      errorPosition <- subset.filter(pos => board.get(pos).exists(errorValues.contains))
+    } yield errorPosition).toSet
+
+  def correct(board: SolvedSudokuBoard): Boolean =
+    SudokuBoard.allSubsets(board.dim).forall {
+      _.map(board.get).sorted == SudokuBoard.values(board.dim)
     }
 }
