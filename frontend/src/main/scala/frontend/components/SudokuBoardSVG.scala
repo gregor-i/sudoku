@@ -1,6 +1,6 @@
 package frontend.components
 
-import model.{Dimensions, SudokuBoard}
+import model.{Dimensions, SudokuBoard, Validate}
 import snabbdom.Node
 
 object SudokuBoardSVG {
@@ -8,14 +8,14 @@ object SudokuBoardSVG {
   val strokeWidth = (1.0 / 30.0)
   val fontSize    = 0.8.toString
 
-  def apply(board: SudokuBoard[String], interaction: Option[Interaction]): Node = {
+  def apply(board: SudokuBoard[String], errorPositions: Set[(Int, Int)], interaction: Option[Interaction]): Node = {
     val dim = board.dim
 
     Node("svg")
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .attr("viewBox", s"${-strokeWidth / 2} ${-strokeWidth / 2} ${dim.blockSize + strokeWidth} ${dim.blockSize + strokeWidth}")
       .childOptional(interaction.map(interactionRects(board, _)))
-      .children(grid(dim), values(board))
+      .children(grid(dim), values(board, errorPositions))
   }
 
   private def grid(dim: Dimensions): Node =
@@ -64,24 +64,28 @@ object SudokuBoardSVG {
             .attr("stroke-linecap", "square")
       }
 
-  private def values(board: SudokuBoard[String]): Node =
+  private def values(board: SudokuBoard[String], errorPositions: Set[(Int, Int)]): Node =
     Node("g")
       .attr("id", "values")
       .style("pointer-events", "none")
       .child {
         for {
           pos <- SudokuBoard.positions(board.dim)
+          value = board.get(pos)
+          if value != ""
+          isError = errorPositions.contains(pos)
         } yield Node("text")
           .attr("transform", s"translate(${pos._1} ${pos._2 * 1})")
           .attr("text-anchor", "middle")
           .attr("font-size", fontSize)
+          .style("color", if (isError) "red" else "black")
           .child(
             Node("tspan")
               .attr("x", "0.5")
               .attr("y", "0.5")
               .attr("alignment-baseline", "central")
               .attr("fill", "currentColor")
-              .text(board.get(pos))
+              .text(value)
           )
       }
 

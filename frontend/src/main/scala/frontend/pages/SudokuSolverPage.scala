@@ -4,7 +4,7 @@ import frontend.Router.{Path, QueryParameter}
 import frontend.components._
 import frontend.toasts.Toasts
 import frontend.{GlobalState, Page, PageState}
-import model.{Dimensions, OpenSudokuBoard, Solver, SudokuBoard}
+import model.{Dimensions, OpenSudokuBoard, Solver, SudokuBoard, Validate}
 import monocle.macros.Lenses
 import org.scalajs.dom.{KeyboardEvent, document}
 import snabbdom.{Node, Snabbdom}
@@ -46,19 +46,22 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
       )
     )
 
-  override def render(implicit context: Context): Node =
+  override def render(implicit context: Context): Node = {
+    val errorPositions   = Validate.findErrors(context.local.board)
+    val boardWithStrings = context.local.board.map(_.fold("")(_.toString))
     globalEventListener {
       Node("div.no-scroll")
         .child(Header.renderHeader())
         .child(
           Node("div.content-column.is-flex-grow-1")
             .child(
-              SudokuBoardSVG(context.local.board.map(_.fold("")(_.toString)), Some(rectInteraction)).classes("is-flex-grow-1")
+              SudokuBoardSVG(boardWithStrings, errorPositions, Some(rectInteraction)).classes("is-flex-grow-1")
             )
             .childOptional(contextMenu())
             .child(solveButton())
         )
     }
+  }
 
   private def rectInteraction(implicit context: Context): SudokuBoardSVG.Interaction =
     (pos, node) =>
