@@ -7,7 +7,8 @@ object Pages {
   val all: Seq[Page[_ <: PageState]] = Seq(
     ErrorPage,
     SudokuSolverPage,
-    SolvedSudokuPage
+    SolvedSudokuPage,
+    PuzzlePage
   )
 
   def selectPage[State <: PageState](nutriaState: State): Page[State] =

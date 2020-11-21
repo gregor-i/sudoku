@@ -3,8 +3,9 @@ package frontend.components
 import snabbdom.Node
 
 object Icons {
-  val solve = "fa-robot"
-  val clear = "fa-trash"
+  val solve    = "fa-robot"
+  val clear    = "fa-trash"
+  val generate = "fa-random"
 
   def icon(icon: String): Node =
     Node("span.icon")

@@ -3,6 +3,7 @@ package frontend.pages
 import frontend.Router.{Path, QueryParameter}
 import frontend.components._
 import frontend.toasts.Toasts
+import frontend.util.AsyncUtil
 import frontend.{GlobalState, Page, PageState}
 import model.{Dimensions, OpenSudokuBoard, Solver, SudokuBoard, Validate}
 import monocle.macros.Lenses
@@ -21,31 +22,14 @@ case class SudokuSolverState(
 
 object SudokuSolverPage extends Page[SudokuSolverState] {
   override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = {
-    case (_, "/", qp) if qp.get("page").contains("SudokuSolverPage") || qp.get("page").isEmpty =>
-      val width  = qp.get("width").flatMap(_.toIntOption)
-      val height = qp.get("height").flatMap(_.toIntOption)
-      val board = (width, height) match {
-        case (Some(width), Some(height)) =>
-          val dim = Dimensions(width, height)
-          qp.get("board")
-            .map(_.replaceAll(",", " "))
-            .flatMap(SudokuBoard.fromString(dim))
-            .getOrElse(SudokuBoard.empty(dim))
-        case _ =>
-          SudokuBoard.empty(Dimensions(3, 3))
-      }
+    case (_, "/", qp @ QPHelper.OpenSudoku(board)) if qp.get("page").contains("SudokuSolverPage") =>
       SudokuSolverState(board, focus = None)
+    case (_, "/", qp) if qp.isEmpty =>
+      SudokuSolverState(SudokuBoard.empty(Dimensions(3, 3)), focus = None)
   }
 
   override def stateToUrl(state: State): Option[(Path, QueryParameter)] =
-    Some(
-      "/" -> Map(
-        "page"   -> "SudokuSolverPage",
-        "width"  -> state.board.dim.width.toString,
-        "height" -> state.board.dim.height.toString,
-        "board"  -> state.board.data.map(_.fold("_")(_.toString)).mkString(",")
-      )
-    )
+    Some(("/", Map("page" -> "SudokuSolverPage") ++ QPHelper.OpenSudoku.toQP(state.board)))
 
   override def render(implicit context: Context): Node = {
     val errorPositions   = Validate.findErrors(context.local.board)
@@ -153,7 +137,7 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
         "Solve",
         Icons.solve,
         Snabbdom.event { _ =>
-          val process = Future {
+          val process = AsyncUtil.future {
             Solver(context.local.board)
               .take(2)
               .toList

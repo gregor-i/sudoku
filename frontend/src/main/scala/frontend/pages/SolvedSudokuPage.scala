@@ -13,31 +13,13 @@ case class SolvedSudokuState(
 ) extends PageState
 
 object SolvedSudokuPage extends Page[SolvedSudokuState] {
-  private object SolvedSudoku {
-    def unapply(qp: Map[String, String]): Option[SolvedSudokuBoard] =
-      for {
-        width  <- qp.get("width").flatMap(_.toIntOption)
-        height <- qp.get("height").flatMap(_.toIntOption)
-        dim = Dimensions(width, height)
-        board          <- qp.get("board").map(_.replaceAll(",", " ")).flatMap(SudokuBoard.fromString(dim))
-        validatedBoard <- Validate(board)
-      } yield validatedBoard
-  }
-
   override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = {
-    case (_, "/", qp @ SolvedSudoku(board)) if qp.get("page").contains("SolvedSudokuPage") =>
+    case (_, "/", qp @ QPHelper.SolvedSudoku(board)) if qp.get("page").contains("SolvedSudokuPage") =>
       SolvedSudokuState(board)
   }
 
   override def stateToUrl(state: State): Option[(Path, QueryParameter)] =
-    Some(
-      "/" -> Map(
-        "page"   -> "SolvedSudokuPage",
-        "width"  -> state.board.dim.width.toString,
-        "height" -> state.board.dim.height.toString,
-        "board"  -> state.board.data.map(_.toString).mkString(",")
-      )
-    )
+    Some(("/", Map("page" -> "SolvedSudokuPage") ++ QPHelper.SolvedSudoku.toQP(state.board)))
 
   override def render(implicit context: Context): Node =
     Node("div.no-scroll")

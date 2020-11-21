@@ -12,7 +12,7 @@ private sealed trait ToastState {
   def id: Int
 }
 private case class FireAndForgetToast(text: String, toastType: ToastType, id: Int) extends ToastState
-private case class FutureToast[A](progressText: String, progress: Future[A], onComplete: Try[A] => (ToastType, String), id: Int)
+private case class FutureToast[A](progressText: String, process: Future[A], onComplete: Try[A] => (ToastType, String), id: Int)
     extends ToastState {
   type State = A
 }
@@ -38,7 +38,7 @@ object Toasts {
             })
 
         case toast: FutureToast[_] =>
-          toast.progress.value match {
+          toast.process.value match {
             case Some(value) =>
               val (toastType, text) =
                 toast.asInstanceOf[FutureToast[toast.State]].onComplete(value.asInstanceOf[Try[toast.State]])
@@ -60,7 +60,7 @@ object Toasts {
               notification(Info, toast.progressText)
                 .key(toast.id)
                 .hook("insert", Snabbdom.hook { _ =>
-                  toast.progress.onComplete(_ => render())
+                  toast.process.onComplete(_ => render())
                   ()
                 })
           }
@@ -108,9 +108,9 @@ object Toasts {
     id
   }
 
-  def futureToast[A](progressText: String, progress: Future[A])(onComplete: Try[A] => (ToastType, String)): Unit = {
+  def futureToast[A](progressText: String, process: => Future[A])(onComplete: Try[A] => (ToastType, String)): Unit = {
     val id    = { counter += 1; counter }
-    val toast = FutureToast(progressText, progress, onComplete, id)
+    val toast = FutureToast(progressText, process, onComplete, id)
     toasts = toast :: toasts
     render()
   }
