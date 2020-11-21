@@ -21,7 +21,7 @@ case class SudokuSolverState(
 
 object SudokuSolverPage extends Page[SudokuSolverState] {
   override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = {
-    case (_, "/", qp) =>
+    case (_, "/", qp) if qp.get("page").contains("SudokuSolverPage") || qp.get("page").isEmpty =>
       val width  = qp.get("width").flatMap(_.toIntOption)
       val height = qp.get("height").flatMap(_.toIntOption)
       val board = (width, height) match {
@@ -40,6 +40,7 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
   override def stateToUrl(state: State): Option[(Path, QueryParameter)] =
     Some(
       "/" -> Map(
+        "page"   -> "SudokuSolverPage",
         "width"  -> state.board.dim.width.toString,
         "height" -> state.board.dim.height.toString,
         "board"  -> state.board.data.map(_.fold("_")(_.toString)).mkString(",")
@@ -58,7 +59,7 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
               SudokuBoardSVG(boardWithStrings, errorPositions, Some(rectInteraction)).classes("is-flex-grow-1")
             )
             .childOptional(contextMenu())
-            .child(solveButton())
+            .child(buttonBar())
         )
     }
   }
@@ -145,7 +146,7 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
         }
     }
 
-  private def solveButton()(implicit context: Context): Node =
+  private def buttonBar()(implicit context: Context): Node =
     ButtonList(
       Button("Clear", Icons.clear, Action(SudokuSolverState.board.modify(_.map(_ => None)))),
       Button(
