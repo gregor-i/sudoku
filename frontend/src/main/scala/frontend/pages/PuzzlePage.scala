@@ -1,16 +1,15 @@
 package frontend.pages
 
 import frontend.Router.{Path, QueryParameter}
-import frontend.components.{Button, ButtonList, Header, Icons, SudokuBoardSVG}
+import frontend.components._
 import frontend.toasts.Toasts
 import frontend.util.AsyncUtil
 import frontend.{GlobalState, Page, PageState}
-import model.{Dimensions, Generator, OpenSudokuBoard, SolvedSudokuBoard, Solver, SudokuBoard, Validate}
+import model.{Dimensions, Generator, OpenSudokuBoard, SudokuBoard}
 import monocle.macros.Lenses
 import snabbdom.{Node, Snabbdom}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import scala.util.Random
 
 @Lenses

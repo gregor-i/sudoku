@@ -2,12 +2,32 @@ package model
 
 import org.scalatest.funsuite.AnyFunSuite
 
+import scala.util.{Failure, Success, Try}
+
 class GeneratorTest extends AnyFunSuite {
-  test("apply constructs a puzzle with a unique solution") {
-    val dim   = Dimensions(3, 3)
-    val board = Generator(dim, 1)
-    assert(Solver(board).length == 1)
+  def generatorTest(seed: Int) = {
+    val dim = Dimensions(3, 3)
+
+    test(s"apply constructs a puzzle (dim = ${dim}, seed = ${seed})") {
+      Generator(dim, seed)
+    }
+
+    Try {
+      Generator(dim, seed)
+    } match {
+      case Failure(_) => ()
+      case Success(board) =>
+        test(s"the constructed board has a unique solution (dim = ${dim}, seed = ${seed})") {
+          assert(FPSolver(board).size == 1)
+        }
+    }
   }
+
+  generatorTest(1)
+  generatorTest(2)
+  generatorTest(50)
+  generatorTest(1564)
+  generatorTest(-1564)
 
   test("initialBoard") {
     val dim = Dimensions(3, 3)

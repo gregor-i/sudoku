@@ -5,13 +5,12 @@ import frontend.components._
 import frontend.toasts.Toasts
 import frontend.util.AsyncUtil
 import frontend.{GlobalState, Page, PageState}
-import model.{Dimensions, OpenSudokuBoard, Solver, SudokuBoard, Validate}
+import model._
 import monocle.macros.Lenses
 import org.scalajs.dom.{KeyboardEvent, document}
 import snabbdom.{Node, Snabbdom}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import scala.scalajs.js
 
 @Lenses

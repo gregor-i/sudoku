@@ -4,7 +4,7 @@ import scala.util.Random
 import scala.util.chaining._
 
 object Generator {
-  type Permutation = ((Int, Int), (Int, Int))
+  private type Permutation = (Position, Position)
 
   def apply(dim: Dimensions, seed: Int): OpenSudokuBoard = {
     val random = new Random(seed)

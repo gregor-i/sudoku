@@ -2,7 +2,7 @@ package model
 
 import scala.util.Try
 
-class SudokuBoard[A](val dim: Dimensions, val data: Vector[A]) {
+case class SudokuBoard[A](dim: Dimensions, data: Vector[A]) {
   import dim._
   require(boardSize == data.length, s"required size is ${boardSize}, but is actually ${data.length}")
 
@@ -21,13 +21,16 @@ class SudokuBoard[A](val dim: Dimensions, val data: Vector[A]) {
     data(toIndex(x, y))
 
   def get(pos: (Int, Int)): A =
-    get(pos._1, pos._2)
+    data(toIndex(pos._1, pos._2))
 
   def set(x: Int, y: Int, value: A): SudokuBoard[A] =
     new SudokuBoard[A](dim, data.updated(toIndex(x, y), value))
 
   def set(pos: (Int, Int), value: A): SudokuBoard[A] =
-    set(pos._1, pos._2, value)
+    new SudokuBoard[A](dim, data.updated(toIndex(pos._1, pos._2), value))
+
+  def mod(pos: (Int, Int), f: A => A): SudokuBoard[A] =
+    set(pos, f(get(pos)))
 }
 
 object SudokuBoard {

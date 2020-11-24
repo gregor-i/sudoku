@@ -3,7 +3,7 @@ package model
 import model.BoardExamples.hardExample
 import org.scalatest.funsuite.AnyFunSuite
 
-class SolverTest extends AnyFunSuite {
+class FPSolverTest extends AnyFunSuite {
   test("example 2x2") {
     val Some(board) = SudokuBoard.fromString(Dimensions(2, 2)) {
       """_ 2 4 _
@@ -13,10 +13,8 @@ class SolverTest extends AnyFunSuite {
         |""".stripMargin
     }
 
-    val solutions = Solver(board)
-    val solution  = solutions.head
-    assert(Validate.correct(solution))
-    assert(solutions.sizeCompare(1) == 0)
+    val solved = FPSolver(board)
+    assert(solved.length == 1)
   }
 
   test("example 2x3") {
@@ -30,10 +28,8 @@ class SolverTest extends AnyFunSuite {
         |""".stripMargin
     }
 
-    val solutions = Solver(board)
-    val solution  = solutions.head
-    assert(Validate.correct(solution))
-    assert(solutions.sizeCompare(1) == 0)
+    val solved = FPSolver(board)
+    assert(solved.length == 1)
   }
 
   test("example 3x2") {
@@ -47,16 +43,12 @@ class SolverTest extends AnyFunSuite {
         |""".stripMargin
     }
 
-    val solutions = Solver(board)
-    val solution  = solutions.head
-    assert(Validate.correct(solution))
-    assert(solutions.sizeCompare(1) == 0)
+    val solved = FPSolver(board)
+    assert(solved.length == 1)
   }
 
   test("hard example 3x3") {
-    val solutions = Solver(hardExample)
-    val solution  = solutions.head
-    assert(Validate.correct(solution))
-    assert(solutions.sizeCompare(1) == 0)
+    val solved = FPSolver(hardExample)
+    assert(solved.length == 1)
   }
 }
