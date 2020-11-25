@@ -13,18 +13,18 @@ object Validate {
       values == values.distinct
     }
 
-  def findErrors(board: OpenSudokuBoard): Set[(Int, Int)] =
+  def findMistakes(board: OpenSudokuBoard): Set[(Int, Int)] =
     (for {
       subset <- SudokuBoard.allSubsets(board.dim)
-      errorValues = subset
+      mistakeValues = subset
         .flatMap(board.get)
         .groupBy(identity)
         .collect {
           case (key, values) if values.size > 1 => key
         }
         .toSet
-      errorPosition <- subset.filter(pos => board.get(pos).exists(errorValues.contains))
-    } yield errorPosition).toSet
+      mistakePosition <- subset.filter(pos => board.get(pos).exists(mistakeValues.contains))
+    } yield mistakePosition).toSet
 
   def correct(board: SolvedSudokuBoard): Boolean =
     SudokuBoard.allSubsets(board.dim).forall {

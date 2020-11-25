@@ -12,6 +12,7 @@ import snabbdom.{Node, Snabbdom}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
+import scala.util.chaining.scalaUtilChainingOps
 
 @Lenses
 case class SolverState(
@@ -36,20 +37,29 @@ object SudokuSolverPage extends Page[SolverState] {
     Some(("/", Map("page" -> "SudokuSolverPage") ++ QPHelper.OpenSudoku.toQP(state.board)))
 
   override def render(implicit context: Context): Node = {
-    val errorPositions   = Validate.findErrors(context.local.board)
-    val boardWithStrings = context.local.board.map(_.fold("")(_.toString))
-    globalEventListener {
-      Node("div.no-scroll")
-        .child(Header.renderHeader())
-        .child(
-          Node("div.content-column.is-flex-grow-1")
-            .child(
-              SudokuBoardSVG(boardWithStrings, errorPositions, Some(rectInteraction)).classes("is-flex-grow-1")
-            )
-            .childOptional(contextMenu())
-            .child(buttonBar())
+    val decoratedBoard = DecoratedBoard(context.local.board)
+    Node("div.no-scroll")
+      .child(Header.renderHeader())
+      .child(
+        Node("div.content-column.is-flex-grow-1")
+          .child(
+            SudokuBoardSVG(decoratedBoard, Some(rectInteraction)).classes("is-flex-grow-1")
+          )
+          .childOptional(contextMenu())
+          .child(buttonBar())
+      )
+      .pipe(
+        InputContextMenu.globalEventListener(
+          dim = context.local.board.dim,
+          focus = context.local.focus,
+          setValue = (pos, value) => {
+            val clearFocus = SolverState.focus.set(None)
+            val set        = SolverState.board.modify(_.set(pos, value))
+            context.update((set andThen clearFocus).apply(context.local))
+          },
+          setFocus = pos => context.update(SolverState.focus.set(Some(pos))(context.local))
         )
-    }
+      )
   }
 
   private def rectInteraction(implicit context: Context): SudokuBoardSVG.Interaction =
@@ -60,45 +70,6 @@ object SudokuSolverPage extends Page[SolverState] {
           Action(SolverState.focus.set(Some(pos)))
         )
         .event("dblclick", Action(SolverState.board.modify(_.set(pos, None))))
-
-  private def globalEventListener(node: Node)(implicit context: Context): Node = {
-    val dim = context.local.board.dim
-    def setValue(pos: (Int, Int), value: Option[Int]) = {
-      val clearFocus = SolverState.focus.set(None)
-      val set        = SolverState.board.modify(_.set(pos, value))
-      context.update((set andThen clearFocus).apply(context.local))
-    }
-
-    def rotate(pos: (Int, Int)): (Int, Int) =
-      (
-        (pos._1 + dim.blockSize) % dim.blockSize,
-        (pos._2 + dim.blockSize) % dim.blockSize
-      )
-    def setFocus(pos: (Int, Int)) =
-      context.update(SolverState.focus.set(Some(rotate(pos)))(context.local))
-
-    object ValidNumber {
-      def unapply(str: String): Option[Int] = str.toIntOption.filter(SudokuBoard.values(dim).contains)
-    }
-
-    val hook: js.Function0[Unit] = () =>
-      document.body.onkeydown = (event: KeyboardEvent) => {
-        (event.key, context.local.focus) match {
-          case ("Backspace", Some(pos))     => setValue(pos, None)
-          case ("Delete", Some(pos))        => setValue(pos, None)
-          case (ValidNumber(i), Some(pos))  => setValue(pos, Some(i))
-          case ("ArrowUp", Some((x, y)))    => setFocus(x, y - 1)
-          case ("ArrowDown", Some((x, y)))  => setFocus(x, y + 1)
-          case ("ArrowLeft", Some((x, y)))  => setFocus(x - 1, y)
-          case ("ArrowRight", Some((x, y))) => setFocus(x + 1, y)
-          case _                            => ()
-        }
-      }
-
-    node
-      .hook("insert", hook)
-      .hook("postpatch", hook)
-  }
 
   private def contextMenu()(implicit context: Context): Option[Node] =
     context.local.focus.map { pos =>

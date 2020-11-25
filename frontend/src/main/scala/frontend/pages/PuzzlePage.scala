@@ -5,7 +5,7 @@ import frontend.components._
 import frontend.toasts.Toasts
 import frontend.util.AsyncUtil
 import frontend.{GlobalState, Page, PageState}
-import model.{Dimensions, Generator, OpenSudokuBoard, Position}
+import model.{DecoratedBoard, DecoratedCell, Dimensions, Generator, OpenSudokuBoard, Position, SudokuBoard}
 import monocle.macros.Lenses
 import org.scalajs.dom.document
 import snabbdom.{Node, Snabbdom}
@@ -13,18 +13,22 @@ import snabbdom.{Node, Snabbdom}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.Random
+import scala.util.chaining.scalaUtilChainingOps
 
 @Lenses
 case class PuzzleState(
     seed: Int,
-    generatedBoard: OpenSudokuBoard,
+    generatedBoard: SudokuBoard[DecoratedCell],
     focus: Option[Position]
 ) extends PageState
 
 object PuzzleState {
   def process(seed: Int): Future[PuzzleState] =
     AsyncUtil.future {
-      val generatedBoard = Generator(Dimensions(3, 3), seed)
+      val generatedBoard = Generator(Dimensions(3, 3), seed).map[DecoratedCell] {
+        case None        => DecoratedCell.Empty
+        case Some(value) => DecoratedCell.Given(value)
+      }
       PuzzleState(
         seed = seed,
         generatedBoard = generatedBoard,
@@ -43,7 +47,8 @@ object PuzzlePage extends Page[PuzzleState] {
   }
 
   override def stateToUrl(state: State): Option[(Path, QueryParameter)] =
-    Some(("/", Map("page" -> "PuzzlePage", "seed" -> state.seed.toString) ++ QPHelper.OpenSudoku.toQP(state.generatedBoard)))
+    Some(("/", Map("page" -> "PuzzlePage", "seed" -> state.seed.toString)))
+//  ++ QPHelper.OpenSudoku.toQP(state.generatedBoard)
 
   override def render(implicit context: Context): Node =
     Node("div.no-scroll")
@@ -52,14 +57,25 @@ object PuzzlePage extends Page[PuzzleState] {
         Node("div.content-column.is-flex-grow-1")
           .child(
             SudokuBoardSVG(
-              board = context.local.generatedBoard.map(_.fold("")(_.toString)),
-              errorPositions = Set.empty,
+              board = DecoratedBoard.markMistakes(context.local.generatedBoard),
               interaction = Some((pos, node) => node.event("click", Action(PuzzleState.focus.set(Some(pos)))))
             ).classes("is-flex-grow-1")
           )
           .child(buttonBar())
       )
       .child(contextMenu())
+      .pipe(
+        InputContextMenu.globalEventListener(
+          dim = context.local.generatedBoard.dim,
+          focus = context.local.focus,
+          setValue = (pos, value) => {
+            val clearFocus = PuzzleState.focus.set(None)
+            val set        = PuzzleState.generatedBoard.modify(_.set(pos, DecoratedCell.maybeInput(value)))
+            context.update((set andThen clearFocus).apply(context.local))
+          },
+          setFocus = pos => context.update(PuzzleState.focus.set(Some(pos))(context.local))
+        )
+      )
 
   private def buttonBar()(implicit context: Context): Node =
     ButtonList(
@@ -85,7 +101,8 @@ object PuzzlePage extends Page[PuzzleState] {
         setFocus = pos => context.update(PuzzleState.focus.set(pos)(context.local)),
         setValue = value =>
           context.update(
-            PuzzleState.focus.set(None) andThen PuzzleState.generatedBoard.modify(_.set(pos, value)) apply context.local
+            PuzzleState.focus.set(None) andThen PuzzleState.generatedBoard
+              .modify(_.set(pos, DecoratedCell.maybeInput(value))) apply context.local
           )
       )
     }

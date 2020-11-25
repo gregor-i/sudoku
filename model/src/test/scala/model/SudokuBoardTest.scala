@@ -112,4 +112,10 @@ class SudokuBoardTest extends AnyFunSuite {
         assert(SudokuBoard.blockOf(pos)(dim) == block)
       }
     }
+
+  test("mapWithPosition") {
+    val positionsBoard = SudokuBoard.empty(Dimensions(3, 3)).mapWithPosition((_, pos) => pos)
+    for (position <- SudokuBoard.positions(positionsBoard.dim))
+      assert(positionsBoard.get(position) == position)
+  }
 }

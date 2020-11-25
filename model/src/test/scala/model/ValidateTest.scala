@@ -16,19 +16,19 @@ class ValidateTest extends AnyFunSuite {
 
   test("apply constructs a SudokuBoard[Id] if the board is complete and correct") {
     assert(Validate.noError(completedBoard))
-    assert(Validate.findErrors(completedBoard) == Set.empty)
+    assert(Validate.findMistakes(completedBoard) == Set.empty)
     assert(Validate(completedBoard).isDefined)
   }
 
   test("findErrors finds positions with errors") {
     assert(!Validate.noError(boardErrorBlock))
-    assert(Validate.findErrors(boardErrorBlock) == Set((0, 0), (1, 1)))
+    assert(Validate.findMistakes(boardErrorBlock) == Set((0, 0), (1, 1)))
 
     assert(!Validate.noError(boardErrorRow))
-    assert(Validate.findErrors(boardErrorRow) == Set((0, 0), (3, 0)))
+    assert(Validate.findMistakes(boardErrorRow) == Set((0, 0), (3, 0)))
 
     assert(!Validate.noError(boardErrorColumn))
-    assert(Validate.findErrors(boardErrorColumn) == Set((0, 0), (0, 2)))
+    assert(Validate.findMistakes(boardErrorColumn) == Set((0, 0), (0, 2)))
   }
 
   test(s"empty boards are always valid") {

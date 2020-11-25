@@ -17,6 +17,14 @@ case class SudokuBoard[A](dim: Dimensions, data: Vector[A]) {
   def map[S](f: A => S): SudokuBoard[S] =
     new SudokuBoard[S](dim, data.map(f))
 
+  def mapWithPosition[S](f: (A, Position) => S): SudokuBoard[S] =
+    SudokuBoard[S](dim, data.zipWithIndex.map {
+      case (a, index) =>
+        val x = index % dim.blockSize
+        val y = index / dim.blockSize
+        f(a, (x, y))
+    })
+
   def get(x: Int, y: Int): A =
     data(toIndex(x, y))
 

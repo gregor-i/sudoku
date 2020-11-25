@@ -3,7 +3,7 @@ package frontend.pages
 import frontend.Router.{Path, QueryParameter}
 import frontend.components._
 import frontend.{GlobalState, Page, PageState}
-import model.{SolvedSudokuBoard, SudokuBoard}
+import model.{DecoratedCell, SolvedSudokuBoard, SudokuBoard}
 import monocle.macros.Lenses
 import snabbdom.{Node, Snabbdom}
 
@@ -27,7 +27,7 @@ object SolvedSudokuPage extends Page[SolvedSudokuState] {
       .child(
         Node("div.content-column.is-flex-grow-1")
           .child(
-            SudokuBoardSVG(context.local.board.map(_.toString), Set.empty, None).classes("is-flex-grow-1")
+            SudokuBoardSVG(context.local.board.map(DecoratedCell.Input), None).classes("is-flex-grow-1")
           )
           .child(buttonBar())
       )

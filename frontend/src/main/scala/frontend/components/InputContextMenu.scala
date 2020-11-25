@@ -2,9 +2,11 @@ package frontend.components
 
 import frontend.pages.SudokuSolverPage.Context
 import frontend.pages.{Action, SolverState}
-import model.{Dimensions, Position}
-import org.scalajs.dom.{Element, document}
+import model.{Dimensions, Position, SudokuBoard}
+import org.scalajs.dom.{Element, KeyboardEvent, document}
 import snabbdom.{Node, Snabbdom}
+
+import scala.scalajs.js
 
 object InputContextMenu {
   def apply(
@@ -38,5 +40,42 @@ object InputContextMenu {
         )
 
       }
+  }
+
+  def globalEventListener(
+      dim: Dimensions,
+      focus: Option[Position],
+      setValue: (Position, Option[Int]) => Unit,
+      setFocus: Position => Unit
+  )(
+      node: Node
+  ): Node = {
+    def rotate(x: Int, y: Int): (Int, Int) =
+      (
+        (x + dim.blockSize) % dim.blockSize,
+        (y + dim.blockSize) % dim.blockSize
+      )
+
+    object ValidNumber {
+      def unapply(str: String): Option[Int] = str.toIntOption.filter(SudokuBoard.values(dim).contains)
+    }
+
+    val hook: js.Function0[Unit] = () =>
+      document.body.onkeydown = (event: KeyboardEvent) => {
+        (event.key, focus) match {
+          case ("Backspace", Some(focus))    => setValue(focus, None)
+          case ("Delete", Some(focus))       => setValue(focus, None)
+          case (ValidNumber(i), Some(focus)) => setValue(focus, Some(i))
+          case ("ArrowUp", Some((x, y)))     => setFocus(rotate(x, y - 1))
+          case ("ArrowDown", Some((x, y)))   => setFocus(rotate(x, y + 1))
+          case ("ArrowLeft", Some((x, y)))   => setFocus(rotate(x - 1, y))
+          case ("ArrowRight", Some((x, y)))  => setFocus(rotate(x + 1, y))
+          case _                             => ()
+        }
+      }
+
+    node
+      .hook("insert", hook)
+      .hook("postpatch", hook)
   }
 }
