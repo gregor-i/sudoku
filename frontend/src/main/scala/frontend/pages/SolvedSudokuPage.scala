@@ -1,9 +1,9 @@
 package frontend.pages
 
 import frontend.Router.{Path, QueryParameter}
-import frontend.components.{Button, ButtonList, Header, Icons, SudokuBoardSVG}
+import frontend.components._
 import frontend.{GlobalState, Page, PageState}
-import model.{Dimensions, SolvedSudokuBoard, SudokuBoard, Validate}
+import model.{SolvedSudokuBoard, SudokuBoard}
 import monocle.macros.Lenses
 import snabbdom.{Node, Snabbdom}
 
@@ -37,7 +37,7 @@ object SolvedSudokuPage extends Page[SolvedSudokuState] {
       Button(
         "Clear",
         Icons.clear,
-        Snabbdom.event(_ => context.update(SudokuSolverState(SudokuBoard.empty(context.local.board.dim), None)))
+        Snabbdom.event(_ => context.update(SolverState(SudokuBoard.empty(context.local.board.dim), None)))
       ).classes("is-primary", "mr-0")
     ).classes("my-2")
 }

@@ -1,10 +1,10 @@
 package frontend.components
 
-import model.{Dimensions, SudokuBoard, Validate}
+import model.{Dimensions, Position, SudokuBoard, Validate}
 import snabbdom.Node
 
 object SudokuBoardSVG {
-  type Interaction = ((Int, Int), Node) => Node
+  type Interaction = (Position, Node) => Node
   val strokeWidth = (1.0 / 30.0)
   val fontSize    = 0.8.toString
 

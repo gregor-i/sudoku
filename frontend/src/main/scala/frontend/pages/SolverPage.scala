@@ -14,22 +14,22 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 
 @Lenses
-case class SudokuSolverState(
+case class SolverState(
     board: OpenSudokuBoard,
-    focus: Option[(Int, Int)]
+    focus: Option[Position]
 ) extends PageState
 
-object SudokuSolverState {
-  def empty(): SudokuSolverState = SudokuSolverState(
+object SolverState {
+  def empty(): SolverState = SolverState(
     board = SudokuBoard.empty(Dimensions(3, 3)),
     focus = None
   )
 }
 
-object SudokuSolverPage extends Page[SudokuSolverState] {
+object SudokuSolverPage extends Page[SolverState] {
   override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = {
     case (_, "/", qp @ QPHelper.OpenSudoku(board)) if qp.get("page").contains("SudokuSolverPage") =>
-      SudokuSolverState(board, focus = None)
+      SolverState(board, focus = None)
   }
 
   override def stateToUrl(state: State): Option[(Path, QueryParameter)] =
@@ -57,15 +57,15 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
       node
         .event(
           "click",
-          Action(SudokuSolverState.focus.set(Some(pos)))
+          Action(SolverState.focus.set(Some(pos)))
         )
-        .event("dblclick", Action(SudokuSolverState.board.modify(_.set(pos, None))))
+        .event("dblclick", Action(SolverState.board.modify(_.set(pos, None))))
 
   private def globalEventListener(node: Node)(implicit context: Context): Node = {
     val dim = context.local.board.dim
     def setValue(pos: (Int, Int), value: Option[Int]) = {
-      val clearFocus = SudokuSolverState.focus.set(None)
-      val set        = SudokuSolverState.board.modify(_.set(pos, value))
+      val clearFocus = SolverState.focus.set(None)
+      val set        = SolverState.board.modify(_.set(pos, value))
       context.update((set andThen clearFocus).apply(context.local))
     }
 
@@ -75,7 +75,7 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
         (pos._2 + dim.blockSize) % dim.blockSize
       )
     def setFocus(pos: (Int, Int)) =
-      context.update(SudokuSolverState.focus.set(Some(rotate(pos)))(context.local))
+      context.update(SolverState.focus.set(Some(rotate(pos)))(context.local))
 
     object ValidNumber {
       def unapply(str: String): Option[Int] = str.toIntOption.filter(SudokuBoard.values(dim).contains)
@@ -102,41 +102,18 @@ object SudokuSolverPage extends Page[SudokuSolverState] {
 
   private def contextMenu()(implicit context: Context): Option[Node] =
     context.local.focus.map { pos =>
-      val scale      = 2.5
-      val clientRect = document.getElementById(s"cell_${pos._1}_${pos._2}").getBoundingClientRect()
-      Node("div.is-overlay")
-        .style("background", "rgba(0, 0, 0, 0.2)")
-        .style("z-index", "1")
-        .event("click", Action(SudokuSolverState.focus.set(None)))
-        .child {
-          InputNumberSVG(
-            context.local.board.dim,
-            interaction = Some { (value, node) =>
-              node.event(
-                "click",
-                Action {
-                  SudokuSolverState.focus.set(None) andThen
-                    SudokuSolverState.board.modify(_.set(pos, Some(value)))
-                }
-              )
-            }
-          ).styles(
-            Seq(
-              "position"   -> "absolute",
-              "left"       -> s"min(calc(100vw - ${clientRect.width * scale}px), max(0px, ${clientRect.left - clientRect.width * (scale - 1.0) / 2.0}px))",
-              "top"        -> s"min(calc(100vh - ${clientRect.height * scale}px), max(0px, ${clientRect.top - clientRect.height * (scale - 1.0) / 2.0}px))",
-              "width"      -> s"${clientRect.width * scale}px",
-              "height"     -> s"${clientRect.height * scale}px",
-              "background" -> "white",
-              "box-shadow" -> "2px 2px 3px 4px rgba(0,0,0,0.2)"
-            )
-          )
-        }
+      InputContextMenu(
+        dim = context.local.board.dim,
+        reference = document.getElementById(s"cell_${pos._1}_${pos._2}"),
+        setFocus = pos => context.update(SolverState.focus.set(pos)(context.local)),
+        setValue = value =>
+          context.update(SolverState.focus.set(None) andThen SolverState.board.modify(_.set(pos, value)) apply context.local)
+      )
     }
 
   private def buttonBar()(implicit context: Context): Node =
     ButtonList(
-      Button("Clear", Icons.clear, Action(SudokuSolverState.board.modify(_.map(_ => None)))),
+      Button("Clear", Icons.clear, Action(SolverState.board.modify(_.map(_ => None)))),
       Button(
         "Solve",
         Icons.solve,

@@ -1,6 +1,6 @@
 package frontend.pages
 
-import model.{Dimensions, OpenSudokuBoard, SolvedSudokuBoard, SudokuBoard, Validate}
+import model._
 
 object QPHelper {
   object OpenSudoku {

@@ -6,10 +6,9 @@ import frontend.{Page, PageState}
 import monocle.macros.Lenses
 import snabbdom._
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 @Lenses
 case class LoadingState(process: Future[PageState]) extends PageState
