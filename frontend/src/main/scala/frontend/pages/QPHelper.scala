@@ -3,6 +3,14 @@ package frontend.pages
 import model._
 
 object QPHelper {
+  object Dimensions {
+    def unapply(qp: Map[String, String]): Option[Dimensions] =
+      for {
+        width  <- qp.get("width").flatMap(_.toIntOption)
+        height <- qp.get("height").flatMap(_.toIntOption)
+      } yield model.Dimensions(width, height)
+  }
+
   object OpenSudoku {
     def toQP(board: OpenSudokuBoard): Map[String, String] =
       Map(
@@ -15,7 +23,7 @@ object QPHelper {
       for {
         width  <- qp.get("width").flatMap(_.toIntOption)
         height <- qp.get("height").flatMap(_.toIntOption)
-        dim = Dimensions(width, height)
+        dim = model.Dimensions(width, height)
         board <- qp.get("board").map(_.replaceAll(",", " ")).flatMap(SudokuBoard.fromString(dim))
       } yield board
   }
@@ -32,7 +40,7 @@ object QPHelper {
       for {
         width  <- qp.get("width").flatMap(_.toIntOption)
         height <- qp.get("height").flatMap(_.toIntOption)
-        dim = Dimensions(width, height)
+        dim = model.Dimensions(width, height)
         board          <- qp.get("board").map(_.replaceAll(",", " ")).flatMap(SudokuBoard.fromString(dim))
         validatedBoard <- Validate(board)
       } yield validatedBoard

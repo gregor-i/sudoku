@@ -13,13 +13,8 @@ case class SolvedSudokuState(
 ) extends PageState
 
 object SolvedSudokuPage extends Page[SolvedSudokuState] {
-  override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = {
-    case (_, "/", qp @ QPHelper.SolvedSudoku(board)) if qp.get("page").contains("SolvedSudokuPage") =>
-      SolvedSudokuState(board)
-  }
-
-  override def stateToUrl(state: State): Option[(Path, QueryParameter)] =
-    Some(("/", Map("page" -> "SolvedSudokuPage") ++ QPHelper.SolvedSudoku.toQP(state.board)))
+  override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = PartialFunction.empty
+  override def stateToUrl(state: State): Option[(Path, QueryParameter)]                      = None
 
   override def render(implicit context: Context): Node =
     Node("div.no-scroll")

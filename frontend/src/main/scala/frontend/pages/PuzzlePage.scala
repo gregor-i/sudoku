@@ -41,14 +41,16 @@ object PuzzleState {
 
 object PuzzlePage extends Page[PuzzleState] {
   override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = {
-    case (_, "/", qp) if qp.get("page").forall(_ == "PuzzlePage") =>
+    case (_, "/", _) =>
+      PuzzleState.loading(Random.nextInt())
+    case (_, "/puzzle", qp) =>
       val seed = qp.get("seed").flatMap(_.toIntOption).getOrElse(1)
       PuzzleState.loading(seed)
   }
 
+  // todo: store input state
   override def stateToUrl(state: State): Option[(Path, QueryParameter)] =
-    Some(("/", Map("page" -> "PuzzlePage", "seed" -> state.seed.toString)))
-//  ++ QPHelper.OpenSudoku.toQP(state.generatedBoard)
+    Some(("/puzzle", Map("seed" -> state.seed.toString)))
 
   override def render(implicit context: Context): Node =
     Node("div.no-scroll")

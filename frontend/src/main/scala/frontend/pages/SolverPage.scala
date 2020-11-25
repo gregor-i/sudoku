@@ -29,12 +29,16 @@ object SolverState {
 
 object SudokuSolverPage extends Page[SolverState] {
   override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = {
-    case (_, "/", qp @ QPHelper.OpenSudoku(board)) if qp.get("page").contains("SudokuSolverPage") =>
+    case (_, "/solver", QPHelper.OpenSudoku(board)) =>
       SolverState(board, focus = None)
+    case (_, "/solver", QPHelper.Dimensions(dim)) =>
+      SolverState(SudokuBoard.empty(dim), focus = None)
+    case (_, "/solver", _) =>
+      SolverState(SudokuBoard.empty(Dimensions(3, 3)), focus = None)
   }
 
   override def stateToUrl(state: State): Option[(Path, QueryParameter)] =
-    Some(("/", Map("page" -> "SudokuSolverPage") ++ QPHelper.OpenSudoku.toQP(state.board)))
+    Some(("/solver", QPHelper.OpenSudoku.toQP(state.board)))
 
   override def render(implicit context: Context): Node = {
     val decoratedBoard = DecoratedBoard(context.local.board)
