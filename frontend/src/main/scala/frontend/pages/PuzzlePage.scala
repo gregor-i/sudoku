@@ -18,15 +18,24 @@ case class PuzzleState(
     generatedBoard: OpenSudokuBoard
 ) extends PageState
 
-object PuzzlePage extends Page[PuzzleState] {
-  override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = {
-    case (_, "/", qp) if qp.get("page").contains("PuzzlePage") =>
-      val seed  = qp.get("seed").flatMap(_.toIntOption).getOrElse(1)
-      val board = SudokuBoard.empty(Dimensions(3, 3)) //Generator(Dimensions(3, 3), seed)
+object PuzzleState {
+  def load(seed: Int): PageState = LoadingState {
+    AsyncUtil.future {
+      val generatedBoard = Generator(Dimensions(3, 3), seed)
       PuzzleState(
         seed = seed,
-        generatedBoard = board
+        generatedBoard = generatedBoard
       )
+    }
+  }
+
+}
+
+object PuzzlePage extends Page[PuzzleState] {
+  override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = {
+    case (_, "/", qp) if qp.get("page").forall(_ == "PuzzlePage") =>
+      val seed = qp.get("seed").flatMap(_.toIntOption).getOrElse(1)
+      PuzzleState.load(seed)
   }
 
   override def stateToUrl(state: State): Option[(Path, QueryParameter)] =

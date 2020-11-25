@@ -19,12 +19,17 @@ case class SudokuSolverState(
     focus: Option[(Int, Int)]
 ) extends PageState
 
+object SudokuSolverState {
+  def empty(): SudokuSolverState = SudokuSolverState(
+    board = SudokuBoard.empty(Dimensions(3, 3)),
+    focus = None
+  )
+}
+
 object SudokuSolverPage extends Page[SudokuSolverState] {
   override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = {
     case (_, "/", qp @ QPHelper.OpenSudoku(board)) if qp.get("page").contains("SudokuSolverPage") =>
       SudokuSolverState(board, focus = None)
-    case (_, "/", qp) if qp.isEmpty =>
-      SudokuSolverState(SudokuBoard.empty(Dimensions(3, 3)), focus = None)
   }
 
   override def stateToUrl(state: State): Option[(Path, QueryParameter)] =

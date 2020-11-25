@@ -6,6 +6,7 @@ import snabbdom.Node
 object Pages {
   val all: Seq[Page[_ <: PageState]] = Seq(
     ErrorPage,
+    LoadingPage,
     SudokuSolverPage,
     SolvedSudokuPage,
     PuzzlePage
