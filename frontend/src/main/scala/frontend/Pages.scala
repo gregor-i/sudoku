@@ -7,6 +7,7 @@ object Pages {
   val all: Seq[Page[_ <: PageState]] = Seq(
     ErrorPage,
     LoadingPage,
+    LandingPage,
     SudokuSolverPage,
     SolvedSudokuPage,
     PuzzlePage

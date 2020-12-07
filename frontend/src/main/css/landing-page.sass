@@ -1,0 +1,31 @@
+.landing-page
+  height: 100vh
+  overflow: hidden
+
+  .landing-page-modal
+    min-height: 60vh
+    display: flex
+    flex-direction: column
+    justify-content: space-between
+
+    .title
+      text-align: center
+
+    .big-buttons
+      display: flex
+      flex-direction: column
+      align-items: stretch
+
+      & > .button
+        font-size: 1.5rem
+        margin:
+          top: 4px
+          bottom: 4px
+
+  .modal-background
+    background:
+      image: url('/background.svg')
+      size: cover
+      position: center
+      blend-mode: color
+

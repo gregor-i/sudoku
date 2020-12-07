@@ -6,6 +6,10 @@ import scala.util.chaining.scalaUtilChainingOps
 object Difficulty {
   def default = 1.99
 
+  def easy   = 1.6
+  def medium = 1.8
+  def hard   = 1.99
+
   def apply(puzzle: OpenSudokuBoard): Option[Double] =
     Solver.solver(puzzle).uniqueSolution.map(solution => apply(puzzle, solution))
 

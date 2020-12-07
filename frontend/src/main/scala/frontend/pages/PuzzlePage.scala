@@ -28,7 +28,6 @@ case class PuzzleState(
 object PuzzleState {
   def process(seed: Int, desiredDifficulty: Double = Difficulty.default): Future[PuzzleState] =
     AsyncUtil.future {
-
       val generatedBoard = Generator(Dimensions(3, 3), seed, desiredDifficulty)
       val decoratedBoard = generatedBoard.map[DecoratedCell] {
         case None        => DecoratedCell.Empty
@@ -51,8 +50,6 @@ object PuzzleState {
 
 object PuzzlePage extends Page[PuzzleState] {
   override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = {
-    case (_, "/", _) =>
-      PuzzleState.loading(Random.nextInt())
     case (_, "/puzzle", qp) =>
       val seed              = qp.get("seed").flatMap(_.toIntOption).getOrElse(1)
       val desiredDifficulty = qp.get("desiredDifficulty").flatMap(_.toDoubleOption).getOrElse(Difficulty.default)
