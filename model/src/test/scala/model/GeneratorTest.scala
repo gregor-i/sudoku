@@ -9,16 +9,16 @@ class GeneratorTest extends AnyFunSuite {
     val dim = Dimensions(3, 3)
 
     test(s"apply constructs a puzzle (dim = ${dim}, seed = ${seed})") {
-      Generator(dim, seed)
+      Generator(dim, seed, Difficulty.default)
     }
 
     Try {
-      Generator(dim, seed)
+      Generator(dim, seed, Difficulty.default)
     } match {
       case Failure(_) => ()
       case Success(board) =>
         test(s"the constructed board has a unique solution (dim = ${dim}, seed = ${seed})") {
-          assert(FPSolver(board).size == 1)
+          assert(Solver.uniqueSolution(board).isDefined)
         }
     }
   }

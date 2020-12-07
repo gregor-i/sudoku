@@ -1,6 +1,12 @@
 package model
 
 object Solver {
+  def uniqueSolution(board: OpenSudokuBoard): Option[SolvedSudokuBoard] =
+    apply(board).take(2).toList match {
+      case solution :: Nil => Some(solution)
+      case _               => None
+    }
+
   def apply(board: OpenSudokuBoard): LazyList[SolvedSudokuBoard] = {
     type State = (OpenSudokuBoard, OptionsSudokuBoard, List[Position], List[Int])
 

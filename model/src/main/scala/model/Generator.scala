@@ -6,11 +6,11 @@ import scala.util.chaining._
 object Generator {
   private type Permutation = (Position, Position)
 
-  def apply(dim: Dimensions, seed: Int): OpenSudokuBoard = {
+  def apply(dim: Dimensions, seed: Int, desiredDifficulty: Double): OpenSudokuBoard = {
     val random = new Random(seed)
     initialBoard(dim)
       .pipe(permutate(random.nextInt(), _))
-      .pipe(makePuzzle(random.nextInt(), _))
+      .pipe(makePuzzle(random.nextInt(), _, desiredDifficulty))
   }
 
   def initialBoard(dim: Dimensions): SolvedSudokuBoard = Solver.apply(SudokuBoard.empty(dim)).head
@@ -63,14 +63,15 @@ object Generator {
       permutationsOfRowsOfBlocks(random.nextInt(), dim)
   }
 
-  private def makePuzzle(seed: Int, solvedBoard: SolvedSudokuBoard): OpenSudokuBoard = {
+  private def makePuzzle(seed: Int, solvedBoard: SolvedSudokuBoard, desiredDifficulty: Double): OpenSudokuBoard = {
     val random            = new Random(seed)
     val shuffledPositions = SudokuBoard.positions(solvedBoard.dim).pipe(random.shuffle(_))
     val board             = solvedBoard.map[Option[Int]](Some.apply)
 
     shuffledPositions.foldLeft(board) { (board, position) =>
       val reducedBoard = board.set(position, None)
-      if (Solver(reducedBoard).sizeCompare(1) == 0)
+      val difficulty   = Difficulty(puzzle = reducedBoard, solution = solvedBoard)
+      if (difficulty <= desiredDifficulty && Solver(reducedBoard).sizeCompare(1) == 0)
         reducedBoard
       else
         board
