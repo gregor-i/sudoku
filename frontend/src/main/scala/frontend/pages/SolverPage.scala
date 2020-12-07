@@ -5,13 +5,13 @@ import frontend.components._
 import frontend.toasts.Toasts
 import frontend.util.AsyncUtil
 import frontend.{GlobalState, Page, PageState}
+import model.SolverResult.{MultipleSolutions, NoSolution, UniqueSolution}
 import model._
 import monocle.macros.Lenses
-import org.scalajs.dom.{KeyboardEvent, document}
+import org.scalajs.dom.document
 import snabbdom.{Node, Snabbdom}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.scalajs.js
 import scala.util.chaining.scalaUtilChainingOps
 
 @Lenses
@@ -94,18 +94,19 @@ object SudokuSolverPage extends Page[SolverState] {
         Icons.solve,
         Snabbdom.event { _ =>
           val process = AsyncUtil.future {
-            Solver(context.local.board)
-              .take(2)
-              .toList
+            Solver.solver(context.local.board)
           }
 
           Toasts.futureToast("solving ...", process) {
-            case scala.util.Success(Seq(solution)) =>
+            case scala.util.Success(UniqueSolution(solution)) =>
               context.update(SolvedSudokuState(solution))
               (frontend.toasts.Success, "solved!")
-            case scala.util.Success(Seq()) => (frontend.toasts.Warning, "No solution found. Maybe some numbers are wrong?")
-            case scala.util.Success(_)     => (frontend.toasts.Warning, "Multiple solutions found. Maybe some numbers are missing?")
-            case scala.util.Failure(_)     => (frontend.toasts.Danger, "Something went wrong ...")
+            case scala.util.Success(NoSolution) =>
+              (frontend.toasts.Warning, "No solution found. Maybe some numbers are wrong?")
+            case scala.util.Success(MultipleSolutions(_)) =>
+              (frontend.toasts.Warning, "Multiple solutions found. Maybe some numbers are missing?")
+            case scala.util.Failure(_) =>
+              (frontend.toasts.Danger, "Something went wrong ...")
           }
         }
       ).classes("is-primary", "mr-0")

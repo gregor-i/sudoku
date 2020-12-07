@@ -7,7 +7,7 @@ object Difficulty {
   def default = 1.99
 
   def apply(puzzle: OpenSudokuBoard): Option[Double] =
-    Solver.uniqueSolution(puzzle).map(solution => apply(puzzle, solution))
+    Solver.solver(puzzle).uniqueSolution.map(solution => apply(puzzle, solution))
 
   def apply(puzzle: OpenSudokuBoard, solution: SolvedSudokuBoard): Double = {
     require(puzzle.dim == solution.dim)
@@ -26,8 +26,11 @@ object Difficulty {
     if (seq.isEmpty)
       0.0
     else
-      seq.max + math.atan(seq.sum * 0.1) / (0.5 * Math.PI)
+      seq.max + sigmoid(seq.sum * 0.1) / (0.5 * Math.PI)
   }
+
+  private def sigmoid(x: Double): Double =
+    1.0 / (1.0 + math.exp(-x))
 
   private def sequenceOfOptionSizes(puzzle: OpenSudokuBoard, solution: SolvedSudokuBoard): List[Int] = {
     @tailrec

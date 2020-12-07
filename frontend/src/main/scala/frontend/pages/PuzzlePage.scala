@@ -5,7 +5,7 @@ import frontend.components._
 import frontend.toasts.Toasts
 import frontend.util.AsyncUtil
 import frontend.{GlobalState, Page, PageState}
-import model.{DecoratedBoard, DecoratedCell, Difficulty, Dimensions, Generator, OpenSudokuBoard, Position, Solver, SudokuBoard}
+import model._
 import monocle.macros.Lenses
 import org.scalajs.dom.document
 import snabbdom.{Node, Snabbdom}
