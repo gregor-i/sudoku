@@ -68,7 +68,12 @@ object PuzzlePage extends Page[PuzzleState] {
           .child(
             SudokuBoardSVG(
               board = DecoratedBoard.markMistakes(context.local.decoratedBoard),
-              interaction = Some((pos, node) => node.event("click", Action(PuzzleState.focus.set(Some(pos)))))
+              interaction = Some((pos, node) => {
+                if (context.local.generatedBoard.get(pos).isEmpty)
+                  node.event("click", Action(PuzzleState.focus.set(Some(pos))))
+                else
+                  node
+              })
             ).classes("grid-main-svg")
           )
       )
@@ -83,7 +88,11 @@ object PuzzlePage extends Page[PuzzleState] {
             val set        = PuzzleState.decoratedBoard.modify(_.set(pos, DecoratedCell.maybeInput(value)))
             context.update((set andThen clearFocus).apply(context.local))
           },
-          setFocus = pos => context.update(PuzzleState.focus.set(Some(pos))(context.local))
+          setFocus = pos => {
+            if (context.local.generatedBoard.get(pos).isEmpty)
+              context.update(PuzzleState.focus.set(Some(pos))(context.local))
+            else ()
+          }
         )
       )
 
@@ -100,7 +109,7 @@ object PuzzlePage extends Page[PuzzleState] {
             case scala.util.Failure(_) => (frontend.toasts.Danger, "Something went wrong ...")
           }
         }
-      ).classes("is-primary", "mr-0")
+      ).classes("mr-0")
     ).classes("my-2")
 
   private def contextMenu()(implicit context: Context): Option[Node] =
