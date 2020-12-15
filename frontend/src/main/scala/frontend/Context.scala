@@ -1,11 +1,12 @@
 package frontend
 
+import frontend.pages.PuzzleState
 import monocle.macros.Lenses
 
-import scala.scalajs.js.Date
-
 @Lenses
-case class GlobalState(navbarExpanded: Boolean = false)
+case class GlobalState(
+    lastPuzzle: Option[PuzzleState] = None
+)
 
 object GlobalState {
   def initial(): GlobalState = GlobalState()

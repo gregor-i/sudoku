@@ -26,6 +26,16 @@ object LandingPage extends Page[LandingPageState] {
               Node("div").children(
                 Node("h1.title").text("Play Sudoku"),
                 Node("div.big-buttons")
+                  .childOptional(
+                    context.global.lastPuzzle.map(
+                      puzzleState =>
+                        Button(
+                          text = "Continue last Game",
+                          icon = Icons.continue,
+                          onclick = Snabbdom.event(_ => context.update(puzzleState))
+                        ).classes("is-primary", "is-outlined", "is-light")
+                    )
+                  )
                   .children(
                     Button(
                       text = "Easy",

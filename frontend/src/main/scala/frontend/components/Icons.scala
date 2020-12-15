@@ -8,9 +8,10 @@ object Icons {
   val generate = "fa-random"
   val play     = "fa-play"
 
-  val easy   = "fa-ice-cream"
-  val medium = "fa-graduation-cap"
-  val hard   = "fa-skull-crossbones"
+  val continue = "fa-play"
+  val easy     = "fa-ice-cream"
+  val medium   = "fa-graduation-cap"
+  val hard     = "fa-skull-crossbones"
 
   def icon(icon: String): Node =
     Node("span.icon")

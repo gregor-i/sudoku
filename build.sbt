@@ -25,7 +25,7 @@ lazy val frontend = project
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
   )
-  .settings(monocle, scalatest, snabbdom)
+  .settings(monocle, scalatest, snabbdom, circe)
 
 val `service-worker` = project
   .in(file("service-worker"))
@@ -89,6 +89,16 @@ def monocle = {
     "com.github.julien-truffaut" %%% "monocle-macro"  % version,
     "com.github.julien-truffaut" %%% "monocle-unsafe" % version,
     "com.github.julien-truffaut" %%% "monocle-state"  % version
+  )
+}
+
+def circe = {
+  val version = "0.13.0"
+  libraryDependencies ++= Seq(
+    "io.circe" %%% "circe-core"           % version,
+    "io.circe" %%% "circe-generic"        % version,
+    "io.circe" %%% "circe-generic-extras" % version,
+    "io.circe" %%% "circe-parser"         % version
   )
 }
 
