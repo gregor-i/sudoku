@@ -1,4 +1,4 @@
-package frontend.pages
+package frontend.util
 
 import frontend.{Context, GlobalState, PageState}
 import snabbdom.Snabbdom

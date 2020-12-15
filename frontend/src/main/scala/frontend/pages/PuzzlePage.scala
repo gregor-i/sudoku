@@ -3,8 +3,8 @@ package frontend.pages
 import frontend.Router.{Path, QueryParameter}
 import frontend.components._
 import frontend.toasts.Toasts
-import frontend.util.AsyncUtil
-import frontend.{GlobalState, Page, PageState}
+import frontend.util.{Action, AsyncUtil}
+import frontend.{GlobalState, NoRouting, Page, PageState}
 import model._
 import monocle.macros.Lenses
 import org.scalajs.dom.document
@@ -48,18 +48,7 @@ object PuzzleState {
     LoadingState(process(seed, desiredDifficulty))
 }
 
-object PuzzlePage extends Page[PuzzleState] {
-  override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = {
-    case (_, "/puzzle", qp) =>
-      val seed              = qp.get("seed").flatMap(_.toIntOption).getOrElse(1)
-      val desiredDifficulty = qp.get("desiredDifficulty").flatMap(_.toDoubleOption).getOrElse(Difficulty.default)
-      PuzzleState.loading(seed, desiredDifficulty)
-  }
-
-  // todo: store input state
-  override def stateToUrl(state: State): Option[(Path, QueryParameter)] =
-    Some(("/puzzle", Map("seed" -> state.seed.toString, "desiredDifficulty" -> state.desiredDifficulty.toString)))
-
+object PuzzlePage extends Page[PuzzleState] with NoRouting {
   override def render(implicit context: Context): Node =
     Node("div.grid-layout")
       .child(Header.renderHeader())

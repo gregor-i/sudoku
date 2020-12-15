@@ -1,9 +1,9 @@
 package frontend.pages
 
 import frontend.Router.{Path, QueryParameter}
-import frontend.components.{Button, Icons, Modal, SudokuBoardSVG}
-import frontend.{GlobalState, Page, PageState}
-import model.{DecoratedBoard, Difficulty, Dimensions, SudokuBoard}
+import frontend.components.{Button, Icons, Modal}
+import frontend.{GlobalState, NoRouting, Page, PageState}
+import model.Difficulty
 import snabbdom.{Node, Snabbdom}
 
 import scala.util.Random
@@ -12,7 +12,9 @@ case class LandingPageState() extends PageState
 
 object LandingPage extends Page[LandingPageState] {
   override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = {
-    case (_, "/", _) => LandingPageState()
+    case (_, "/", _)       => LandingPageState()
+    case (_, "/puzzle", _) => LandingPageState()
+    case (_, "/solver", _) => LandingPageState()
   }
 
   override def stateToUrl(state: State): Option[(Path, QueryParameter)] = Some(("/", Map.empty))

@@ -2,7 +2,7 @@ package frontend.pages
 
 import frontend.Router.Location
 import frontend.components.Header
-import frontend.{GlobalState, Page, PageState, Router}
+import frontend.{GlobalState, NoRouting, Page, PageState, Router}
 import snabbdom.Node
 
 @monocle.macros.Lenses()
@@ -12,12 +12,7 @@ object ErrorState {
   def asyncLoadError(error: Throwable) = ErrorState(s"unexpected problem while initializing app: ${error.getMessage}")
 }
 
-object ErrorPage extends Page[ErrorState] {
-  override def stateFromUrl: PartialFunction[(GlobalState, Router.Path, Router.QueryParameter), PageState] =
-    PartialFunction.empty
-
-  override def stateToUrl(state: State): Option[Location] = None
-
+object ErrorPage extends Page[ErrorState] with NoRouting {
   def render(implicit context: Context): Node =
     Node("div")
       .child(Header.renderHeader())

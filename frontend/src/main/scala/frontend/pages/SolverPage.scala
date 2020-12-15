@@ -3,8 +3,8 @@ package frontend.pages
 import frontend.Router.{Path, QueryParameter}
 import frontend.components._
 import frontend.toasts.Toasts
-import frontend.util.AsyncUtil
-import frontend.{GlobalState, Page, PageState}
+import frontend.util.{Action, AsyncUtil}
+import frontend.{GlobalState, NoRouting, Page, PageState}
 import model.SolverResult.{MultipleSolutions, NoSolution, UniqueSolution}
 import model._
 import monocle.macros.Lenses
@@ -27,19 +27,7 @@ object SolverState {
   )
 }
 
-object SudokuSolverPage extends Page[SolverState] {
-  override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = {
-    case (_, "/solver", QPHelper.OpenSudoku(board)) =>
-      SolverState(board, focus = None)
-    case (_, "/solver", QPHelper.Dimensions(dim)) =>
-      SolverState(SudokuBoard.empty(dim), focus = None)
-    case (_, "/solver", _) =>
-      SolverState(SudokuBoard.empty(Dimensions(3, 3)), focus = None)
-  }
-
-  override def stateToUrl(state: State): Option[(Path, QueryParameter)] =
-    Some(("/solver", QPHelper.OpenSudoku.toQP(state.board)))
-
+object SudokuSolverPage extends Page[SolverState] with NoRouting {
   override def render(implicit context: Context): Node = {
     val decoratedBoard = DecoratedBoard(context.local.board)
     Node("div.grid-layout")

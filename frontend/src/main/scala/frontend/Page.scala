@@ -16,3 +16,10 @@ abstract class Page[S <: PageState: ClassTag] {
 
   def acceptState(nutriaState: PageState): Boolean = implicitly[ClassTag[State]].runtimeClass == nutriaState.getClass
 }
+
+trait NoRouting { _: Page[_] =>
+  def stateFromUrl: PartialFunction[(GlobalState, Router.Path, Router.QueryParameter), PageState] =
+    PartialFunction.empty
+
+  def stateToUrl(state: State): Option[Router.Location] = None
+}

@@ -39,18 +39,6 @@ class App(container: Element) {
   }
 
   def renderState(globalState: GlobalState, state: PageState): Unit = {
-    Router.stateToUrl(state) match {
-      case Some((currentPath, currentSearch)) =>
-        val stringSearch = Router.queryParamsToUrl(currentSearch)
-        if (dom.window.location.pathname != currentPath) {
-          dom.window.scroll(0, 0)
-          dom.window.history.pushState(null, "", currentPath + stringSearch)
-        } else {
-          dom.window.history.replaceState(null, "", currentPath + stringSearch)
-        }
-      case None => ()
-    }
-
     val modifiedGlobalState = state match {
       case puzzle: PuzzleState => globalState.copy(lastPuzzle = Some(puzzle.copy(focus = None)))
       case _                   => globalState

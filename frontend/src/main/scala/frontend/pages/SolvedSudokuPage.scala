@@ -1,8 +1,7 @@
 package frontend.pages
 
-import frontend.Router.{Path, QueryParameter}
 import frontend.components._
-import frontend.{GlobalState, Page, PageState}
+import frontend.{NoRouting, Page, PageState}
 import model.{DecoratedCell, SolvedSudokuBoard, SudokuBoard}
 import monocle.macros.Lenses
 import snabbdom.{Node, Snabbdom}
@@ -12,10 +11,7 @@ case class SolvedSudokuState(
     board: SolvedSudokuBoard
 ) extends PageState
 
-object SolvedSudokuPage extends Page[SolvedSudokuState] {
-  override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = PartialFunction.empty
-  override def stateToUrl(state: State): Option[(Path, QueryParameter)]                      = None
-
+object SolvedSudokuPage extends Page[SolvedSudokuState] with NoRouting {
   override def render(implicit context: Context): Node =
     Node("div.grid-layout")
       .child(Header.renderHeader())
