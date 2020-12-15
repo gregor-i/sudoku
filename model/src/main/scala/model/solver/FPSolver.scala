@@ -19,7 +19,7 @@ private[model] object FPSolver extends Solver {
       board: OpenSudokuBoard,
       optionsBoard: OptionsSudokuBoard,
       openPositions: Set[Position]
-  ): LazyList[SolvedSudokuBoard] = {
+  ): LazyList[SolvedSudokuBoard] =
     openPositions.minByOption(optionsBoard.get(_).size) match {
       case Some(pos) =>
         for {
@@ -33,5 +33,4 @@ private[model] object FPSolver extends Solver {
       case None =>
         Validate(board).to(LazyList)
     }
-  }
 }

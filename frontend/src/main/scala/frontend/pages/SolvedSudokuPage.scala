@@ -17,15 +17,15 @@ object SolvedSudokuPage extends Page[SolvedSudokuState] {
   override def stateToUrl(state: State): Option[(Path, QueryParameter)]                      = None
 
   override def render(implicit context: Context): Node =
-    Node("div.no-scroll")
+    Node("div.grid-layout")
       .child(Header.renderHeader())
       .child(
-        Node("div.content-column.is-flex-grow-1")
+        Node("div.grid-main")
           .child(
-            SudokuBoardSVG(context.local.board.map(DecoratedCell.Input), None).classes("is-flex-grow-1")
+            SudokuBoardSVG(context.local.board.map(DecoratedCell.Input), None).classes("grid-main-svg")
           )
-          .child(buttonBar())
       )
+      .child(buttonBar().classes("grid-footer"))
 
   private def buttonBar()(implicit context: Context): Node =
     ButtonList(

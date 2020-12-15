@@ -42,16 +42,16 @@ object SudokuSolverPage extends Page[SolverState] {
 
   override def render(implicit context: Context): Node = {
     val decoratedBoard = DecoratedBoard(context.local.board)
-    Node("div.no-scroll")
+    Node("div.grid-layout")
       .child(Header.renderHeader())
       .child(
-        Node("div.content-column.is-flex-grow-1")
-          .child(
-            SudokuBoardSVG(decoratedBoard, Some(rectInteraction)).classes("is-flex-grow-1")
-          )
-          .childOptional(contextMenu())
-          .child(buttonBar())
+        Node("div.grid-main")
+          .child(SudokuBoardSVG(decoratedBoard, Some(rectInteraction)).classes("grid-main-svg"))
       )
+      .child(
+        buttonBar().classes("grid-footer")
+      )
+      .childOptional(contextMenu())
       .pipe(
         InputContextMenu.globalEventListener(
           dim = context.local.board.dim,

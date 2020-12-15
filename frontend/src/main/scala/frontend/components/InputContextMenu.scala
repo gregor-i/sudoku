@@ -1,7 +1,5 @@
 package frontend.components
 
-import frontend.pages.SudokuSolverPage.Context
-import frontend.pages.{Action, SolverState}
 import model.{Dimensions, Position, SudokuBoard}
 import org.scalajs.dom.{Element, KeyboardEvent, document}
 import snabbdom.{Node, Snabbdom}

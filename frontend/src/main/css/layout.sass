@@ -1,5 +1,25 @@
-.no-scroll
+.grid-layout
+  display: grid
+  grid-template-columns: minmax(16px, auto) minmax(0, 600px) minmax(16px, auto)
+  grid-template-rows: min-content auto min-content
+  align-content: stretch
+  grid-template-areas: "header header header" ". main ." ". footer ."
   height: 100vh
   overflow: hidden
-  display: flex
-  flex-direction: column
+
+  & > .grid-header, & > .top-bar
+    grid-area: header
+
+  & > .grid-main
+    grid-area: main
+    position: relative
+
+    & > .grid-main-svg
+      position: absolute
+      left: 0
+      top: 0
+      height: 100%
+      width: 100%
+
+  & > .grid-footer
+    grid-area: footer

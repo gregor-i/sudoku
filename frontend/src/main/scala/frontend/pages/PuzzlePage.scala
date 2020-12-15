@@ -61,18 +61,18 @@ object PuzzlePage extends Page[PuzzleState] {
     Some(("/puzzle", Map("seed" -> state.seed.toString, "desiredDifficulty" -> state.desiredDifficulty.toString)))
 
   override def render(implicit context: Context): Node =
-    Node("div.no-scroll")
+    Node("div.grid-layout")
       .child(Header.renderHeader())
       .child(
-        Node("div.content-column.is-flex-grow-1")
+        Node("div.grid-main")
           .child(
             SudokuBoardSVG(
               board = DecoratedBoard.markMistakes(context.local.decoratedBoard),
               interaction = Some((pos, node) => node.event("click", Action(PuzzleState.focus.set(Some(pos)))))
-            ).classes("is-flex-grow-1")
+            ).classes("grid-main-svg")
           )
-          .child(buttonBar())
       )
+      .child(buttonBar().classes("grid-footer"))
       .child(contextMenu())
       .pipe(
         InputContextMenu.globalEventListener(

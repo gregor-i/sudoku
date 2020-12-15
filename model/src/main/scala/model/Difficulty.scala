@@ -6,7 +6,7 @@ import scala.util.chaining.scalaUtilChainingOps
 object Difficulty {
   def default = 1.99
 
-  def easy   = 1.6
+  def easy   = 1.63
   def medium = 1.8
   def hard   = 1.99
 
