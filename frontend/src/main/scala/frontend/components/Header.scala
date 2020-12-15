@@ -1,7 +1,7 @@
 package frontend.components
 
 import frontend.Context
-import frontend.pages.{PuzzleState, SolverState}
+import frontend.pages.{LandingPageState, PuzzleState, SolverState}
 import snabbdom.{Node, Snabbdom}
 
 import scala.util.Random
@@ -16,6 +16,7 @@ object Header {
             Node("div")
               .child(Node("figure.image.is-32x32").child(Node("img").attr("src", Images.logo)))
               .child(Node("span").text("Sudoku"))
+              .event("click", Snabbdom.event(_ => context.update(LandingPageState())))
           )
           .child(
             Node("div")
