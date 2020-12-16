@@ -2,7 +2,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.13",
     "bulma": "^0.9",
-    "snabbdom": "^1.0.1"
+    "snabbdom": "^2.1.0"
   },
   "devDependencies": {
     "http-server": "^0.12.3",
