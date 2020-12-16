@@ -23,7 +23,7 @@ lazy val frontend = project
   .enablePlugins(ScalaJSPlugin)
   .settings(
     scalaJSUseMainModuleInitializer := true,
-    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) }
   )
   .settings(monocle, scalatest, snabbdom, circe)
 
@@ -45,15 +45,16 @@ val `service-worker` = project
 compile in frontend := Def.taskDyn {
   val stage = (frontend / Compile / scalaJSStage).value
   val ret   = (frontend / Compile / compile).value
-  val buildFrontendTask = stage match {
-    case Stage.FullOpt => (frontend / Compile / fullOptJS)
-    case Stage.FastOpt => (frontend / Compile / fastOptJS)
-  }
-  streams.value.log.info(s"integrating frontend (${stage})")
-  buildFrontendTask.map { buildFrontend =>
-    val outputFile = "build/app.js"
-    Seq("./node_modules/.bin/browserify", buildFrontend.data.toString, "-o", outputFile).!!
-    ret
+  stage match {
+    case Stage.FullOpt => (frontend / Compile / fullOptJS).map { _ =>
+      Seq("./node_modules/.bin/webpack", "--mode", "production").!!
+      ret
+    }
+
+    case Stage.FastOpt => (frontend / Compile / fastOptJS).map { _ =>
+      Seq("./node_modules/.bin/webpack", "--mode", "development").!!
+      ret
+    }
   }
 }.value
 
@@ -113,5 +114,5 @@ def scalaJsDom =
 
 def snabbdom = Seq(
   resolvers += Resolver.bintrayRepo("gregor-i", "maven"),
-  libraryDependencies += "com.github.gregor-i" %%% "scalajs-snabbdom" % "1.0.1"
+  libraryDependencies += "com.github.gregor-i" %%% "scalajs-snabbdom" % "1.1"
 )
