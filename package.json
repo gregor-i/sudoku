@@ -22,10 +22,10 @@
     "watch-css": "nodemon --watch frontend/src/main/css -e '*' --exec 'npm run build-css'",
     "watch-fa": "nodemon --watch node_modules/@fortawesome -e '*' --exec 'npm run build-fa'",
     "build": "run-s mkdir build-frontend build-static build-css build-fa build-sw",
-    "build-frontend": "sbt 'set scalaJSStage := org.scalajs.sbtplugin.Stage.FullOpt; frontend/compile'",
+    "build-frontend": "sbt 'set scalaJSStage in ThisBuild := org.scalajs.sbtplugin.Stage.FullOpt; frontend/compile'",
     "build-static": "cp frontend/src/main/static/* build/.",
     "build-css": "sass frontend/src/main/css/app.sass build/app.css --no-source-map",
     "build-fa": "cp -r node_modules/@fortawesome/fontawesome-free/webfonts/* build/.",
-    "build-sw": "sbt 'set scalaJSStage := org.scalajs.sbtplugin.Stage.FullOpt; service-worker/compile'"
+    "build-sw": "sbt 'set scalaJSStage in ThisBuild := org.scalajs.sbtplugin.Stage.FullOpt; service-worker/compile'"
   }
 }
