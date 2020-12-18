@@ -1,7 +1,6 @@
 package frontend.pages
 
 import frontend.components._
-import frontend.toasts.Toasts
 import frontend.util.{Action, AsyncUtil}
 import frontend.{NoRouting, Page, PageState}
 import model.SolverResult.{MultipleSolutions, NoSolution, UniqueSolution}
@@ -9,6 +8,7 @@ import model._
 import monocle.macros.Lenses
 import org.scalajs.dom.document
 import snabbdom.Node
+import toasts.{ToastType, Toasts}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.chaining.scalaUtilChainingOps
@@ -84,16 +84,16 @@ object SudokuSolverPage extends Page[SolverState] with NoRouting {
             Solver.solver(context.local.board)
           }
 
-          Toasts.futureToast("solving ...", process) {
+          Toasts.asyncToast("solving ...", process) {
             case scala.util.Success(UniqueSolution(solution)) =>
               context.update(SolvedSudokuState(solution))
-              (frontend.toasts.Success, "solved!")
+              (ToastType.Success, "solved!")
             case scala.util.Success(NoSolution) =>
-              (frontend.toasts.Warning, "No solution found. Maybe some numbers are wrong?")
+              (ToastType.Warning, "No solution found. Maybe some numbers are wrong?")
             case scala.util.Success(MultipleSolutions(_)) =>
-              (frontend.toasts.Warning, "Multiple solutions found. Maybe some numbers are missing?")
+              (ToastType.Warning, "Multiple solutions found. Maybe some numbers are missing?")
             case scala.util.Failure(_) =>
-              (frontend.toasts.Danger, "Something went wrong ...")
+              (ToastType.Danger, "Something went wrong ...")
           }
         }
       ).classes("is-primary", "mr-0")

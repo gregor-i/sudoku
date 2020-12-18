@@ -1,7 +1,7 @@
 package frontend.pages
 
 import frontend.components._
-import frontend.toasts.Toasts
+import toasts.{ToastType, Toasts}
 import frontend.util.{Action, AsyncUtil}
 import frontend.{NoRouting, Page, PageState}
 import model._
@@ -96,11 +96,12 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
 
   private def generateGameAction(seed: Int)(implicit context: Context): Event => Unit =
     _ =>
-      Toasts.futureToast("generating game ...", PuzzleState.process(seed, context.local.desiredDifficulty)) {
+      Toasts.asyncToast("generating game ...", PuzzleState.process(seed, context.local.desiredDifficulty)) {
         case scala.util.Success(state) =>
           context.update(state)
-          (frontend.toasts.Success, "Generated!")
-        case scala.util.Failure(_) => (frontend.toasts.Danger, "Something went wrong ...")
+          (ToastType.Success, "Generated!")
+        case scala.util.Failure(_) =>
+          (ToastType.Danger, "Something went wrong ...")
       }
 
   private def contextMenu()(implicit context: Context): Option[Node] =
