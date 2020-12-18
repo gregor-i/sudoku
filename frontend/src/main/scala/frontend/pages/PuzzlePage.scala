@@ -1,14 +1,13 @@
 package frontend.pages
 
-import frontend.Router.{Path, QueryParameter}
 import frontend.components._
 import frontend.toasts.Toasts
 import frontend.util.{Action, AsyncUtil}
-import frontend.{GlobalState, NoRouting, Page, PageState}
+import frontend.{NoRouting, Page, PageState}
 import model._
 import monocle.macros.Lenses
 import org.scalajs.dom.document
-import snabbdom.{Node, Snabbdom, SnabbdomFacade}
+import snabbdom.{Event, Node}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -95,15 +94,14 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
       ).classes("mr-0")
     ).classes("my-2")
 
-  private def generateGameAction(seed: Int)(implicit context: Context): SnabbdomFacade.Eventlistener =
-    Snabbdom.event { _ =>
+  private def generateGameAction(seed: Int)(implicit context: Context): Event => Unit =
+    _ =>
       Toasts.futureToast("generating game ...", PuzzleState.process(seed, context.local.desiredDifficulty)) {
         case scala.util.Success(state) =>
           context.update(state)
           (frontend.toasts.Success, "Generated!")
         case scala.util.Failure(_) => (frontend.toasts.Danger, "Something went wrong ...")
       }
-    }
 
   private def contextMenu()(implicit context: Context): Option[Node] =
     context.local.focus.map { pos =>
@@ -121,10 +119,10 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
 
   private def finishedModal()(implicit context: Context): Option[Node] =
     Validate(context.local.decoratedBoard.map(_.toOption)).map { _ =>
-      Modal(Snabbdom.event(_ => ()))(
+      Modal(_ => ())(
         Node("h1.title.has-text-centered").text("Sudoku completed!"),
         ButtonList.centered(
-          Button("Back to landing Page", Snabbdom.event(_ => context.update(LandingPageState()))),
+          Button("Back to landing Page", _ => context.update(LandingPageState())),
           Button("Next Game!", Icons.generate, generateGameAction(Random.nextInt()))
             .classes("is-primary")
         )

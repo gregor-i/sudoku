@@ -2,7 +2,7 @@ package frontend.components
 
 import model.{Dimensions, Position, SudokuBoard}
 import org.scalajs.dom.{Element, KeyboardEvent, document}
-import snabbdom.{Node, Snabbdom}
+import snabbdom.{Event, Node, Snabbdom}
 
 import scala.scalajs.js
 
@@ -18,12 +18,12 @@ object InputContextMenu {
     Node("div.is-overlay")
       .style("background", "rgba(0, 0, 0, 0.2)")
       .style("z-index", "1")
-      .event("click", Snabbdom.event(_ => setFocus(None)))
+      .event[Event]("click", _ => setFocus(None))
       .child {
         InputNumberSVG(
           dim,
           interaction = Some { (value, node) =>
-            node.event("click", Snabbdom.event(_ => setValue(Some(value))))
+            node.event[Event]("click", _ => setValue(Some(value)))
           }
         ).styles(
           Seq(
@@ -58,7 +58,7 @@ object InputContextMenu {
       def unapply(str: String): Option[Int] = str.toIntOption.filter(SudokuBoard.values(dim).contains)
     }
 
-    val hook: js.Function0[Unit] = () =>
+    def hook() =
       document.body.onkeydown = (event: KeyboardEvent) => {
         (event.key, focus) match {
           case ("Backspace", Some(focus))    => setValue(focus, None)
@@ -73,7 +73,7 @@ object InputContextMenu {
       }
 
     node
-      .hook("insert", hook)
-      .hook("postpatch", hook)
+      .hookInsert(_ => hook())
+      .hookPostpatch((_, _) => hook())
   }
 }

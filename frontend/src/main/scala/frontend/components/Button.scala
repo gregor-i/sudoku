@@ -1,22 +1,22 @@
 package frontend.components
 
-import snabbdom.{Node, SnabbdomFacade}
+import snabbdom.{Event, Eventlistener, Node}
 
 object Button {
-  def apply(text: String, icon: String, onclick: SnabbdomFacade.Eventlistener): Node =
+  def apply(text: String, icon: String, onclick: Event => Unit): Node =
     Node("button.button")
-      .event("click", onclick)
+      .event[Event]("click", onclick)
       .child(Icons.icon(icon))
       .child(Node("span").text(text))
 
-  def apply(text: String, onclick: SnabbdomFacade.Eventlistener): Node =
+  def apply(text: String, onclick: Event => Unit): Node =
     Node("button.button")
-      .event("click", onclick)
+      .event[Event]("click", onclick)
       .text(text)
 
-  def icon(icon: String, onclick: SnabbdomFacade.Eventlistener, round: Boolean = true): Node =
+  def icon(icon: String, onclick: Event => Unit, round: Boolean = true): Node =
     Node("button.button")
       .`class`("is-rounded", round)
-      .event("click", onclick)
+      .event[Event]("click", onclick)
       .child(Icons.icon(icon))
 }

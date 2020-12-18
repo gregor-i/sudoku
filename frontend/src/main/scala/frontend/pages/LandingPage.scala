@@ -22,7 +22,7 @@ object LandingPage extends Page[LandingPageState] {
   override def render(implicit context: Context): Node =
     Node("div.landing-page")
       .child(
-        Modal(Snabbdom.event(_ => ()))(
+        Modal(_ => ())(
           Node("div.landing-page-modal")
             .children(
               Node("div").children(
@@ -34,7 +34,7 @@ object LandingPage extends Page[LandingPageState] {
                         Button(
                           text = "Continue last Game",
                           icon = Icons.continue,
-                          onclick = Snabbdom.event(_ => context.update(puzzleState))
+                          onclick = _ => context.update(puzzleState)
                         ).classes("is-primary", "is-outlined", "is-light")
                     )
                   )
@@ -42,19 +42,17 @@ object LandingPage extends Page[LandingPageState] {
                     Button(
                       text = "Easy",
                       icon = Icons.easy,
-                      onclick = Snabbdom.event(_ => context.update(PuzzleState.loading(seed = Random.nextInt(), Difficulty.easy)))
+                      onclick = _ => context.update(PuzzleState.loading(seed = Random.nextInt(), Difficulty.easy))
                     ),
                     Button(
                       text = "Medium",
                       icon = Icons.medium,
-                      onclick =
-                        Snabbdom.event(_ => context.update(PuzzleState.loading(seed = Random.nextInt(), Difficulty.medium)))
+                      onclick = _ => context.update(PuzzleState.loading(seed = Random.nextInt(), Difficulty.medium))
                     ),
                     Button(
                       text = "Hard",
                       icon = Icons.hard,
-                      onclick =
-                        Snabbdom.event(_ => context.update(PuzzleState.loading(seed = Random.nextInt(), Difficulty.medium)))
+                      onclick = _ => context.update(PuzzleState.loading(seed = Random.nextInt(), Difficulty.medium))
                     )
                   )
               ),
@@ -65,7 +63,7 @@ object LandingPage extends Page[LandingPageState] {
                     Button(
                       text = "Solver",
                       icon = Icons.solve,
-                      onclick = Snabbdom.event(_ => context.update(SolverState.empty()))
+                      onclick = _ => context.update(SolverState.empty())
                     )
                   )
               )

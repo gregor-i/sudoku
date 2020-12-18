@@ -1,15 +1,14 @@
 package frontend.pages
 
-import frontend.Router.{Path, QueryParameter}
 import frontend.components._
 import frontend.toasts.Toasts
 import frontend.util.{Action, AsyncUtil}
-import frontend.{GlobalState, NoRouting, Page, PageState}
+import frontend.{NoRouting, Page, PageState}
 import model.SolverResult.{MultipleSolutions, NoSolution, UniqueSolution}
 import model._
 import monocle.macros.Lenses
 import org.scalajs.dom.document
-import snabbdom.{Node, Snabbdom}
+import snabbdom.Node
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.chaining.scalaUtilChainingOps
@@ -80,7 +79,7 @@ object SudokuSolverPage extends Page[SolverState] with NoRouting {
       Button(
         "Solve",
         Icons.solve,
-        Snabbdom.event { _ =>
+        _ => {
           val process = AsyncUtil.future {
             Solver.solver(context.local.board)
           }

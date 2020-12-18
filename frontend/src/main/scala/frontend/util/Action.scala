@@ -1,12 +1,12 @@
 package frontend.util
 
 import frontend.{Context, GlobalState, PageState}
-import snabbdom.Snabbdom
+import snabbdom.{Event, Snabbdom}
 
 object Action {
-  def apply[A <: PageState](action: A => A)(implicit context: Context[A]) =
-    Snabbdom.event(_ => context.update(action(context.local)))
+  def apply[A <: PageState](action: A => A)(implicit context: Context[A]): Event => Unit =
+    _ => context.update(action(context.local))
 
-  def global(action: GlobalState => GlobalState)(implicit context: Context[_]) =
-    Snabbdom.event(_ => context.update(action(context.global)))
+  def global(action: GlobalState => GlobalState)(implicit context: Context[_]): Event => Unit =
+    _ => context.update(action(context.global))
 }

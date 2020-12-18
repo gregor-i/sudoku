@@ -4,7 +4,7 @@ import frontend.components._
 import frontend.{NoRouting, Page, PageState}
 import model.{DecoratedCell, SolvedSudokuBoard, SudokuBoard}
 import monocle.macros.Lenses
-import snabbdom.{Node, Snabbdom}
+import snabbdom.Node
 
 @Lenses
 case class SolvedSudokuState(
@@ -28,7 +28,7 @@ object SolvedSudokuPage extends Page[SolvedSudokuState] with NoRouting {
       Button(
         "Clear",
         Icons.clear,
-        Snabbdom.event(_ => context.update(SolverState(SudokuBoard.empty(context.local.board.dim), None)))
+        _ => context.update(SolverState(SudokuBoard.empty(context.local.board.dim), None))
       ).classes("is-primary", "mr-0")
     ).classes("my-2")
 }

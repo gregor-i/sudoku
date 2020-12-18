@@ -1,12 +1,12 @@
 package frontend
 
 import frontend.pages.PuzzleState
+import io.circe.generic.auto._
 import io.circe.parser
 import io.circe.syntax._
-import io.circe.generic.auto._
 import org.scalajs.dom
 import org.scalajs.dom.Element
-import snabbdom.{Snabbdom, SnabbdomFacade, VNode}
+import snabbdom.{PatchFunction, Snabbdom, VNode}
 
 import scala.scalajs.js.{UndefOr, |}
 
@@ -15,7 +15,7 @@ class App(container: Element) {
   var node: Element | VNode = container
   var timeout: Option[Int]  = None
 
-  val patch: SnabbdomFacade.PatchFunction = Snabbdom.init(
+  val patch: PatchFunction = Snabbdom.init(
     classModule = true,
     attributesModule = true,
     styleModule = true,

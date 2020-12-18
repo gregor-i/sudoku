@@ -114,5 +114,5 @@ def scalaJsDom =
 
 def snabbdom = Seq(
   resolvers += Resolver.bintrayRepo("gregor-i", "maven"),
-  libraryDependencies += "com.github.gregor-i" %%% "scalajs-snabbdom" % "1.1"
+  libraryDependencies += "com.github.gregor-i" %%% "scalajs-snabbdom" % "1.2"
 )
