@@ -4,13 +4,15 @@ module.exports = (env, options) => {
   return {
     entry: {
       app: [
-        devMode ? './frontend/target/scala-2.13/frontend-fastopt.js' :  './frontend/target/scala-2.13/frontend-opt.js'
+        devMode
+          ? './frontend/target/scala-2.13/frontend-fastopt/main.js'
+          : './frontend/target/scala-2.13/frontend-opt/main.js'
       ]
     },
     output: {
       filename: '../build/app.js',
       publicPath: '/'
     },
-    devtool: devMode ? 'source-map' : undefined
+    devtool: undefined
   }
 }

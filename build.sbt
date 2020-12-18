@@ -1,5 +1,6 @@
 import scala.sys.process._
 import org.scalajs.sbtplugin.Stage
+import org.scalajs.linker.interface.ModuleSplitStyle
 
 name := "sudoku"
 
@@ -23,7 +24,10 @@ lazy val frontend = project
   .enablePlugins(ScalaJSPlugin)
   .settings(
     scalaJSUseMainModuleInitializer := true,
-    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) }
+    scalaJSLinkerConfig ~= {
+      _.withModuleKind(ModuleKind.ESModule)
+      .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
+    }
   )
   .settings(monocle, scalatest, snabbdom, circe)
 
@@ -46,12 +50,12 @@ compile in frontend := Def.taskDyn {
   val stage = (frontend / Compile / scalaJSStage).value
   val ret   = (frontend / Compile / compile).value
   stage match {
-    case Stage.FullOpt => (frontend / Compile / fullOptJS).map { _ =>
+    case Stage.FullOpt => (frontend / Compile / fullLinkJS).map { _ =>
       Seq("./node_modules/.bin/webpack", "--mode", "production").!!
       ret
     }
 
-    case Stage.FastOpt => (frontend / Compile / fastOptJS).map { _ =>
+    case Stage.FastOpt => (frontend / Compile / fastLinkJS).map { _ =>
       Seq("./node_modules/.bin/webpack", "--mode", "development").!!
       ret
     }
