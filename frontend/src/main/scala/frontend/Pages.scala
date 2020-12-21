@@ -10,7 +10,8 @@ object Pages {
     LandingPage,
     SudokuSolverPage,
     SolvedSudokuPage,
-    PuzzlePage
+    PuzzlePage,
+    FinishedPuzzlePage
   )
 
   def selectPage[State <: PageState](nutriaState: State): Page[State] =

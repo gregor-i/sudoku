@@ -1,6 +1,6 @@
 package frontend
 
-import frontend.pages.PuzzleState
+import frontend.pages.{FinishedPuzzleState, PuzzleState}
 import io.circe.generic.auto._
 import io.circe.parser
 import io.circe.syntax._
@@ -40,8 +40,9 @@ class App(container: Element) {
 
   def renderState(globalState: GlobalState, state: PageState): Unit = {
     val modifiedGlobalState = state match {
-      case puzzle: PuzzleState => globalState.copy(lastPuzzle = Some(puzzle.copy(focus = None)))
-      case _                   => globalState
+      case puzzle: PuzzleState         => globalState.copy(lastPuzzle = Some(puzzle.copy(focus = None)))
+      case puzzle: FinishedPuzzleState => globalState.copy(lastPuzzle = None)
+      case _                           => globalState
     }
 
     saveGlobalState(modifiedGlobalState)

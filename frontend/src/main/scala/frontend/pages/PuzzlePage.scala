@@ -55,7 +55,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
         Node("div.grid-main")
           .child(
             SudokuBoardSVG(
-              board = DecoratedBoard.markMistakes(context.local.decoratedBoard),
+              board = context.local.decoratedBoard,
               interaction = Some((pos, node) => {
                 if (context.local.generatedBoard.get(pos).isEmpty)
                   node.event("click", Action(PuzzleState.focus.set(Some(pos))))
@@ -67,16 +67,11 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
       )
       .child(buttonBar().classes("grid-footer"))
       .child(contextMenu())
-      .childOptional(finishedModal())
       .pipe(
         InputContextMenu.globalEventListener(
           dim = context.local.generatedBoard.dim,
           focus = context.local.focus,
-          setValue = (pos, value) => {
-            val clearFocus = PuzzleState.focus.set(None)
-            val set        = PuzzleState.decoratedBoard.modify(_.set(pos, DecoratedCell.maybeInput(value)))
-            context.update((set andThen clearFocus).apply(context.local))
-          },
+          setValue = (pos, value) => inputValue(pos, value),
           setFocus = pos => {
             if (context.local.generatedBoard.get(pos).isEmpty)
               context.update(PuzzleState.focus.set(Some(pos))(context.local))
@@ -91,7 +86,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
         "New Game",
         Icons.generate,
         generateGameAction(Random.nextInt())
-      ).classes("mr-0")
+      )
     ).classes("my-2")
 
   private def generateGameAction(seed: Int)(implicit context: Context): Event => Unit =
@@ -110,23 +105,26 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
         dim = context.local.generatedBoard.dim,
         reference = document.getElementById(s"cell_${pos._1}_${pos._2}"),
         setFocus = pos => context.update(PuzzleState.focus.set(pos)(context.local)),
-        setValue = value =>
-          context.update(
-            PuzzleState.focus.set(None) andThen PuzzleState.decoratedBoard
-              .modify(_.set(pos, DecoratedCell.maybeInput(value))) apply context.local
-          )
+        setValue = value => inputValue(pos, value)
       )
     }
 
-  private def finishedModal()(implicit context: Context): Option[Node] =
-    Validate(context.local.decoratedBoard.map(_.toOption)).map { _ =>
-      Modal(_ => ())(
-        Node("h1.title.has-text-centered").text("Sudoku completed!"),
-        ButtonList.centered(
-          Button("Back to landing Page", _ => context.update(LandingPageState())),
-          Button("Next Game!", Icons.generate, generateGameAction(Random.nextInt()))
-            .classes("is-primary")
-        )
-      )
+  private def inputValue(pos: Position, value: Option[Int])(implicit context: Context): Unit =
+    context.update {
+      val updatedBoard = context.local.decoratedBoard
+        .set(pos, DecoratedCell.maybeInput(value))
+        .pipe(DecoratedBoard.markMistakes)
+      Validate(updatedBoard.map(_.toOption)) match {
+        case Some(finishedGame) =>
+          FinishedPuzzleState(
+            board = finishedGame,
+            difficulty = context.local.desiredDifficulty
+          )
+        case None =>
+          context.local.copy(
+            focus = None,
+            decoratedBoard = updatedBoard
+          )
+      }
     }
 }
