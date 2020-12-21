@@ -3,7 +3,7 @@ package frontend.pages
 import frontend.components.{Button, ButtonList, Header, Icons, Modal, SudokuBoardSVG}
 import frontend.util.Action
 import frontend.{NoRouting, Page, PageState}
-import model.{DecoratedCell, SolvedSudokuBoard}
+import model.{DecoratedCell, Dimensions, Position, SolvedSudokuBoard, SudokuBoard}
 import monocle.macros.Lenses
 import snabbdom.{Event, Node}
 import toasts.{ToastType, Toasts}
@@ -26,8 +26,10 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
       .child(
         Node("div.grid-main")
           .child(
-            SudokuBoardSVG(board = context.local.board.map(DecoratedCell.Input), interaction = None)
-              .classes("grid-main-svg")
+            SudokuBoardSVG(
+              board = context.local.board.map(DecoratedCell.Input),
+              interaction = Some(animations(context.local.board.dim))
+            ).classes("grid-main-svg", "finished-sudoku")
               .event("click", Action(FinishedPuzzleState.tapped.set(true)))
           )
       )
@@ -59,4 +61,32 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
         case scala.util.Failure(_) =>
           (ToastType.Danger, "Something went wrong ...")
       }
+
+  private def animations(dim: Dimensions)(pos: Position, node: Node): Node = {
+    def d(p: Position): Double = {
+      val d = (p._1 - pos._1, p._2 - pos._2)
+      Math.sqrt(d._1 * d._1 + d._2 * d._2)
+    }
+
+    def animationLine(bloom: Position, duration: Double, delay: Double) =
+      s"finished-animation ${duration}s linear ${d(bloom) / 2.0 + delay}s infinite"
+
+    val random    = new Random(dim.hashCode())
+    val duration1 = random.nextDouble() * 2 + 2
+    val duration2 = random.nextDouble() * 2 + 2
+    val duration3 = random.nextDouble() * 2 + 2
+    val poss      = SudokuBoard.positions(dim)
+    val bloom1    = random.shuffle(poss).head
+    val bloom2    = random.shuffle(poss).head
+    val bloom3    = random.shuffle(poss).head
+
+    node.style(
+      "animation",
+      Seq(
+        animationLine(bloom1, duration1, 0.1),
+        animationLine(bloom2, duration2, 0.2),
+        animationLine(bloom3, duration3, 0.3)
+      ).mkString(",")
+    )
+  }
 }
