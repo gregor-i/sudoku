@@ -68,24 +68,20 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
       Math.sqrt(d._1 * d._1 + d._2 * d._2)
     }
 
-    def animationLine(bloom: Position, duration: Double, delay: Double) =
-      s"finished-animation ${duration}s linear ${d(bloom) / 2.0 + delay}s infinite"
+    val random = new Random(dim.hashCode())
+    val poss   = SudokuBoard.positions(dim)
+    val bloom1 = random.shuffle(poss).head
+    val bloom2 = random.shuffle(poss).head
+    val bloom3 = random.shuffle(poss).head
 
-    val random    = new Random(dim.hashCode())
-    val duration1 = random.nextDouble() * 2 + 2
-    val duration2 = random.nextDouble() * 2 + 2
-    val duration3 = random.nextDouble() * 2 + 2
-    val poss      = SudokuBoard.positions(dim)
-    val bloom1    = random.shuffle(poss).head
-    val bloom2    = random.shuffle(poss).head
-    val bloom3    = random.shuffle(poss).head
+    val speed = 0.25
 
     node.style(
       "animation",
       Seq(
-        animationLine(bloom1, duration1, 0.1),
-        animationLine(bloom2, duration2, 0.2),
-        animationLine(bloom3, duration3, 0.3)
+        s"finished-animation1 6s linear ${d(bloom1) * speed + -6}s infinite both",
+        s"finished-animation2 6s linear ${d(bloom2) * speed + -4}s infinite both",
+        s"finished-animation3 6s linear ${d(bloom3) * speed + -2}s infinite both"
       ).mkString(",")
     )
   }
