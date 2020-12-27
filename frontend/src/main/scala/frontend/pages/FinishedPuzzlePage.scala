@@ -1,12 +1,13 @@
 package frontend.pages
 
-import frontend.components.{Button, ButtonList, Header, Icons, Modal, SudokuBoardSVG}
+import frontend.components.{Header, Icons, SudokuBoardSVG}
 import frontend.util.Action
 import frontend.{NoRouting, Page, PageState}
-import model.{DecoratedCell, Dimensions, Position, SolvedSudokuBoard, SudokuBoard}
+import model._
 import monocle.macros.Lenses
+import snabbdom.components.{Button, ButtonList, Modal}
+import snabbdom.toasts.{ToastType, Toasts}
 import snabbdom.{Event, Node}
-import toasts.{ToastType, Toasts}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
@@ -46,7 +47,7 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
     )
 
   private def buttonBar()(implicit context: Context): Node =
-    ButtonList(
+    ButtonList.right(
       Button("Change Difficulty", _ => context.update(LandingPageState())),
       Button("Next Game!", Icons.generate, generateGameAction(Random.nextInt()))
         .classes("is-primary")

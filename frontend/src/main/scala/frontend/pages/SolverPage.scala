@@ -8,7 +8,8 @@ import model._
 import monocle.macros.Lenses
 import org.scalajs.dom.document
 import snabbdom.Node
-import toasts.{ToastType, Toasts}
+import snabbdom.components.{Button, ButtonList}
+import snabbdom.toasts.{ToastType, Toasts}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.chaining.scalaUtilChainingOps
@@ -74,29 +75,31 @@ object SudokuSolverPage extends Page[SolverState] with NoRouting {
     }
 
   private def buttonBar()(implicit context: Context): Node =
-    ButtonList(
-      Button("Clear", Icons.clear, Action(SolverState.board.modify(_.map(_ => None)))),
-      Button(
-        "Solve",
-        Icons.solve,
-        _ => {
-          val process = AsyncUtil.future {
-            Solver.solver(context.local.board)
-          }
+    ButtonList
+      .right(
+        Button("Clear", Icons.clear, Action(SolverState.board.modify(_.map(_ => None)))),
+        Button(
+          "Solve",
+          Icons.solve,
+          _ => {
+            val process = AsyncUtil.future {
+              Solver.solver(context.local.board)
+            }
 
-          Toasts.asyncToast("solving ...", process) {
-            case scala.util.Success(UniqueSolution(solution)) =>
-              context.update(SolvedSudokuState(solution))
-              (ToastType.Success, "solved!")
-            case scala.util.Success(NoSolution) =>
-              (ToastType.Warning, "No solution found. Maybe some numbers are wrong?")
-            case scala.util.Success(MultipleSolutions(_)) =>
-              (ToastType.Warning, "Multiple solutions found. Maybe some numbers are missing?")
-            case scala.util.Failure(_) =>
-              (ToastType.Danger, "Something went wrong ...")
+            Toasts.asyncToast("solving ...", process) {
+              case scala.util.Success(UniqueSolution(solution)) =>
+                context.update(SolvedSudokuState(solution))
+                (ToastType.Success, "solved!")
+              case scala.util.Success(NoSolution) =>
+                (ToastType.Warning, "No solution found. Maybe some numbers are wrong?")
+              case scala.util.Success(MultipleSolutions(_)) =>
+                (ToastType.Warning, "Multiple solutions found. Maybe some numbers are missing?")
+              case scala.util.Failure(_) =>
+                (ToastType.Danger, "Something went wrong ...")
+            }
           }
-        }
-      ).classes("is-primary", "mr-0")
-    ).classes("my-2")
+        ).classes("is-primary", "mr-0")
+      )
+      .classes("my-2")
 
 }

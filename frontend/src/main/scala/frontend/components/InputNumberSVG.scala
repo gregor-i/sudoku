@@ -1,6 +1,6 @@
 package frontend.components
 
-import model.{Dimensions, OpenSudokuBoard, SudokuBoard}
+import model.Dimensions
 import snabbdom.Node
 
 object InputNumberSVG {

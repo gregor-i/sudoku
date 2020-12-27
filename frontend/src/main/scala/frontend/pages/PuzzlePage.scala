@@ -1,12 +1,13 @@
 package frontend.pages
 
 import frontend.components._
-import toasts.{ToastType, Toasts}
 import frontend.util.{Action, AsyncUtil}
 import frontend.{NoRouting, Page, PageState}
 import model._
 import monocle.macros.Lenses
 import org.scalajs.dom.document
+import snabbdom.components.{Button, ButtonList}
+import snabbdom.toasts.{ToastType, Toasts}
 import snabbdom.{Event, Node}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -81,13 +82,15 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
       )
 
   private def buttonBar()(implicit context: Context): Node =
-    ButtonList(
-      Button(
-        "New Game",
-        Icons.generate,
-        generateGameAction(Random.nextInt())
+    ButtonList
+      .right(
+        Button(
+          "New Game",
+          Icons.generate,
+          generateGameAction(Random.nextInt())
+        )
       )
-    ).classes("my-2")
+      .classes("my-2")
 
   private def generateGameAction(seed: Int)(implicit context: Context): Event => Unit =
     _ =>

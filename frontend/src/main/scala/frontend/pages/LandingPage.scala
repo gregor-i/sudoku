@@ -1,10 +1,11 @@
 package frontend.pages
 
 import frontend.Router.{Path, QueryParameter}
-import frontend.components.{Button, Icons, Modal}
-import frontend.{GlobalState, NoRouting, Page, PageState}
+import frontend.components.Icons
+import frontend.{GlobalState, Page, PageState}
 import model.Difficulty
-import snabbdom.{Node, Snabbdom}
+import snabbdom.Node
+import snabbdom.components.{Button, Modal}
 
 import scala.util.Random
 

@@ -1,8 +1,7 @@
 package frontend.pages
 
-import frontend.Router.Location
 import frontend.components.Header
-import frontend.{GlobalState, NoRouting, Page, PageState, Router}
+import frontend.{NoRouting, Page, PageState}
 import snabbdom.Node
 
 @monocle.macros.Lenses()

@@ -2,9 +2,7 @@ package frontend.components
 
 import model.{Dimensions, Position, SudokuBoard}
 import org.scalajs.dom.{Element, KeyboardEvent, document}
-import snabbdom.{Event, Node, Snabbdom}
-
-import scala.scalajs.js
+import snabbdom.{Event, Node}
 
 object InputContextMenu {
   def apply(

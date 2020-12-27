@@ -1,6 +1,6 @@
 package frontend.components
 
-import model.{DecoratedBoard, DecoratedCell, Dimensions, Position, SudokuBoard}
+import model._
 import snabbdom.Node
 
 object SudokuBoardSVG {

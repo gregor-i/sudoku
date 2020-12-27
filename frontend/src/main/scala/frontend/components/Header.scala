@@ -2,7 +2,8 @@ package frontend.components
 
 import frontend.Context
 import frontend.pages.{LandingPageState, PuzzleState, SolverState}
-import snabbdom.{Event, Node, Snabbdom}
+import snabbdom.components.Icon
+import snabbdom.{Event, Node}
 
 import scala.util.Random
 
@@ -22,7 +23,7 @@ object Header {
             Node("div")
               .child(
                 Node("a.navbar-item")
-                  .child(Icons.icon(Icons.play).classes("mr-1"))
+                  .child(Icon(Icons.play).classes("mr-1"))
                   .text("Play")
                   .event[Event]("click", _ => context.update(PuzzleState.loading(Random.nextInt())))
               )
@@ -31,7 +32,7 @@ object Header {
             Node("div")
               .child(
                 Node("a.navbar-item")
-                  .child(Icons.icon(Icons.solve).classes("mr-1"))
+                  .child(Icon(Icons.solve).classes("mr-1"))
                   .text("Solve")
                   .event[Event]("click", _ => context.update(SolverState.empty()))
               )

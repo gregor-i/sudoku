@@ -5,6 +5,7 @@ import frontend.{NoRouting, Page, PageState}
 import model.{DecoratedCell, SolvedSudokuBoard, SudokuBoard}
 import monocle.macros.Lenses
 import snabbdom.Node
+import snabbdom.components.{Button, ButtonList}
 
 @Lenses
 case class SolvedSudokuState(
@@ -24,11 +25,13 @@ object SolvedSudokuPage extends Page[SolvedSudokuState] with NoRouting {
       .child(buttonBar().classes("grid-footer"))
 
   private def buttonBar()(implicit context: Context): Node =
-    ButtonList(
-      Button(
-        "Clear",
-        Icons.clear,
-        _ => context.update(SolverState(SudokuBoard.empty(context.local.board.dim), None))
-      ).classes("is-primary", "mr-0")
-    ).classes("my-2")
+    ButtonList
+      .right(
+        Button(
+          "Clear",
+          Icons.clear,
+          _ => context.update(SolverState(SudokuBoard.empty(context.local.board.dim), None))
+        ).classes("is-primary", "mr-0")
+      )
+      .classes("my-2")
 }
