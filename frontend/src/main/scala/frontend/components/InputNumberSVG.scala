@@ -61,7 +61,7 @@ object InputNumberSVG {
             Node("tspan")
               .attr("x", "0.5")
               .attr("y", "0.5")
-              .attr("alignment-baseline", "central")
+              .attr("dominant-baseline", "central")
               .attr("fill", "currentColor")
               .text((value + 1).toString)
           )

@@ -26,9 +26,9 @@
           bottom: 4px
 
   .modal-background
-    background:
-      image: url('/background.svg')
-      size: cover
-      position: center
-      blend-mode: color
-
+    svg
+      position: absolute
+      left: calc((100vw - 100vmax) / 2)
+      top: calc((100vh - 100vmax) / 2)
+      height: 100vmax
+      opacity: 0.4

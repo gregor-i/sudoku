@@ -35,13 +35,10 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
           )
       )
       .child(buttonBar().classes("grid-footer", "buttons", "my-2"))
-      .childOptional {
-        if (context.local.tapped) Some(finishedModal())
-        else None
-      }
+      .maybeModify(context.local.tapped)(_.child(finishedModal()))
 
   private def finishedModal()(implicit context: Context): Node =
-    Modal(Action(FinishedPuzzleState.tapped.set(false)))(
+    Modal(closeAction = Some(Action(FinishedPuzzleState.tapped.set(false))))(
       Node("h1.title.has-text-centered").text("Sudoku completed!"),
       buttonBar()
     )

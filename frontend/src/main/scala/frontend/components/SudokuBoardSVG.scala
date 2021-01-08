@@ -28,7 +28,8 @@ object SudokuBoardSVG {
             .attr("x2", column.toString)
             .attr("y1", "0")
             .attr("y2", dim.blockSize.toString)
-            .attr("stroke", "lightgrey")
+            .attr("stroke", "currentColor")
+            .style("opacity", "0.2")
             .attr("stroke-width", strokeWidth.toString)
       }
       .child {
@@ -39,6 +40,8 @@ object SudokuBoardSVG {
             .attr("y1", row.toString)
             .attr("y2", row.toString)
             .attr("stroke", "lightgrey")
+            .attr("stroke", "currentColor")
+            .style("opacity", "0.2")
             .attr("stroke-width", strokeWidth.toString)
       }
       .child {
@@ -48,7 +51,7 @@ object SudokuBoardSVG {
             .attr("x2", column.toString)
             .attr("y1", "0")
             .attr("y2", dim.blockSize.toString)
-            .attr("stroke", "black")
+            .attr("stroke", "currentColor")
             .attr("stroke-width", strokeWidth.toString)
       }
       .child {
@@ -58,7 +61,7 @@ object SudokuBoardSVG {
             .attr("x2", dim.blockSize.toString)
             .attr("y1", row.toString)
             .attr("y2", row.toString)
-            .attr("stroke", "black")
+            .attr("stroke", "currentColor")
             .attr("stroke-width", strokeWidth.toString)
             .attr("stroke-linecap", "square")
       }
@@ -87,11 +90,10 @@ object SudokuBoardSVG {
     Node("tspan")
       .attr("x", "0.5")
       .attr("y", "0.5")
-      .attr("alignment-baseline", "central")
-      .attr("fill", "currentColor")
+      .attr("dominant-baseline", "central")
 
   private def givenNumber(state: DecoratedCell.Given): Node =
-    numberPrototype.text(state.value.toString).style("font-weight", "bold")
+    numberPrototype.text(state.value.toString).style("font-weight", "300")
 
   private def inputNumber(state: DecoratedCell.Input): Node =
     numberPrototype.text(state.value.toString)
