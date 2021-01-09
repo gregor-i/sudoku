@@ -99,7 +99,7 @@ object SudokuBoardSVG {
     numberPrototype.text(state.value.toString)
 
   private def wrongInputNumber(state: DecoratedCell.WrongInput): Node =
-    numberPrototype.text(state.value.toString).style("color", "red")
+    numberPrototype.text(state.value.toString).style("fill", "red")
 
   private def interactionRects(board: SudokuBoard[_], interaction: Interaction): Node =
     Node("g")
