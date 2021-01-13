@@ -53,7 +53,7 @@ object LandingPage extends Page[LandingPageState] {
                     Button(
                       text = "Hard",
                       icon = Icons.hard,
-                      onclick = _ => context.update(PuzzleState.loading(seed = Random.nextInt(), Difficulty.medium))
+                      onclick = _ => context.update(PuzzleState.loading(seed = Random.nextInt(), Difficulty.hard))
                     )
                   )
               ),

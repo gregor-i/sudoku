@@ -26,7 +26,7 @@ case class PuzzleState(
 ) extends PageState
 
 object PuzzleState {
-  def process(seed: Int, desiredDifficulty: Double = Difficulty.default): Future[PuzzleState] =
+  def process(seed: Int, desiredDifficulty: Double): Future[PuzzleState] =
     AsyncUtil.future {
       val generatedBoard = Generator(Dimensions(3, 3), seed, desiredDifficulty)
       val decoratedBoard = generatedBoard.map[DecoratedCell] {
@@ -44,7 +44,7 @@ object PuzzleState {
       )
     }
 
-  def loading(seed: Int, desiredDifficulty: Double = Difficulty.default): LoadingState =
+  def loading(seed: Int, desiredDifficulty: Double): LoadingState =
     LoadingState(process(seed, desiredDifficulty))
 }
 

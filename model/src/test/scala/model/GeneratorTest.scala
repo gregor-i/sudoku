@@ -10,11 +10,11 @@ class GeneratorTest extends AnyFunSuite {
     val dim = Dimensions(3, 3)
 
     test(s"apply constructs a puzzle (dim = ${dim}, seed = ${seed}, solver = ${solver})") {
-      Generator(dim, seed, Difficulty.default)
+      Generator(dim, seed, Difficulty.medium)
     }
 
     Try {
-      Generator(dim, seed, Difficulty.default)
+      Generator(dim, seed, Difficulty.medium)
     } match {
       case Failure(_) => ()
       case Success(board) =>
