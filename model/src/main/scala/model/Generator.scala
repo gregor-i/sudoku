@@ -8,13 +8,13 @@ object Generator {
 
   def apply(dim: Dimensions, seed: Int, desiredDifficulty: Double, solver: Solver = Solver.solver): OpenSudokuBoard = {
     val random = new Random(seed)
-    initialBoard(dim)
+    initialBoard(dim, solver)
       .pipe(permutate(random.nextInt(), _))
       .pipe(makePuzzle(random.nextInt(), _, desiredDifficulty, solver))
   }
 
-  def initialBoard(dim: Dimensions): SolvedSudokuBoard =
-    Solver.solver(SudokuBoard.empty(dim)).asInstanceOf[SolverResult.MultipleSolutions].solutions.head
+  def initialBoard(dim: Dimensions, solver: Solver = Solver.solver): SolvedSudokuBoard =
+    solver(SudokuBoard.empty(dim)).asInstanceOf[SolverResult.MultipleSolutions].solutions.head
 
   def permutate[S](seed: Int, board: SudokuBoard[S]): SudokuBoard[S] =
     permutations(seed, board.dim).foldLeft(board) {

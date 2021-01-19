@@ -4,7 +4,7 @@ import model._
 
 import scala.util.chaining.scalaUtilChainingOps
 
-private[model] object FPSolver extends Solver {
+private[model] object RecursionSolver extends Solver {
   def apply(board: OpenSudokuBoard): SolverResult =
     if (Validate.noError(board))
       loop(

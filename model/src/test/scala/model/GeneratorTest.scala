@@ -1,6 +1,6 @@
 package model
 
-import model.solver.{FPSolver, IteratorSolver}
+import model.solver.{IteratorSolver, RecursionSolver, TreeDFSSolver}
 import org.scalatest.funsuite.AnyFunSuite
 
 import scala.util.{Failure, Success, Try}
@@ -9,7 +9,7 @@ class GeneratorTest extends AnyFunSuite {
   def generatorTest(seed: Int, solver: Solver) = {
     val dim = Dimensions(3, 3)
 
-    test(s"apply constructs a puzzle (dim = ${dim}, seed = ${seed}, solver = ${solver})") {
+    test(s"${solver.getClass.getSimpleName}: apply constructs a puzzle (dim = ${dim}), seed = ${seed})") {
       Generator(dim, seed, Difficulty.medium)
     }
 
@@ -18,7 +18,7 @@ class GeneratorTest extends AnyFunSuite {
     } match {
       case Failure(_) => ()
       case Success(board) =>
-        test(s"the constructed board has a unique solution (dim = ${dim}, seed = ${seed}, solver = ${solver})") {
+        test(s"${solver.getClass.getSimpleName}: the constructed board has a unique solution (dim = ${dim}, seed = ${seed})") {
           assert(IteratorSolver(board).uniqueSolution.isDefined)
         }
     }
@@ -30,11 +30,17 @@ class GeneratorTest extends AnyFunSuite {
   generatorTest(1564, IteratorSolver)
   generatorTest(-1564, IteratorSolver)
 
-  generatorTest(1, FPSolver)
-  generatorTest(2, FPSolver)
-  generatorTest(50, FPSolver)
-  generatorTest(1564, FPSolver)
-  generatorTest(-1564, FPSolver)
+  generatorTest(1, RecursionSolver)
+  generatorTest(2, RecursionSolver)
+  generatorTest(50, RecursionSolver)
+  generatorTest(1564, RecursionSolver)
+  generatorTest(-1564, RecursionSolver)
+
+  generatorTest(1, TreeDFSSolver)
+  generatorTest(2, TreeDFSSolver)
+  generatorTest(50, TreeDFSSolver)
+  generatorTest(1564, TreeDFSSolver)
+  generatorTest(-1564, TreeDFSSolver)
 
   test("initialBoard") {
     val dim = Dimensions(3, 3)

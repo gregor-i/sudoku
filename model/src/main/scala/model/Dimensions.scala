@@ -5,4 +5,6 @@ case class Dimensions(width: Int, height: Int) {
   require(height > 0)
   val blockSize: Int = width * height
   val boardSize: Int = blockSize * blockSize
+
+  override def toString: String = s"${width}x${height}"
 }

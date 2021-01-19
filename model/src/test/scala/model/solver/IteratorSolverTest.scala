@@ -1,6 +1,5 @@
-package model
+package model.solver
 
-import model.solver.IteratorSolver
 import org.scalatest.funsuite.AnyFunSuite
 
 class IteratorSolverTest extends AnyFunSuite with SolverSuite {

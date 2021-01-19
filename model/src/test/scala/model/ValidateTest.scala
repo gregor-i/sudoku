@@ -14,7 +14,7 @@ class ValidateTest extends AnyFunSuite {
     assert(Validate.noError(board.set(0, 1, Some(2))))
   }
 
-  test("apply constructs a SudokuBoard[Id] if the board is complete and correct") {
+  test("apply returns a SolvedSudokuBoard if the board is complete and correct") {
     assert(Validate.noError(completedBoard))
     assert(Validate.findMistakes(completedBoard) == Set.empty)
     assert(Validate(completedBoard).isDefined)

@@ -8,7 +8,7 @@ trait Solver {
 }
 
 object Solver {
-  def solver: Solver = IteratorSolver
+  def solver: Solver = TreeDFSSolver
 }
 
 sealed trait SolverResult {

@@ -77,14 +77,14 @@ class SudokuBoardTest extends AnyFunSuite {
   }
 
   for (dim <- DimensionExamples.examples)
-    test(s"each position is in block, row and column (${dim}") {
+    test(s"each position is in block, row and column (${dim})") {
       assert(SudokuBoard.rows(dim).flatten.toSet == SudokuBoard.positions(dim).toSet)
       assert(SudokuBoard.columns(dim).flatten.toSet == SudokuBoard.positions(dim).toSet)
       assert(SudokuBoard.blocks(dim).flatten.toSet == SudokuBoard.positions(dim).toSet)
     }
 
   for (dim <- DimensionExamples.examples)
-    test(s"rowOf (${dim}") {
+    test(s"rowOf (${dim})") {
       for {
         row <- SudokuBoard.rows(dim)
         pos <- row
@@ -94,7 +94,7 @@ class SudokuBoardTest extends AnyFunSuite {
     }
 
   for (dim <- DimensionExamples.examples)
-    test(s"columnOf (${dim}") {
+    test(s"columnOf (${dim})") {
       for {
         column <- SudokuBoard.columns(dim)
         pos    <- column
@@ -104,7 +104,7 @@ class SudokuBoardTest extends AnyFunSuite {
     }
 
   for (dim <- DimensionExamples.examples)
-    test(s"blockOf (${dim}") {
+    test(s"blockOf (${dim})") {
       for {
         block <- SudokuBoard.blocks(dim)
         pos   <- block

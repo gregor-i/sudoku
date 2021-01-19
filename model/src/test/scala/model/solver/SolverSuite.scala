@@ -1,6 +1,8 @@
-package model
+package model.solver
 
 import model.BoardExamples.hardExample
+import model.SolverResult.MultipleSolutions
+import model.{Dimensions, Solver, SudokuBoard, Validate}
 import org.scalatest.funsuite.AnyFunSuite
 
 trait SolverSuite {
@@ -52,6 +54,11 @@ trait SolverSuite {
     test("hard example 3x3") {
       val Some(solution) = solver(hardExample).uniqueSolution
       assert(Validate.correct(solution))
+    }
+
+    test("given an empty board") {
+      val result = solver(SudokuBoard.empty(Dimensions(3, 3)))
+      assert(result.isInstanceOf[MultipleSolutions])
     }
   }
 }
