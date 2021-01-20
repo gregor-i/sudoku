@@ -9,12 +9,14 @@ object DecoratedBoard {
       .pipe(markMistakes)
 
   def markMistakes(decoratedBoard: DecoratedBoard): DecoratedBoard = {
-    val mistakes = Validate.findMistakes(decoratedBoard.map(_.toOption))
+    val openBoard = decoratedBoard.map(_.toOption)
 
-    decoratedBoard.mapWithPosition {
-      case (DecoratedCell.Input(value), pos) if mistakes.contains(pos)       => DecoratedCell.WrongInput(value)
-      case (DecoratedCell.WrongInput(value), pos) if !mistakes.contains(pos) => DecoratedCell.Input(value)
-      case (cell, _)                                                         => cell
+    SudokuBoard.fill(decoratedBoard.dim) { pos =>
+      decoratedBoard.get(pos) match {
+        case DecoratedCell.Input(value) if !Validate.correct(openBoard, pos)     => DecoratedCell.WrongInput(value)
+        case DecoratedCell.WrongInput(value) if Validate.correct(openBoard, pos) => DecoratedCell.Input(value)
+        case cell                                                                => cell
+      }
     }
   }
 }

@@ -17,27 +17,19 @@ case class SudokuBoard[A](dim: Dimensions, data: Vector[A]) {
   def map[S](f: A => S): SudokuBoard[S] =
     new SudokuBoard[S](dim, data.map(f))
 
-  def mapWithPosition[S](f: (A, Position) => S): SudokuBoard[S] =
-    SudokuBoard[S](dim, data.zipWithIndex.map {
-      case (a, index) =>
-        val x = index % dim.blockSize
-        val y = index / dim.blockSize
-        f(a, (x, y))
-    })
-
   def get(x: Int, y: Int): A =
     data(toIndex(x, y))
 
-  def get(pos: (Int, Int)): A =
+  def get(pos: Position): A =
     data(toIndex(pos._1, pos._2))
 
   def set(x: Int, y: Int, value: A): SudokuBoard[A] =
     new SudokuBoard[A](dim, data.updated(toIndex(x, y), value))
 
-  def set(pos: (Int, Int), value: A): SudokuBoard[A] =
+  def set(pos: Position, value: A): SudokuBoard[A] =
     new SudokuBoard[A](dim, data.updated(toIndex(pos._1, pos._2), value))
 
-  def mod(pos: (Int, Int), f: A => A): SudokuBoard[A] =
+  def mod(pos: Position, f: A => A): SudokuBoard[A] =
     set(pos, f(get(pos)))
 }
 
@@ -61,25 +53,27 @@ object SudokuBoard {
       )
     }.toOption
 
-  def row(y: Int)(dim: Dimensions): Seq[(Int, Int)]    = for (x <- 0 until dim.blockSize) yield (x, y)
-  def column(x: Int)(dim: Dimensions): Seq[(Int, Int)] = for (y <- 0 until dim.blockSize) yield (x, y)
-  def block(i: Int)(dim: Dimensions): Seq[(Int, Int)] =
+  def row(y: Int)(dim: Dimensions): Subset    = for (x <- 0 until dim.blockSize) yield (x, y)
+  def column(x: Int)(dim: Dimensions): Subset = for (y <- 0 until dim.blockSize) yield (x, y)
+  def block(i: Int)(dim: Dimensions): Subset =
     for {
       y <- 0 until dim.height
       x <- 0 until dim.width
     } yield (x + (i % dim.height) * dim.width, y + (i / dim.height) * dim.height)
 
-  def rows(dim: Dimensions): Seq[Seq[(Int, Int)]]       = for (y <- 0 until dim.blockSize) yield row(y)(dim)
-  def columns(dim: Dimensions): Seq[Seq[(Int, Int)]]    = for (x <- 0 until dim.blockSize) yield column(x)(dim)
-  def blocks(dim: Dimensions): Seq[Seq[(Int, Int)]]     = for (i <- 0 until dim.blockSize) yield block(i)(dim)
-  def allSubsets(dim: Dimensions): Seq[Seq[(Int, Int)]] = rows(dim) ++ columns(dim) ++ blocks(dim)
+  def rows(dim: Dimensions): Seq[Subset]       = for (y <- 0 until dim.blockSize) yield row(y)(dim)
+  def columns(dim: Dimensions): Seq[Subset]    = for (x <- 0 until dim.blockSize) yield column(x)(dim)
+  def blocks(dim: Dimensions): Seq[Subset]     = for (i <- 0 until dim.blockSize) yield block(i)(dim)
+  def allSubsets(dim: Dimensions): Seq[Subset] = rows(dim) ++ columns(dim) ++ blocks(dim)
 
-  def rowOf(position: (Int, Int))(dim: Dimensions): Seq[(Int, Int)]    = row(position._2)(dim)
-  def columnOf(position: (Int, Int))(dim: Dimensions): Seq[(Int, Int)] = column(position._1)(dim)
-  def blockOf(position: (Int, Int))(dim: Dimensions): Seq[(Int, Int)] =
+  def rowOf(position: Position)(dim: Dimensions): Subset    = row(position._2)(dim)
+  def columnOf(position: Position)(dim: Dimensions): Subset = column(position._1)(dim)
+  def blockOf(position: Position)(dim: Dimensions): Subset =
     block((position._2 / dim.height) * dim.height + (position._1 / dim.width) % dim.height)(dim)
+  def allSubsetsOf(position: Position)(dim: Dimensions): Seq[Subset] =
+    Seq(rowOf(position)(dim), columnOf(position)(dim), blockOf(position)(dim))
 
-  def positions(dim: Dimensions): Seq[(Int, Int)] =
+  def positions(dim: Dimensions): Seq[Position] =
     for {
       x <- 0 until dim.blockSize
       y <- 0 until dim.blockSize

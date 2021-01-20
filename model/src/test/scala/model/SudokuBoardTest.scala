@@ -113,14 +113,9 @@ class SudokuBoardTest extends AnyFunSuite {
       }
     }
 
-  test("mapWithPosition") {
-    val positionsBoard = SudokuBoard.empty(Dimensions(3, 3)).mapWithPosition((_, pos) => pos)
+  test("fill") {
+    val positionsBoard = SudokuBoard.fill(Dimensions(3, 3))(identity)
     for (position <- SudokuBoard.positions(positionsBoard.dim))
       assert(positionsBoard.get(position) == position)
-  }
-
-  test("fill") {
-    assert(SudokuBoard.fill(Dimensions(3, 3))(identity) == SudokuBoard.empty(Dimensions(3, 3)).mapWithPosition((_, pos) => pos))
-    assert(SudokuBoard.fill(Dimensions(3, 2))(identity) == SudokuBoard.empty(Dimensions(3, 2)).mapWithPosition((_, pos) => pos))
   }
 }
