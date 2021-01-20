@@ -45,6 +45,9 @@ object SudokuBoard {
   def empty(dim: Dimensions): OpenSudokuBoard =
     new OpenSudokuBoard(dim, Vector.fill[Option[Int]](dim.blockSize * dim.blockSize)(None))
 
+  def fill[A](dim: Dimensions)(f: Position => A): SudokuBoard[A] =
+    new SudokuBoard[A](dim, rows(dim).flatten.map(f).toVector)
+
   def fromString(dimensions: Dimensions)(string: String): Option[OpenSudokuBoard] =
     Try {
       new OpenSudokuBoard(
