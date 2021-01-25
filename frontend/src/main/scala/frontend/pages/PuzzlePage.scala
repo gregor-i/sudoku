@@ -18,33 +18,30 @@ import scala.util.chaining.scalaUtilChainingOps
 @Lenses
 case class PuzzleState(
     seed: Int,
-    desiredDifficulty: Double,
-    actualDifficulty: Double,
+    desiredDifficulty: Difficulty,
     generatedBoard: OpenSudokuBoard,
     decoratedBoard: DecoratedBoard,
     focus: Option[Position]
 ) extends PageState
 
 object PuzzleState {
-  def process(seed: Int, desiredDifficulty: Double): Future[PuzzleState] =
+  def process(seed: Int, desiredDifficulty: Difficulty): Future[PuzzleState] =
     AsyncUtil.future {
       val generatedBoard = Generator(Dimensions(3, 3), seed, desiredDifficulty)
       val decoratedBoard = generatedBoard.map[DecoratedCell] {
         case None        => DecoratedCell.Empty
         case Some(value) => DecoratedCell.Given(value)
       }
-      val actualDifficulty = Difficulty(generatedBoard).getOrElse(0.0)
       PuzzleState(
         seed = seed,
         desiredDifficulty = desiredDifficulty,
-        actualDifficulty = actualDifficulty,
         generatedBoard = generatedBoard,
         decoratedBoard = decoratedBoard,
         focus = None
       )
     }
 
-  def loading(seed: Int, desiredDifficulty: Double): LoadingState =
+  def loading(seed: Int, desiredDifficulty: Difficulty): LoadingState =
     LoadingState(process(seed, desiredDifficulty))
 }
 

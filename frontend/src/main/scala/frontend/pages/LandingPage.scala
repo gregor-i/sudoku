@@ -43,17 +43,17 @@ object LandingPage extends Page[LandingPageState] {
                     Button(
                       text = "Easy",
                       icon = Icons.easy,
-                      onclick = _ => context.update(PuzzleState.loading(seed = Random.nextInt(), Difficulty.easy))
+                      onclick = _ => context.update(PuzzleState.loading(seed = Random.nextInt(), Difficulty.Easy))
                     ),
                     Button(
                       text = "Medium",
                       icon = Icons.medium,
-                      onclick = _ => context.update(PuzzleState.loading(seed = Random.nextInt(), Difficulty.medium))
+                      onclick = _ => context.update(PuzzleState.loading(seed = Random.nextInt(), Difficulty.Medium))
                     ),
                     Button(
                       text = "Hard",
                       icon = Icons.hard,
-                      onclick = _ => context.update(PuzzleState.loading(seed = Random.nextInt(), Difficulty.hard))
+                      onclick = _ => context.update(PuzzleState.loading(seed = Random.nextInt(), Difficulty.Hard))
                     )
                   )
               ),

@@ -14,7 +14,7 @@ import scala.util.Random
 
 @Lenses
 case class FinishedPuzzleState(
-    difficulty: Double,
+    difficulty: Difficulty,
     board: SolvedSudokuBoard,
     tapped: Boolean = false
 ) extends PageState

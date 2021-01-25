@@ -6,7 +6,7 @@ import scala.util.chaining._
 object Generator {
   private type Permutation = (Position, Position)
 
-  def apply(dim: Dimensions, seed: Int, desiredDifficulty: Double, solver: Solver = Solver.solver): OpenSudokuBoard = {
+  def apply(dim: Dimensions, seed: Int, desiredDifficulty: Difficulty, solver: Solver = Solver.solver): OpenSudokuBoard = {
     val random = new Random(seed)
     initialBoard(dim)
       .pipe(permutate(random.nextInt(), _))
@@ -75,17 +75,18 @@ object Generator {
   private def makePuzzle(
       seed: Int,
       solvedBoard: SolvedSudokuBoard,
-      desiredDifficulty: Double,
+      desiredDifficulty: Difficulty,
       solver: Solver
   ): OpenSudokuBoard = {
-    val random            = new Random(seed)
-    val shuffledPositions = SudokuBoard.positions(solvedBoard.dim).pipe(random.shuffle(_))
-    val board             = solvedBoard.map[Option[Int]](Some.apply)
+    val random             = new Random(seed)
+    val shuffledPositions  = SudokuBoard.positions(solvedBoard.dim).pipe(random.shuffle(_))
+    val board              = solvedBoard.map[Option[Int]](Some.apply)
+    val difficultyAsDouble = Difficulty.toDouble(desiredDifficulty)
 
     shuffledPositions.foldLeft(board) { (board, position) =>
       val reducedBoard = board.set(position, None)
       val difficulty   = Difficulty(puzzle = reducedBoard, solution = solvedBoard)
-      if (difficulty <= desiredDifficulty && solver(reducedBoard).uniqueSolution.isDefined)
+      if (difficulty <= difficultyAsDouble && solver(reducedBoard).uniqueSolution.isDefined)
         reducedBoard
       else
         board

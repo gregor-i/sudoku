@@ -3,10 +3,18 @@ package model
 import scala.annotation.tailrec
 import scala.util.chaining.scalaUtilChainingOps
 
+sealed trait Difficulty
+
 object Difficulty {
-  def easy   = 1.63
-  def medium = 1.90
-  def hard   = 2.99
+  case object Easy   extends Difficulty
+  case object Medium extends Difficulty
+  case object Hard   extends Difficulty
+
+  def toDouble(difficulty: Difficulty): Double = difficulty match {
+    case Easy   => 1.63
+    case Medium => 1.90
+    case Hard   => 2.99
+  }
 
   def apply(puzzle: OpenSudokuBoard): Option[Double] =
     Solver.solver(puzzle).uniqueSolution.map(solution => apply(puzzle, solution))

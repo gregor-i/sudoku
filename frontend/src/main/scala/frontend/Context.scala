@@ -1,15 +1,18 @@
 package frontend
 
 import frontend.pages.PuzzleState
+import model.{Difficulty, Dimensions}
 import monocle.macros.Lenses
 
 @Lenses
 case class GlobalState(
-    lastPuzzle: Option[PuzzleState] = None
+    lastPuzzle: Option[PuzzleState],
+    difficulty: Difficulty,
+    dimensions: Dimensions
 )
 
 object GlobalState {
-  def initial(): GlobalState = GlobalState()
+  def initial(): GlobalState = GlobalState(lastPuzzle = None, difficulty = Difficulty.Medium, dimensions = Dimensions(3, 3))
 }
 
 trait PageState
