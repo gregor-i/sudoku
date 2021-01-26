@@ -6,7 +6,7 @@ import frontend.{NoRouting, Page, PageState}
 import model._
 import monocle.macros.Lenses
 import org.scalajs.dom.document
-import snabbdom.components.{Button, ButtonList}
+import snabbdom.components.{Button, ButtonList, Modal}
 import snabbdom.toasts.{ToastType, Toasts}
 import snabbdom.{Event, Node}
 
@@ -21,13 +21,14 @@ case class PuzzleState(
     desiredDifficulty: Difficulty,
     generatedBoard: OpenSudokuBoard,
     decoratedBoard: DecoratedBoard,
-    focus: Option[Position]
+    focus: Option[Position],
+    newPuzzleModalOpened: Boolean
 ) extends PageState
 
 object PuzzleState {
-  def process(seed: Int, desiredDifficulty: Difficulty): Future[PuzzleState] =
+  def process(seed: Int, desiredDifficulty: Difficulty, dimensions: Dimensions): Future[PuzzleState] =
     AsyncUtil.future {
-      val generatedBoard = Generator(Dimensions(3, 3), seed, desiredDifficulty)
+      val generatedBoard = Generator(dimensions, seed, desiredDifficulty)
       val decoratedBoard = generatedBoard.map[DecoratedCell] {
         case None        => DecoratedCell.Empty
         case Some(value) => DecoratedCell.Given(value)
@@ -37,12 +38,13 @@ object PuzzleState {
         desiredDifficulty = desiredDifficulty,
         generatedBoard = generatedBoard,
         decoratedBoard = decoratedBoard,
-        focus = None
+        focus = None,
+        newPuzzleModalOpened = false
       )
     }
 
-  def loading(seed: Int, desiredDifficulty: Difficulty): LoadingState =
-    LoadingState(process(seed, desiredDifficulty))
+  def loading(seed: Int, desiredDifficulty: Difficulty, dimensions: Dimensions): LoadingState =
+    LoadingState(process(seed, desiredDifficulty, dimensions))
 }
 
 object PuzzlePage extends Page[PuzzleState] with NoRouting {
@@ -65,7 +67,14 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
       )
       .child(buttonBar().classes("grid-footer"))
       .child(contextMenu())
-      .pipe(
+      .maybeModify(context.local.newPuzzleModalOpened) {
+        _.child(
+          Modal(closeAction = Some(Action(PuzzleState.newPuzzleModalOpened.set(false))))(
+            NewPuzzleModal(None)
+          )
+        )
+      }
+      .modify(
         InputContextMenu.globalEventListener(
           dim = context.local.generatedBoard.dim,
           focus = context.local.focus,
@@ -84,20 +93,10 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
         Button(
           "New Game",
           Icons.generate,
-          generateGameAction(Random.nextInt())
+          Action(PuzzleState.newPuzzleModalOpened.set(true))
         )
       )
       .classes("my-2")
-
-  private def generateGameAction(seed: Int)(implicit context: Context): Event => Unit =
-    _ =>
-      Toasts.asyncToast("generating game ...", PuzzleState.process(seed, context.local.desiredDifficulty)) {
-        case scala.util.Success(state) =>
-          context.update(state)
-          (ToastType.Success, "Generated!")
-        case scala.util.Failure(_) =>
-          (ToastType.Danger, "Something went wrong ...")
-      }
 
   private def contextMenu()(implicit context: Context): Option[Node] =
     context.local.focus.map { pos =>

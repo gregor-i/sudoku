@@ -1,13 +1,11 @@
 package frontend.pages
 
 import frontend.Router.{Path, QueryParameter}
-import frontend.components.{Icons, SudokuBoardSVG}
+import frontend.components.{NewPuzzleModal, SudokuBoardSVG}
 import frontend.{GlobalState, Page, PageState}
-import model.{DecoratedBoard, Difficulty, Dimensions, SudokuBoard}
+import model.{DecoratedBoard, Dimensions, SudokuBoard}
 import snabbdom.Node
-import snabbdom.components.{Button, Modal}
-
-import scala.util.Random
+import snabbdom.components.Modal
 
 case class LandingPageState() extends PageState
 
@@ -23,53 +21,7 @@ object LandingPage extends Page[LandingPageState] {
   override def render(implicit context: Context): Node =
     Node("div.landing-page")
       .child(
-        Modal(background = Some(background))(
-          Node("div.landing-page-modal")
-            .children(
-              Node("div").children(
-                Node("h1.title").text("Play Sudoku"),
-                Node("div.big-buttons")
-                  .childOptional(
-                    context.global.lastPuzzle.map(
-                      puzzleState =>
-                        Button(
-                          text = "Continue last Game",
-                          icon = Icons.continue,
-                          onclick = _ => context.update(puzzleState)
-                        ).classes("is-primary", "is-outlined", "is-light")
-                    )
-                  )
-                  .children(
-                    Button(
-                      text = "Easy",
-                      icon = Icons.easy,
-                      onclick = _ => context.update(PuzzleState.loading(seed = Random.nextInt(), Difficulty.Easy))
-                    ),
-                    Button(
-                      text = "Medium",
-                      icon = Icons.medium,
-                      onclick = _ => context.update(PuzzleState.loading(seed = Random.nextInt(), Difficulty.Medium))
-                    ),
-                    Button(
-                      text = "Hard",
-                      icon = Icons.hard,
-                      onclick = _ => context.update(PuzzleState.loading(seed = Random.nextInt(), Difficulty.Hard))
-                    )
-                  )
-              ),
-              Node("div").children(
-                Node("h1.title").text("Solve Sudoku"),
-                Node("div.big-buttons")
-                  .child(
-                    Button(
-                      text = "Solver",
-                      icon = Icons.solve,
-                      onclick = _ => context.update(SolverState.empty())
-                    )
-                  )
-              )
-            )
-        )
+        Modal(background = Some(background))(NewPuzzleModal(context.global.lastPuzzle))
       )
 
   /*

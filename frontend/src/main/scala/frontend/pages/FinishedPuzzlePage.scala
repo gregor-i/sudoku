@@ -1,15 +1,13 @@
 package frontend.pages
 
-import frontend.components.{Header, Icons, SudokuBoardSVG}
+import frontend.components.{Header, Icons, NewPuzzleModal, SudokuBoardSVG}
 import frontend.util.Action
 import frontend.{NoRouting, Page, PageState}
 import model._
 import monocle.macros.Lenses
+import snabbdom.Node
 import snabbdom.components.{Button, ButtonList, Modal}
-import snabbdom.toasts.{ToastType, Toasts}
-import snabbdom.{Event, Node}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
 @Lenses
@@ -39,26 +37,14 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
 
   private def finishedModal()(implicit context: Context): Node =
     Modal(closeAction = Some(Action(FinishedPuzzleState.tapped.set(false))))(
-      Node("h1.title.has-text-centered").text("Sudoku completed!"),
-      buttonBar()
+      NewPuzzleModal(None)
     )
 
   private def buttonBar()(implicit context: Context): Node =
     ButtonList.right(
-      Button("Change Difficulty", _ => context.update(LandingPageState())),
-      Button("Next Game!", Icons.generate, generateGameAction(Random.nextInt()))
+      Button("Next Game!", Icons.generate, Action(FinishedPuzzleState.tapped.set(true)))
         .classes("is-primary")
     )
-
-  private def generateGameAction(seed: Int)(implicit context: Context): Event => Unit =
-    _ =>
-      Toasts.asyncToast("generating game ...", PuzzleState.process(seed, context.local.difficulty)) {
-        case scala.util.Success(state) =>
-          context.update(state)
-          (ToastType.Success, "Generated!")
-        case scala.util.Failure(_) =>
-          (ToastType.Danger, "Something went wrong ...")
-      }
 
   private def animations(dim: Dimensions)(pos: Position, node: Node): Node = {
     def d(p: Position): Double = {

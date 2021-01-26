@@ -1,5 +1,7 @@
 package frontend.components
 
+import model.Difficulty
+
 object Icons {
   val solve    = "fa-robot"
   val clear    = "fa-trash"
@@ -10,4 +12,10 @@ object Icons {
   val easy     = "fa-ice-cream"
   val medium   = "fa-graduation-cap"
   val hard     = "fa-skull-crossbones"
+
+  def difficulty(diff: Difficulty) = diff match {
+    case Difficulty.Easy   => easy
+    case Difficulty.Medium => medium
+    case Difficulty.Hard   => hard
+  }
 }
