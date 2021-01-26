@@ -4,7 +4,7 @@ import frontend.Context
 import frontend.pages.PuzzleState
 import model.{Difficulty, Dimensions}
 import snabbdom.Node
-import snabbdom.components.{Button, Modal}
+import snabbdom.components.Button
 
 import scala.util.Random
 

@@ -6,13 +6,11 @@ import frontend.{NoRouting, Page, PageState}
 import model._
 import monocle.macros.Lenses
 import org.scalajs.dom.document
+import snabbdom.Node
 import snabbdom.components.{Button, ButtonList, Modal}
-import snabbdom.toasts.{ToastType, Toasts}
-import snabbdom.{Event, Node}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.Random
 import scala.util.chaining.scalaUtilChainingOps
 
 @Lenses

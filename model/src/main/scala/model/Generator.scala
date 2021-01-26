@@ -14,15 +14,17 @@ object Generator {
   }
 
   // See: https://gamedev.stackexchange.com/a/138228
-  def initialBoard(dim: Dimensions): SolvedSudokuBoard =
-    SudokuBoard.fill(dim) { pos =>
-      val shift = (1 to pos._2).map {
-        case i if i % dim.height == 0 => 1
-        case _ => dim.width
-      }.sum
+  def initialValue(dim: Dimensions)(pos: Position): Int = {
+    val shift = (1 to pos._2).map {
+      case i if i % dim.height == 0 => 1
+      case _ => dim.width
+    }.sum
 
-      (pos._1 + shift) % dim.blockSize + 1
-    }
+    (pos._1 + shift) % dim.blockSize + 1
+  }
+
+  def initialBoard(dim: Dimensions): SolvedSudokuBoard =
+    SudokuBoard.fill(dim)(initialValue(dim))
 
   def permutate[S](seed: Int, board: SudokuBoard[S]): SudokuBoard[S] =
     permutations(seed, board.dim).foldLeft(board) {
