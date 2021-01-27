@@ -19,10 +19,8 @@ object LandingPage extends Page[LandingPageState] {
   override def stateToUrl(state: State): Option[(Path, QueryParameter)] = Some(("/", Map.empty))
 
   override def render(implicit context: Context): Node =
-    Node("div.landing-page")
-      .child(
-        Modal(background = Some(background))(NewPuzzleModal(context.global.lastPuzzle))
-      )
+    Modal(background = Some(background))(NewPuzzleModal(context.global.lastPuzzle))
+      .classes("landing-page")
 
   private val backgroundBoard: DecoratedBoard = {
     val dim    = Dimensions(3, 3)

@@ -16,7 +16,6 @@ object InputContextMenu {
     val width      = clientRect.width * dim.width * scale
     val height     = clientRect.height * (dim.height + 1) * scale
     Node("div.is-overlay")
-      .style("background", "rgba(0, 0, 0, 0.2)")
       .style("z-index", "1")
       .event[Event]("click", _ => setFocus(None))
       .child {
@@ -32,10 +31,10 @@ object InputContextMenu {
             "top"        -> s"min(calc(100vh - ${height}px), max(0px, ${clientRect.top + (clientRect.height - height) / 2.0}px))",
             "width"      -> s"${width}px",
             "background" -> "white",
-            "box-shadow" -> "2px 2px 3px 4px rgba(0,0,0,0.2)"
+            "box-shadow" -> "2px 2px 3px 4px rgba(0,0,0,0.2)",
+            "animation"  -> "pulse 0.1s linear 1"
           )
         )
-
       }
   }
 
