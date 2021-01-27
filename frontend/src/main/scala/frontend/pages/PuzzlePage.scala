@@ -114,8 +114,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
       Validate(updatedBoard.map(_.toOption)) match {
         case Some(finishedGame) =>
           FinishedPuzzleState(
-            board = finishedGame,
-            difficulty = context.local.desiredDifficulty
+            board = finishedGame
           )
         case None =>
           context.local.copy(

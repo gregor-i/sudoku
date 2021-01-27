@@ -5,6 +5,7 @@ import frontend.util.Action
 import frontend.{NoRouting, Page, PageState}
 import model._
 import monocle.macros.Lenses
+import org.scalajs.dom
 import snabbdom.Node
 import snabbdom.components.{Button, ButtonList, Modal}
 
@@ -12,7 +13,6 @@ import scala.util.Random
 
 @Lenses
 case class FinishedPuzzleState(
-    difficulty: Difficulty,
     board: SolvedSudokuBoard,
     tapped: Boolean = false
 ) extends PageState
@@ -27,7 +27,7 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
           .child(
             SudokuBoardSVG(
               board = context.local.board.map(DecoratedCell.Input),
-              interaction = Some(animations(context.local.board.dim))
+              interaction = Some(animations(context.local.board))
             ).classes("grid-main-svg", "finished-sudoku")
               .event("click", Action(FinishedPuzzleState.tapped.set(true)))
           )
@@ -46,27 +46,41 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
         .classes("is-primary")
     )
 
-  private def animations(dim: Dimensions)(pos: Position, node: Node): Node = {
-    def d(p: Position): Double = {
-      val d = (p._1 - pos._1, p._2 - pos._2)
-      Math.sqrt(d._1 * d._1 + d._2 * d._2)
+  // note: there is an experimental API which would simplify this quite a lot:
+  // https://developer.mozilla.org/en-US/docs/Web/API/Animation/Animation
+  private def animations(sudokuBoard: SolvedSudokuBoard)(pos: Position, node: Node): Node = {
+    def distance(p: Position, q: Position): Double = {
+      val dx = p._1 - q._1
+      val dy = p._2 - q._2
+      Math.sqrt(dx * dx + dy * dy)
     }
 
-    val random = new Random(dim.hashCode())
-    val poss   = SudokuBoard.positions(dim)
-    val bloom1 = random.shuffle(poss).head
-    val bloom2 = random.shuffle(poss).head
-    val bloom3 = random.shuffle(poss).head
+    val dim = sudokuBoard.dim
 
-    val speed = 0.25
+    val random = new Random(sudokuBoard.hashCode())
+    val bloomOrigins = Iterator.continually {
+      val i = random.nextInt(dim.boardSize)
+      SudokuBoard.positions(dim)(i)
+    }
 
-    node.style(
-      "animation",
-      Seq(
-        s"finished-animation1 6s linear ${d(bloom1) * speed + -6}s infinite both",
-        s"finished-animation2 6s linear ${d(bloom2) * speed + -4}s infinite both",
-        s"finished-animation3 6s linear ${d(bloom3) * speed + -2}s infinite both"
-      ).mkString(",")
-    )
+    val speed    = 0.15
+    val duration = 0.8
+    val pause    = speed * distance((0, 0), (dim.blockSize - 1, sudokuBoard.dim.blockSize - 1))
+
+    var tick = 0
+
+    def animation() =
+      s"finished-animation ${duration}s linear ${distance(bloomOrigins.next(), pos) * speed + (duration + pause) * tick}s 1 both"
+
+    node.hookInsert { elem =>
+      elem.elm.get.style.animation = animation()
+      dom.window.setInterval(
+        () => {
+          tick = tick + 1
+          elem.elm.get.style.animation = animation()
+        },
+        (duration + pause) * 1000
+      )
+    }
   }
 }
