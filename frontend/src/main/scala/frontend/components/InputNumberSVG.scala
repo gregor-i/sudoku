@@ -6,13 +6,13 @@ import snabbdom.Node
 object InputNumberSVG {
   type Interaction = (Option[Int], Node) => Node
 
-  val scale    = (1d / 20d).toString
-  val fontSize = 0.8.toString
+  val strokeWidth = 1d / 30d
+  val fontSize    = 0.8.toString
 
   def apply(dim: Dimensions, interaction: Option[Interaction]): Node = {
     Node("svg.number-input")
       .attr("xmlns", "http://www.w3.org/2000/svg")
-      .attr("viewBox", s"0 0 ${dim.width} ${dim.height + 1}")
+      .attr("viewBox", s"${-strokeWidth / 2} ${-strokeWidth / 2} ${dim.width + strokeWidth} ${dim.height + 1 + strokeWidth}")
       .childOptional(interaction.map(interactionRects(dim, _)))
       .children(grid(dim), values(dim))
   }
@@ -29,17 +29,18 @@ object InputNumberSVG {
             .attr("y1", "0")
             .attr("y2", (if (column == 0 || column == dim.width) dim.height + 1 else dim.height).toString)
             .attr("stroke", "black")
-            .attr("stroke-width", scale)
+            .attr("stroke-width", strokeWidth.toString)
       }
       .child {
-        for (row <- 0 to dim.height)
+        for (row <- 0 to dim.height + 1)
           yield Node("line")
             .attr("x1", "0")
             .attr("x2", dim.width.toString)
             .attr("y1", row.toString)
             .attr("y2", row.toString)
             .attr("stroke", "black")
-            .attr("stroke-width", scale)
+            .attr("stroke-width", strokeWidth.toString)
+            .attr("stroke-linecap", "square")
       }
 
   private def values(dim: Dimensions): Node =

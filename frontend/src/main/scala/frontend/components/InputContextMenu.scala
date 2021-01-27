@@ -11,8 +11,10 @@ object InputContextMenu {
       setFocus: Option[Position] => Unit,
       setValue: Option[Int] => Unit
   ): Node = {
-    val scale      = 2.5
+    val scale      = 1.1
     val clientRect = reference.getBoundingClientRect()
+    val width      = clientRect.width * dim.width * scale
+    val height     = clientRect.height * (dim.height + 1) * scale
     Node("div.is-overlay")
       .style("background", "rgba(0, 0, 0, 0.2)")
       .style("z-index", "1")
@@ -26,9 +28,9 @@ object InputContextMenu {
         ).styles(
           Seq(
             "position"   -> "absolute",
-            "left"       -> s"min(calc(100vw - ${clientRect.width * scale}px), max(0px, ${clientRect.left - clientRect.width * (scale - 1.0) / 2.0}px))",
-            "top"        -> s"min(calc(100vh - ${clientRect.height * scale}px), max(0px, ${clientRect.top - clientRect.height * (scale - 1.0) / 2.0}px))",
-            "width"      -> s"${clientRect.width * scale}px",
+            "left"       -> s"min(calc(100vw - ${width}px), max(0px, ${clientRect.left + (clientRect.width - width) / 2.0}px))",
+            "top"        -> s"min(calc(100vh - ${height}px), max(0px, ${clientRect.top + (clientRect.height - height) / 2.0}px))",
+            "width"      -> s"${width}px",
             "background" -> "white",
             "box-shadow" -> "2px 2px 3px 4px rgba(0,0,0,0.2)"
           )
