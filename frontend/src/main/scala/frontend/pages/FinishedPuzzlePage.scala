@@ -3,6 +3,7 @@ package frontend.pages
 import frontend.components.{Header, Icons, NewPuzzleModal, SudokuBoardSVG}
 import frontend.util.Action
 import frontend.{NoRouting, Page, PageState}
+import model.DecoratedCell.{Given, Input}
 import model._
 import monocle.macros.Lenses
 import org.scalajs.dom
@@ -13,9 +14,14 @@ import scala.util.Random
 
 @Lenses
 case class FinishedPuzzleState(
-    board: SolvedSudokuBoard,
+    board: DecoratedBoard,
     tapped: Boolean = false
-) extends PageState
+) extends PageState {
+  require(board.data.forall {
+    case Given(_) | Input(_) => true
+    case _                   => false
+  })
+}
 
 object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
 
@@ -27,7 +33,7 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
         Node("div.grid-main")
           .child(
             SudokuBoardSVG(
-              board = context.local.board.map(DecoratedCell.Input),
+              board = context.local.board,
               interaction = Some(animations(context.local.board))
             ).classes("grid-main-svg", "finished-sudoku")
               .event("click", Action(FinishedPuzzleState.tapped.set(true)))
@@ -49,7 +55,7 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
 
   // note: there is an experimental API which would simplify this quite a lot:
   // https://developer.mozilla.org/en-US/docs/Web/API/Animation/Animation
-  private def animations(sudokuBoard: SolvedSudokuBoard)(pos: Position, node: Node): Node = {
+  private def animations(sudokuBoard: SudokuBoard[_])(pos: Position, node: Node): Node = {
     def distance(p: Position, q: Position): Double = {
       val dx = p._1 - q._1
       val dy = p._2 - q._2

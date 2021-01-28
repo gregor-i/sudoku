@@ -112,9 +112,9 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
         .set(pos, DecoratedCell.maybeInput(value))
         .pipe(DecoratedBoard.markMistakes)
       Validate(updatedBoard.map(_.toOption)) match {
-        case Some(finishedGame) =>
+        case Some(_) =>
           FinishedPuzzleState(
-            board = finishedGame
+            board = updatedBoard
           )
         case None =>
           context.local.copy(
