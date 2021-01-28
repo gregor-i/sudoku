@@ -13,8 +13,8 @@ object DecoratedBoard {
 
     SudokuBoard.fill(decoratedBoard.dim) { pos =>
       decoratedBoard.get(pos) match {
-        case DecoratedCell.Input(value) if !Validate.correct(openBoard, pos)     => DecoratedCell.WrongInput(value)
-        case DecoratedCell.WrongInput(value) if Validate.correct(openBoard, pos) => DecoratedCell.Input(value)
+        case DecoratedCell.Input(value) if !Validate.noError(openBoard, pos)     => DecoratedCell.WrongInput(value)
+        case DecoratedCell.WrongInput(value) if Validate.noError(openBoard, pos) => DecoratedCell.Input(value)
         case cell                                                                => cell
       }
     }

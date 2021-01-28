@@ -7,7 +7,7 @@ class GeneratorTest extends AnyFunSuite {
   def generatorTest(solver: Solver, dim: Dimensions = Dimensions(3, 3)) =
     for (seed <- Seq(1, 2, 50, 1564, -1564))
       test(s"${solver.getClass.getSimpleName}: apply constructs a puzzle (dim = ${dim}), seed = ${seed})") {
-        Generator(dim, seed, Difficulty.medium)
+        Generator(dim, seed, Difficulty.Medium)
       }
 
   generatorTest(IteratorSolver)

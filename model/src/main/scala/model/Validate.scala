@@ -13,10 +13,14 @@ object Validate {
       values == values.distinct
     }
 
-  def correct(board: OpenSudokuBoard, pos: Position): Boolean =
-    SudokuBoard.allSubsetsOf(pos)(board.dim).forall { subset =>
-      val values = subset.flatMap(board.get)
-      values == values.distinct
+  def noError(board: OpenSudokuBoard, pos: Position): Boolean =
+    board.get(pos).forall { value =>
+      SudokuBoard
+        .allSubsetsOf(pos)(board.dim)
+        .forall(
+          _.flatMap(board.get)
+            .count(_ == value) <= 1
+        )
     }
 
   def correct(board: SolvedSudokuBoard): Boolean =
