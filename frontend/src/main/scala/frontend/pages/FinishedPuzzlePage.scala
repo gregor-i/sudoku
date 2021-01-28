@@ -21,6 +21,7 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
 
   override def render(implicit context: Context): Node =
     Node("div.grid-layout")
+      .key("FinishedPuzzlePage")
       .child(Header.renderHeader())
       .child(
         Node("div.grid-main")
@@ -72,15 +73,23 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
     def animation() =
       s"finished-animation ${duration}s linear ${distance(bloomOrigins.next(), pos) * speed + (duration + pause) * tick}s 1 both"
 
-    node.hookInsert { elem =>
-      elem.elm.get.style.animation = animation()
-      dom.window.setInterval(
-        () => {
-          tick = tick + 1
-          elem.elm.get.style.animation = animation()
-        },
-        (duration + pause) * 1000
-      )
-    }
+    var intervalHandle: Option[Int] = None
+
+    node
+      .hookInsert { elem =>
+        elem.elm.get.style.animation = animation()
+        intervalHandle = Some(
+          dom.window.setInterval(
+            () => {
+              tick = tick + 1
+              elem.elm.get.style.animation = animation()
+            },
+            (duration + pause) * 1000
+          )
+        )
+      }
+      .hookDestroy { _ =>
+        intervalHandle.foreach(dom.window.clearInterval)
+      }
   }
 }
