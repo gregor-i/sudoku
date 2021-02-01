@@ -4,5 +4,8 @@ A simple Single-page application and Progressive web application to play Sudoku.
 
 Deployed at: [http://sudoku.ihmor.com/]()
 
-### Generating png icon. Required ImageMagick
-```convert frontend/src/main/static/favicon.svg -resize 256x256 frontend/src/main/static/favicon.png```
+### Generating png icon. 
+Requires ImageMagick
+```
+convert frontend/src/main/static/favicon.svg -resize 256x256 frontend/src/main/static/favicon.png
+```
