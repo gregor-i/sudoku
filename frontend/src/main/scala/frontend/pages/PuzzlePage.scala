@@ -89,7 +89,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
     ButtonList
       .right(
         Button(
-          "New Game",
+          localized.playNewGame,
           Icons.generate,
           Action(PuzzleState.newPuzzleModalOpened.set(true))
         )

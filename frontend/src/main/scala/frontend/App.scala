@@ -1,7 +1,6 @@
 package frontend
 
 import frontend.pages.{FinishedPuzzleState, PuzzleState}
-import io.circe.generic.auto._
 import io.circe.parser
 import io.circe.syntax._
 import org.scalajs.dom
@@ -34,7 +33,7 @@ class App(container: Element) {
       .flatMap(parser.decode[GlobalState](_).toOption)
 
   def start(): Unit = {
-    val globalState = loadGlobalState().getOrElse(GlobalState.initial())
+    val globalState = loadGlobalState().getOrElse(GlobalState.initial)
     renderState(globalState, Router.stateFromUrl(globalState, dom.window.location))
   }
 

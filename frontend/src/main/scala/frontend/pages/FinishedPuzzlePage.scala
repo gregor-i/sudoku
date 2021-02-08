@@ -49,7 +49,7 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
 
   private def buttonBar()(implicit context: Context): Node =
     ButtonList.right(
-      Button("Next Game!", Icons.generate, Action(FinishedPuzzleState.tapped.set(true)))
+      Button(localized.playNewGame, Icons.generate, Action(FinishedPuzzleState.tapped.set(true)))
         .classes("is-primary")
     )
 

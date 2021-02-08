@@ -14,10 +14,10 @@ object NewPuzzleModal {
       .children(
         Node("div")
           .children(
-            Node("h1.title.has-text-centered").text("Play Sudoku"),
-            Node("div.label").text("Difficulty: "),
+            Node("h1.title.has-text-centered").text(localized.playSudoku),
+            Node("div.label").text(localized.difficultyLabel),
             difficultyButtons(),
-            Node("div.label").text("Size: "),
+            Node("div.label").text(localized.sizeLabel),
             dimensionButtons()
           ),
         Node("div").style("height", "4rem"),
@@ -35,7 +35,7 @@ object NewPuzzleModal {
       .child(
         difficulties.map { diff =>
           Button(
-            text = diff.toString,
+            text = localized.difficulty(diff),
             icon = Icons.difficulty(diff),
             onclick = _ => context.update(context.global.copy(difficulty = diff))
           ).style("flex", "auto 1")
@@ -68,7 +68,7 @@ object NewPuzzleModal {
   private def playButtons(lastPuzzle: Option[PuzzleState])(implicit context: Context[_]) = {
 
     val playButton = Button(
-      text = "Play new Game",
+      text = localized.playNewGame,
       icon = Icons.generate,
       onclick = _ =>
         context.update(
@@ -79,7 +79,7 @@ object NewPuzzleModal {
     val continueButton = lastPuzzle.map(
       puzzleState =>
         Button(
-          text = "Continue last Game",
+          text = localized.continueLastGame,
           icon = Icons.continue,
           onclick = _ => context.update(puzzleState)
         ).classes("is-primary", "is-outlined", "is-light")
