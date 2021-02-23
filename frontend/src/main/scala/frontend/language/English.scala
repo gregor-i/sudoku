@@ -18,4 +18,12 @@ object English extends Language {
   def playNewGame: String = "Play new Game"
 
   def continueLastGame: String = "Continue last Game"
+
+  override def settings: String = "Settings:"
+
+  override def highlightMistakes: String = "Highlight wrong inputs:"
+
+  override def yes: String = "Yes"
+
+  override def no: String = "No"
 }

@@ -26,7 +26,7 @@ case class FinishedPuzzleState(
 object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
 
   override def render(implicit context: Context): Node =
-    Node("div.grid-layout")
+    Node("div.grid-layout.no-scroll")
       .key("FinishedPuzzlePage")
       .child(Header.renderHeader())
       .child(

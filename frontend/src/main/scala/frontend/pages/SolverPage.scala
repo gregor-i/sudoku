@@ -30,7 +30,7 @@ object SolverState {
 object SudokuSolverPage extends Page[SolverState] with NoRouting {
   override def render(implicit context: Context): Node = {
     val decoratedBoard = DecoratedBoard(context.local.board)
-    Node("div.grid-layout")
+    Node("div.grid-layout.no-scroll")
       .child(Header.renderHeader())
       .child(
         Node("div.grid-main")

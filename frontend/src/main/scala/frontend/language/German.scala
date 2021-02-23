@@ -16,4 +16,12 @@ object German extends Language {
   override def sizeLabel: String        = "Größe:"
   override def playNewGame: String      = "Neues Spiel starten"
   override def continueLastGame: String = "Letztes Spiel fortsetzen"
+
+  override def settings: String = "Einstellungen:"
+
+  override def highlightMistakes: String = "Falsche Eingaben hervorheben:"
+
+  override def yes: String = "Ja"
+
+  override def no: String = "Nein"
 }

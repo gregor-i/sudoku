@@ -14,7 +14,7 @@ case class SolvedSudokuState(
 
 object SolvedSudokuPage extends Page[SolvedSudokuState] with NoRouting {
   override def render(implicit context: Context): Node =
-    Node("div.grid-layout")
+    Node("div.grid-layout.no-scroll")
       .child(Header.renderHeader())
       .child(
         Node("div.grid-main")

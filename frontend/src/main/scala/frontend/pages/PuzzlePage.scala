@@ -47,7 +47,7 @@ object PuzzleState {
 
 object PuzzlePage extends Page[PuzzleState] with NoRouting {
   override def render(implicit context: Context): Node =
-    Node("div.grid-layout")
+    Node("div.grid-layout.no-scroll")
       .child(Header.renderHeader())
       .child(
         Node("div.grid-main")
@@ -60,7 +60,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
                 else
                   node
               })
-            ).classes("grid-main-svg")
+            ).classes("grid-main-svg").maybeModify(context.global.highlightMistakes)(_.classes("highlight-mistakes"))
           )
       )
       .child(buttonBar().classes("grid-footer"))

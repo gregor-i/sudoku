@@ -12,7 +12,8 @@ case class GlobalState(
     lastPuzzle: Option[PuzzleState],
     difficulty: Difficulty,
     dimensions: Dimensions,
-    language: Language
+    language: Language,
+    highlightMistakes: Boolean
 )
 
 object GlobalState {
@@ -20,7 +21,8 @@ object GlobalState {
     lastPuzzle = None,
     difficulty = Difficulty.Medium,
     dimensions = Dimensions(3, 3),
-    language = Language.detect.getOrElse(Language.default)
+    language = Language.detect.getOrElse(Language.default),
+    highlightMistakes = true
   )
 
   implicit val encoder: Encoder[GlobalState] =
@@ -32,7 +34,8 @@ object GlobalState {
         lastPuzzle = json.apply("lastPuzzle").flatMap(_.as[PuzzleState].toOption),
         difficulty = json.apply("difficulty").flatMap(_.as[Difficulty].toOption).getOrElse(initial.difficulty),
         dimensions = json.apply("dimensions").flatMap(_.as[Dimensions].toOption).getOrElse(initial.dimensions),
-        language = json.apply("language").flatMap(_.as[Language].toOption).getOrElse(initial.language)
+        language = json.apply("language").flatMap(_.as[Language].toOption).getOrElse(initial.language),
+        highlightMistakes = json.apply("highlightMistakes").flatMap(_.as[Boolean].toOption).getOrElse(initial.highlightMistakes)
       )
     }
 }

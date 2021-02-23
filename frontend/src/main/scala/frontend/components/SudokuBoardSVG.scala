@@ -10,7 +10,7 @@ object SudokuBoardSVG {
   def apply(board: DecoratedBoard, interaction: Option[Interaction]): Node = {
     val dim = board.dim
 
-    Node("svg")
+    Node("svg.sudoku-board")
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .attr("viewBox", s"${-strokeWidth / 2} ${-strokeWidth / 2} ${dim.blockSize + strokeWidth} ${dim.blockSize + strokeWidth}")
       .childOptional(interaction.map(interactionRects(board, _)))
@@ -93,13 +93,13 @@ object SudokuBoardSVG {
       .attr("dominant-baseline", "central")
 
   private def givenNumber(state: DecoratedCell.Given): Node =
-    numberPrototype.text(state.value.toString).style("font-weight", "300")
+    numberPrototype.text(state.value.toString).classes("given-value")
 
   private def inputNumber(state: DecoratedCell.Input): Node =
-    numberPrototype.text(state.value.toString)
+    numberPrototype.text(state.value.toString).classes("input-value")
 
   private def wrongInputNumber(state: DecoratedCell.WrongInput): Node =
-    numberPrototype.text(state.value.toString).style("fill", "red")
+    numberPrototype.text(state.value.toString).classes("input-value", "wrong-value")
 
   private def interactionRects(board: SudokuBoard[_], interaction: Interaction): Node =
     Node("g")

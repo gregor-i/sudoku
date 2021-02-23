@@ -11,6 +11,10 @@ trait Language {
   def difficulty(difficulty: Difficulty): String
   def playNewGame: String
   def continueLastGame: String
+  def settings: String
+  def highlightMistakes: String
+  def yes: String
+  def no: String
 }
 
 object Language {

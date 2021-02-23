@@ -7,6 +7,7 @@ object Icons {
   val clear    = "fa-trash"
   val generate = "fa-random"
   val play     = "fa-play"
+  val settings = "fa-cog"
 
   val continue = "fa-play"
   val easy     = "fa-ice-cream"
