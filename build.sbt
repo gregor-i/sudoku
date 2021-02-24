@@ -4,7 +4,7 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 
 name := "sudoku"
 
-ThisBuild / scalaVersion := "2.13.3"
+ThisBuild / scalaVersion := "2.13.5"
 scalacOptions in ThisBuild ++= Seq("-feature", "-deprecation", "-Ymacro-annotations")
 scalafmtOnCompile in ThisBuild := true
 
@@ -109,7 +109,7 @@ def circe = {
 
 def scalatest =
   Seq(
-    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.2.2" % Test,
+    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.2.5" % Test,
     testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
   )
 
