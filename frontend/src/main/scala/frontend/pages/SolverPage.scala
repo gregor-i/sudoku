@@ -83,7 +83,7 @@ object SudokuSolverPage extends Page[SolverState] with NoRouting {
           Icons.solve,
           _ => {
             val process = AsyncUtil.future {
-              Solver.solver(context.local.board)
+              Solver.perfectSolver(context.local.board)
             }
 
             Toasts.asyncToast("solving ...", process) {
@@ -94,7 +94,7 @@ object SudokuSolverPage extends Page[SolverState] with NoRouting {
                 (ToastType.Warning, "No solution found. Maybe some numbers are wrong?")
               case scala.util.Success(MultipleSolutions(_)) =>
                 (ToastType.Warning, "Multiple solutions found. Maybe some numbers are missing?")
-              case scala.util.Failure(_) =>
+              case _ =>
                 (ToastType.Danger, "Something went wrong ...")
             }
           }

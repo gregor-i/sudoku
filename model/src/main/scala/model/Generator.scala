@@ -6,11 +6,11 @@ import scala.util.chaining._
 object Generator {
   private type Permutation = (Position, Position)
 
-  def apply(dim: Dimensions, seed: Int, desiredDifficulty: Difficulty, solver: Solver = Solver.solver): OpenSudokuBoard = {
+  def apply(dim: Dimensions, seed: Int, desiredDifficulty: Difficulty): OpenSudokuBoard = {
     val random = new Random(seed)
     initialBoard(dim)
-      .pipe(permutate(random.nextInt(), _))
-      .pipe(makePuzzle(random.nextInt(), _, desiredDifficulty, solver))
+      .pipe(permute(random.nextInt(), _))
+      .pipe(makePuzzle(random.nextInt(), _, desiredDifficulty))
   }
 
   // See: https://gamedev.stackexchange.com/a/138228
@@ -26,7 +26,7 @@ object Generator {
   def initialBoard(dim: Dimensions): SolvedSudokuBoard =
     SudokuBoard.fill(dim)(initialValue(dim))
 
-  def permutate[S](seed: Int, board: SudokuBoard[S]): SudokuBoard[S] =
+  def permute[S](seed: Int, board: SudokuBoard[S]): SudokuBoard[S] =
     permutations(seed, board.dim).foldLeft(board) {
       case (b, (pos1, pos2)) =>
         b.set(pos1, b.get(pos2)).set(pos2, b.get(pos1))
@@ -77,18 +77,21 @@ object Generator {
   private def makePuzzle(
       seed: Int,
       solvedBoard: SolvedSudokuBoard,
-      desiredDifficulty: Difficulty,
-      solver: Solver
+      desiredDifficulty: Difficulty
   ): OpenSudokuBoard = {
-    val random             = new Random(seed)
-    val shuffledPositions  = SudokuBoard.positions(solvedBoard.dim).pipe(random.shuffle(_))
-    val board              = solvedBoard.map[Option[Int]](Some.apply)
-    val difficultyAsDouble = Difficulty.toDouble(desiredDifficulty)
+    val random            = new Random(seed)
+    val shuffledPositions = SudokuBoard.positions(solvedBoard.dim).pipe(random.shuffle(_))
+    val board             = solvedBoard.map[Option[Int]](Some.apply)
+
+    val solver = desiredDifficulty match {
+      case Difficulty.Easy   => Solver.uniqueOptionSolver
+      case Difficulty.Medium => Solver.mediumSolver
+      case Difficulty.Hard   => Solver.perfectSolver
+    }
 
     shuffledPositions.foldLeft(board) { (board, position) =>
       val reducedBoard = board.set(position, None)
-      val difficulty   = Difficulty(puzzle = reducedBoard, solution = solvedBoard)
-      if (difficulty <= difficultyAsDouble && solver(reducedBoard).uniqueSolution.isDefined)
+      if (solver(reducedBoard).uniqueSolution.isDefined)
         reducedBoard
       else
         board

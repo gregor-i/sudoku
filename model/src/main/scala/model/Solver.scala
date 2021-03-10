@@ -8,7 +8,9 @@ trait Solver {
 }
 
 object Solver {
-  def solver: Solver = TreeDFSSolver
+  def perfectSolver: Solver      = PerfectSolver
+  def mediumSolver: Solver       = MediumSolver
+  def uniqueOptionSolver: Solver = EasySolver
 }
 
 sealed trait SolverResult {
@@ -16,10 +18,12 @@ sealed trait SolverResult {
     case UniqueSolution(solution) => Some(solution)
     case NoSolution               => None
     case MultipleSolutions(_)     => None
+    case CouldNotSolve            => None
   }
 }
 
 object SolverResult {
+  case object CouldNotSolve                                            extends SolverResult
   case object NoSolution                                               extends SolverResult
   case class UniqueSolution(solution: SolvedSudokuBoard)               extends SolverResult
   case class MultipleSolutions(solutions: LazyList[SolvedSudokuBoard]) extends SolverResult

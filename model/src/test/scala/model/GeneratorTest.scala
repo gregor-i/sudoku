@@ -1,33 +1,34 @@
 package model
 
-import model.solver.{IteratorSolver, RecursionSolver, TreeDFSSolver}
 import org.scalatest.funsuite.AnyFunSuite
 
 class GeneratorTest extends AnyFunSuite {
-  def generatorTest(solver: Solver, dim: Dimensions = Dimensions(3, 3)) =
-    for (seed <- Seq(1, 2, 50, 1564, -1564))
-      test(s"${solver.getClass.getSimpleName}: apply constructs a puzzle (dim = ${dim}), seed = ${seed})") {
-        Generator(dim, seed, Difficulty.Medium)
-      }
+  for {
+    difficulty <- Seq(Difficulty.Easy, Difficulty.Medium, Difficulty.Hard)
+    dim        <- DimensionExamples.examples
+    seed       <- Seq(1, 2, 50, 1564)
+  } test(s"apply constructs a puzzle (dim = ${dim}), seed = ${seed}, difficulty = ${difficulty}) with an unique solution") {
+    val puzzle = Generator(dim, seed, difficulty)
 
-  generatorTest(IteratorSolver)
-  generatorTest(RecursionSolver)
-  generatorTest(TreeDFSSolver)
+    assert(puzzle.data.count(_.isDefined) < dim.boardSize)
 
-  test(s"initialBoard") {
+    assert(Solver.perfectSolver.apply(puzzle).uniqueSolution.isDefined)
+  }
+
+  test(s"initialBoard constructs a solved sudoku board") {
     for (dim <- DimensionExamples.examples) {
       val board = Generator.initialBoard(dim)
       assert(Validate.correct(board))
     }
   }
 
-  test("permutate swaps rows and columns, but always preserves correctness") {
+  test("permute swaps rows and columns, but always preserves correctness") {
     val dim     = Dimensions(2, 3)
     val initial = Generator.initialBoard(dim)
 
     for (seed <- 0 until 1000) {
-      val permutated = Generator.permutate(seed, initial)
-      assert(Validate.correct(permutated))
+      val permuted = Generator.permute(seed, initial)
+      assert(Validate.correct(permuted))
     }
   }
 }
