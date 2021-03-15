@@ -28,6 +28,15 @@ sealed trait DecoratedCell {
     case DecoratedCell.WrongInput(value) => Some(value)
     case DecoratedCell.Empty             => None
   }
+
+  def isGiven: Boolean = this match {
+    case DecoratedCell.Given(_)      => true
+    case DecoratedCell.Input(_)      => false
+    case DecoratedCell.WrongInput(_) => false
+    case DecoratedCell.Empty         => false
+  }
+
+  def isNotGiven: Boolean = !isGiven
 }
 
 object DecoratedCell {

@@ -2,7 +2,7 @@ package frontend.pages
 
 import frontend.components._
 import frontend.util.{Action, AsyncUtil}
-import frontend.{NoRouting, Page, PageState}
+import frontend.{GlobalState, NoRouting, Page, PageState}
 import model._
 import monocle.macros.Lenses
 import org.scalajs.dom.document
@@ -15,10 +15,7 @@ import scala.util.chaining.scalaUtilChainingOps
 
 @Lenses
 case class PuzzleState(
-    seed: Int,
-    desiredDifficulty: Difficulty,
-    generatedBoard: OpenSudokuBoard,
-    decoratedBoard: DecoratedBoard,
+    board: DecoratedBoard,
     focus: Option[Position],
     newPuzzleModalOpened: Boolean
 ) extends PageState
@@ -26,16 +23,13 @@ case class PuzzleState(
 object PuzzleState {
   def process(seed: Int, desiredDifficulty: Difficulty, dimensions: Dimensions): Future[PuzzleState] =
     AsyncUtil.future {
-      val generatedBoard = Generator(dimensions, seed, desiredDifficulty)
-      val decoratedBoard = generatedBoard.map[DecoratedCell] {
-        case None        => DecoratedCell.Empty
-        case Some(value) => DecoratedCell.Given(value)
-      }
+      val board = Generator(dimensions, seed, desiredDifficulty)
+        .map[DecoratedCell] {
+          case None        => DecoratedCell.Empty
+          case Some(value) => DecoratedCell.Given(value)
+        }
       PuzzleState(
-        seed = seed,
-        desiredDifficulty = desiredDifficulty,
-        generatedBoard = generatedBoard,
-        decoratedBoard = decoratedBoard,
+        board = board,
         focus = None,
         newPuzzleModalOpened = false
       )
@@ -53,9 +47,9 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
         Node("div.grid-main")
           .child(
             SudokuBoardSVG(
-              board = context.local.decoratedBoard,
+              board = context.local.board,
               interaction = Some((pos, node) => {
-                if (context.local.generatedBoard.get(pos).isEmpty)
+                if (context.local.board.get(pos).isNotGiven)
                   node.event("click", Action(PuzzleState.focus.set(Some(pos))))
                 else
                   node
@@ -74,11 +68,11 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
       }
       .modify(
         InputContextMenu.globalEventListener(
-          dim = context.local.generatedBoard.dim,
+          dim = context.local.board.dim,
           focus = context.local.focus,
           setValue = (pos, value) => inputValue(pos, value),
           setFocus = pos => {
-            if (context.local.generatedBoard.get(pos).isEmpty)
+            if (context.local.board.get(pos).isNotGiven)
               context.update(PuzzleState.focus.set(Some(pos))(context.local))
             else ()
           }
@@ -99,28 +93,36 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
   private def contextMenu()(implicit context: Context): Option[Node] =
     context.local.focus.map { pos =>
       InputContextMenu(
-        dim = context.local.generatedBoard.dim,
+        dim = context.local.board.dim,
         reference = document.getElementById(s"cell_${pos._1}_${pos._2}"),
         setFocus = pos => context.update(PuzzleState.focus.set(pos)(context.local)),
         setValue = value => inputValue(pos, value)
       )
     }
 
-  private def inputValue(pos: Position, value: Option[Int])(implicit context: Context): Unit =
-    context.update {
-      val updatedBoard = context.local.decoratedBoard
-        .set(pos, DecoratedCell.maybeInput(value))
-        .pipe(DecoratedBoard.markMistakes)
-      Validate(updatedBoard.map(_.toOption)) match {
-        case Some(_) =>
-          FinishedPuzzleState(
+  private def inputValue(pos: Position, value: Option[Int])(implicit context: Context): Unit = {
+    val updatedBoard = context.local.board
+      .set(pos, DecoratedCell.maybeInput(value))
+      .pipe(DecoratedBoard.markMistakes)
+
+    Validate(updatedBoard.map(_.toOption)) match {
+      case Some(_) =>
+        context.update(
+          globalState = GlobalState.lastPuzzle.set(None)(context.global),
+          pageState = FinishedPuzzleState(
             board = updatedBoard
           )
-        case None =>
-          context.local.copy(
-            focus = None,
-            decoratedBoard = updatedBoard
-          )
-      }
+        )
+      case None =>
+        val updatedPuzzleState = context.local.copy(
+          focus = None,
+          board = updatedBoard
+        )
+
+        context.update(
+          globalState = GlobalState.lastPuzzle.set(Some(updatedPuzzleState))(context.global),
+          pageState = updatedPuzzleState
+        )
     }
+  }
 }

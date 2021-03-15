@@ -1,6 +1,5 @@
 package frontend
 
-import frontend.pages.{FinishedPuzzleState, PuzzleState}
 import io.circe.parser
 import io.circe.syntax._
 import org.scalajs.dom
@@ -38,15 +37,9 @@ class App(container: Element) {
   }
 
   def renderState(globalState: GlobalState, state: PageState): Unit = {
-    val modifiedGlobalState = state match {
-      case puzzle: PuzzleState         => globalState.copy(lastPuzzle = Some(puzzle.copy(focus = None)))
-      case puzzle: FinishedPuzzleState => globalState.copy(lastPuzzle = None)
-      case _                           => globalState
-    }
+    saveGlobalState(globalState)
 
-    saveGlobalState(modifiedGlobalState)
-
-    val context = Context(state, modifiedGlobalState, renderState)
+    val context = Context(state, globalState, renderState)
 
     node = patch(node, Pages.ui(context).toVNode)
   }
