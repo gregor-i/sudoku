@@ -44,6 +44,9 @@ val `service-worker` = project
   )
   .settings(scalaJsDom)
 
+val analytics = project.in(file("analytics"))
+  .dependsOn(model.jvm)
+
 // tasks
 
 compile in frontend := Def.taskDyn {

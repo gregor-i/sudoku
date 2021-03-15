@@ -8,7 +8,7 @@ import org.scalatest.funsuite.AnyFunSuite
 class EasySolverTest extends AnyFunSuite {
   test("solves Sudokus, generated with Difficulty Easy") {
     for (seed <- 0 until 100) {
-      val puzzle = Generator(dim = Dimensions(3, 3), seed = seed, desiredDifficulty = Difficulty.Easy)
+      val puzzle = Generator(dim = Dimensions(3, 3), seed = seed, difficulty = Difficulty.Easy)
 
       assert(EasySolver(puzzle).uniqueSolution.isDefined)
     }

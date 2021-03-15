@@ -6,11 +6,11 @@ import scala.util.chaining._
 object Generator {
   private type Permutation = (Position, Position)
 
-  def apply(dim: Dimensions, seed: Int, desiredDifficulty: Difficulty): OpenSudokuBoard = {
+  def apply(dim: Dimensions, seed: Int, difficulty: Difficulty): OpenSudokuBoard = {
     val random = new Random(seed)
     initialBoard(dim)
       .pipe(permute(random.nextInt(), _))
-      .pipe(makePuzzle(random.nextInt(), _, desiredDifficulty))
+      .pipe(makePuzzle(random.nextInt(), _, difficulty))
   }
 
   // See: https://gamedev.stackexchange.com/a/138228
@@ -36,18 +36,18 @@ object Generator {
     def permutationsOfColumns(c1: Int, c2: Int, dim: Dimensions): Seq[Permutation] =
       SudokuBoard.column(c1)(dim) zip SudokuBoard.column(c2)(dim)
 
-    def permutationsOfColumnsInsideOfBlocks(seed: Int, dim: Dimensions): Seq[Permutation] =
+    def permutationsOfColumnsInsideOfBlocks(random: Random, dim: Dimensions): Seq[Permutation] =
       for {
         block <- 0 until dim.height
-        shuffled = new Random(seed).shuffle((0 until dim.width): IndexedSeq[Int])
+        shuffled = random.shuffle((0 until dim.width): IndexedSeq[Int])
         column <- 0 until dim.width
         swapWith = shuffled(column)
         if swapWith > column
         permutations <- permutationsOfColumns(block * dim.width + column, block * dim.width + swapWith, dim)
       } yield permutations
 
-    def permutationsOfColumnsOfBlocks(seed: Int, dim: Dimensions): Seq[Permutation] = {
-      val shuffled = new Random(seed).shuffle((0 until dim.height): IndexedSeq[Int])
+    def permutationsOfColumnsOfBlocks(random: Random, dim: Dimensions): Seq[Permutation] = {
+      val shuffled = random.shuffle((0 until dim.height): IndexedSeq[Int])
       for {
         block <- 0 until dim.height
         swapWith = shuffled(block)
@@ -61,33 +61,28 @@ object Generator {
       generator(Dimensions(width = dim.height, height = dim.width))
         .map { case (p1, p2) => (p1.swap, p2.swap) }
 
-    def permutationsOfRowsInsideOfBlocks(seed: Int, dim: Dimensions): Seq[Permutation] =
-      transposeGenerator(permutationsOfColumnsInsideOfBlocks(seed, _), dim)
+    def permutationsOfRowsInsideOfBlocks(random: Random, dim: Dimensions): Seq[Permutation] =
+      transposeGenerator(permutationsOfColumnsInsideOfBlocks(random, _), dim)
 
-    def permutationsOfRowsOfBlocks(seed: Int, dim: Dimensions): Seq[Permutation] =
-      transposeGenerator(permutationsOfColumnsOfBlocks(seed, _), dim)
+    def permutationsOfRowsOfBlocks(random: Random, dim: Dimensions): Seq[Permutation] =
+      transposeGenerator(permutationsOfColumnsOfBlocks(random, _), dim)
 
     val random = new Random(seed)
-    permutationsOfColumnsInsideOfBlocks(random.nextInt(), dim) ++
-      permutationsOfColumnsOfBlocks(random.nextInt(), dim) ++
-      permutationsOfRowsInsideOfBlocks(random.nextInt(), dim) ++
-      permutationsOfRowsOfBlocks(random.nextInt(), dim)
+    permutationsOfColumnsInsideOfBlocks(random, dim) ++
+      permutationsOfColumnsOfBlocks(random, dim) ++
+      permutationsOfRowsInsideOfBlocks(random, dim) ++
+      permutationsOfRowsOfBlocks(random, dim)
   }
 
   private def makePuzzle(
       seed: Int,
       solvedBoard: SolvedSudokuBoard,
-      desiredDifficulty: Difficulty
+      difficulty: Difficulty
   ): OpenSudokuBoard = {
     val random            = new Random(seed)
     val shuffledPositions = SudokuBoard.positions(solvedBoard.dim).pipe(random.shuffle(_))
     val board             = solvedBoard.map[Option[Int]](Some.apply)
-
-    val solver = desiredDifficulty match {
-      case Difficulty.Easy   => Solver.uniqueOptionSolver
-      case Difficulty.Medium => Solver.mediumSolver
-      case Difficulty.Hard   => Solver.perfectSolver
-    }
+    val solver            = Solver.forDifficulty(difficulty)
 
     shuffledPositions.foldLeft(board) { (board, position) =>
       val reducedBoard = board.set(position, None)

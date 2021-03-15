@@ -8,9 +8,16 @@ trait Solver {
 }
 
 object Solver {
-  def perfectSolver: Solver      = PerfectSolver
-  def mediumSolver: Solver       = MediumSolver
-  def uniqueOptionSolver: Solver = EasySolver
+  def perfectSolver: Solver = PerfectSolver
+  def mediumSolver: Solver  = MediumSolver
+  def easySolver: Solver    = EasySolver
+
+  def forDifficulty(difficulty: Difficulty): Solver =
+    difficulty match {
+      case Difficulty.Hard   => perfectSolver
+      case Difficulty.Medium => mediumSolver
+      case Difficulty.Easy   => easySolver
+    }
 }
 
 sealed trait SolverResult {
