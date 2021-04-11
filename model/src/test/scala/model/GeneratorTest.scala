@@ -31,4 +31,14 @@ class GeneratorTest extends AnyFunSuite {
       assert(Validate.correct(permuted))
     }
   }
+
+  test("shuffleValues exchanged the values, but always preserves corretness") {
+    val dim     = Dimensions(2, 3)
+    val initial = Generator.initialBoard(dim)
+
+    for (seed <- 0 until 1000) {
+      val permuted = Generator.shuffleValues(seed, initial)
+      assert(Validate.correct(permuted))
+    }
+  }
 }

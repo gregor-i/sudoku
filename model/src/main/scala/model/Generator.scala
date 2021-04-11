@@ -10,6 +10,7 @@ object Generator {
     val random = new Random(seed)
     initialBoard(dim)
       .pipe(permute(random.nextInt(), _))
+      .pipe(shuffleValues(random.nextInt(), _))
       .pipe(makePuzzle(random.nextInt(), _, difficulty))
   }
 
@@ -72,6 +73,11 @@ object Generator {
       permutationsOfColumnsOfBlocks(random, dim) ++
       permutationsOfRowsInsideOfBlocks(random, dim) ++
       permutationsOfRowsOfBlocks(random, dim)
+  }
+
+  def shuffleValues(seed: Int, board: SolvedSudokuBoard): SolvedSudokuBoard = {
+    val shuffled = new Random(seed).shuffle((0 until board.dim.blockSize): IndexedSeq[Int])
+    board.map(v => shuffled(v - 1) + 1)
   }
 
   private def makePuzzle(
