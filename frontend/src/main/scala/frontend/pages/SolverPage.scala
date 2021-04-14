@@ -34,7 +34,13 @@ object SudokuSolverPage extends Page[SolverState] with NoRouting {
       .child(Header.renderHeader())
       .child(
         Node("div.grid-main")
-          .child(SudokuBoardSVG(decoratedBoard, Some(rectInteraction)).classes("grid-main-svg"))
+          .child(
+            SudokuBoardSVG(
+              decoratedBoard,
+              extension = Some(rectInteraction),
+              highlightMistakes = true
+            ).classes("grid-main-svg")
+          )
       )
       .child(
         buttonBar().classes("grid-footer")
@@ -54,14 +60,8 @@ object SudokuSolverPage extends Page[SolverState] with NoRouting {
       )
   }
 
-  private def rectInteraction(implicit context: Context): SudokuBoardSVG.Interaction =
-    (pos, node) =>
-      node
-        .event(
-          "click",
-          Action(SolverState.focus.set(Some(pos)))
-        )
-        .event("dblclick", Action(SolverState.board.modify(_.set(pos, None))))
+  private def rectInteraction(implicit context: Context): SudokuBoardSVG.Extension =
+    (pos, node) => node.event("click", Action(SolverState.focus.set(Some(pos))))
 
   private def contextMenu()(implicit context: Context): Option[Node] =
     context.local.focus.map { pos =>

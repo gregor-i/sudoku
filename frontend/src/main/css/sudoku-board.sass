@@ -2,6 +2,9 @@ svg.sudoku-board
   tspan.given-value
     font-weight: 300
 
-  &.highlight-mistakes
-    tspan.wrong-value
-      fill: red
+  #rects rect
+    fill: rgba(0, 0, 0, 0)
+    transition: fill 750ms
+
+    &.wrong-value
+      fill: rgba($red, 0.4)

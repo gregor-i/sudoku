@@ -4,16 +4,16 @@ import model._
 import snabbdom.Node
 
 object SudokuBoardSVG {
-  type Interaction = (Position, Node) => Node
+  type Extension = (Position, Node) => Node
   val strokeWidth = (1.0 / 30.0)
 
-  def apply(board: DecoratedBoard, interaction: Option[Interaction]): Node = {
+  def apply(board: DecoratedBoard, extension: Option[Extension], highlightMistakes: Boolean): Node = {
     val dim = board.dim
 
     Node("svg.sudoku-board")
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .attr("viewBox", s"${-strokeWidth / 2} ${-strokeWidth / 2} ${dim.blockSize + strokeWidth} ${dim.blockSize + strokeWidth}")
-      .childOptional(interaction.map(interactionRects(board, _)))
+      .child(rects(board, extension, highlightMistakes))
       .children(grid(dim), values(board))
   }
 
@@ -74,10 +74,9 @@ object SudokuBoardSVG {
         for {
           pos <- SudokuBoard.positions(board.dim)
           node <- board.get(pos) match {
-            case cell: DecoratedCell.Given      => Some(givenNumber(cell))
-            case cell: DecoratedCell.Input      => Some(inputNumber(cell))
-            case cell: DecoratedCell.WrongInput => Some(wrongInputNumber(cell))
-            case DecoratedCell.Empty            => None
+            case cell: DecoratedCell.Given => Some(givenNumber(cell))
+            case cell: DecoratedCell.Input => Some(inputNumber(cell))
+            case DecoratedCell.Empty       => None
           }
         } yield Node("text")
           .attr("transform", s"translate(${pos._1} ${pos._2 * 1})")
@@ -98,25 +97,25 @@ object SudokuBoardSVG {
   private def inputNumber(state: DecoratedCell.Input): Node =
     numberPrototype.text(state.value.toString).classes("input-value")
 
-  private def wrongInputNumber(state: DecoratedCell.WrongInput): Node =
-    numberPrototype.text(state.value.toString).classes("input-value", "wrong-value")
-
-  private def interactionRects(board: SudokuBoard[_], interaction: Interaction): Node =
+  private def rects(board: DecoratedBoard, interaction: Option[Extension], highlightMistakes: Boolean): Node =
     Node("g")
-      .attr("id", "interactionRects")
+      .attr("id", "rects")
       .child {
-        for {
-          pos <- SudokuBoard.positions(board.dim)
-        } yield interaction(
-          pos,
-          Node("rect")
-            .attr("id", s"cell_${pos._1}_${pos._2}")
-            .attr("x", pos._1.toString)
-            .attr("y", pos._2.toString)
-            .attr("width", "1")
-            .attr("height", "1")
-            .attr("fill", "rgba(0, 0, 0, 0)")
-            .attr("stroke", "none")
-        )
+        for (pos <- SudokuBoard.positions(board.dim))
+          yield {
+            val node = Node("rect")
+              .`class`("wrong-value", highlightMistakes && !Validate.noError(board.map(_.toOption), pos))
+              .attr("id", s"cell_${pos._1}_${pos._2}")
+              .attr("x", pos._1.toString)
+              .attr("y", pos._2.toString)
+              .attr("width", "1")
+              .attr("height", "1")
+              .attr("stroke", "none")
+
+            interaction match {
+              case Some(interaction) => interaction(pos, node)
+              case None              => node
+            }
+          }
       }
 }

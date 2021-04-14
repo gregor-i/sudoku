@@ -35,6 +35,5 @@ object LandingPage extends Page[LandingPageState] {
     }
   }
 
-  private val background: Node =
-    SudokuBoardSVG.apply(backgroundBoard, interaction = None)
+  private val background: Node = SudokuBoardSVG(backgroundBoard, extension = None, highlightMistakes = false)
 }

@@ -34,7 +34,8 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
           .child(
             SudokuBoardSVG(
               board = context.local.board,
-              interaction = Some(animations(context.local.board))
+              extension = Some(animations(context.local.board)),
+              highlightMistakes = false
             ).classes("grid-main-svg", "finished-sudoku")
               .event("click", Action(FinishedPuzzleState.tapped.set(true)))
           )

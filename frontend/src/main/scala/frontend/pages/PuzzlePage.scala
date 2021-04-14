@@ -48,13 +48,14 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
           .child(
             SudokuBoardSVG(
               board = context.local.board,
-              interaction = Some((pos, node) => {
+              extension = Some((pos, node) => {
                 if (context.local.board.get(pos).isNotGiven)
                   node.event("click", Action(PuzzleState.focus.set(Some(pos))))
                 else
                   node
-              })
-            ).classes("grid-main-svg").maybeModify(context.global.highlightMistakes)(_.classes("highlight-mistakes"))
+              }),
+              highlightMistakes = context.global.highlightMistakes
+            ).classes("grid-main-svg")
           )
       )
       .child(buttonBar().classes("grid-footer"))
@@ -103,7 +104,6 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
   private def inputValue(pos: Position, value: Option[Int])(implicit context: Context): Unit = {
     val updatedBoard = context.local.board
       .set(pos, DecoratedCell.maybeInput(value))
-      .pipe(DecoratedBoard.markMistakes)
 
     Validate(updatedBoard.map(_.toOption)) match {
       case Some(_) =>
