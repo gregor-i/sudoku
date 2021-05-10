@@ -12,7 +12,7 @@ class SudokuBoardTest extends AnyFunSuite {
   }
 
   test("set a value") {
-    val board = SudokuBoard.empty(Dimensions(3, 2)).set(5, 1, Some(5))
+    val board = SudokuBoard.empty(Dimensions(3, 2)).set((5, 1), Some(5))
     assert(board.get(5, 1) == Some(5))
     assert(board.get(5, 0) == None)
     assert(board.get(5, 2) == None)

@@ -27,7 +27,7 @@ class GeneratorTest extends AnyFunSuite {
     val initial = Generator.initialBoard(dim)
 
     for (seed <- 0 until 1000) {
-      val permuted = Generator.permute(seed, initial)
+      val permuted = Generator.swapRowsAndColumns(seed, initial)
       assert(Validate.correct(permuted))
     }
   }

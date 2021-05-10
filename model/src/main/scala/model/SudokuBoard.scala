@@ -14,28 +14,20 @@ case class SudokuBoard[A](dim: Dimensions, data: Vector[A]) {
     y * blockSize + x
   }
 
-  def map[S](f: A => S): SudokuBoard[S] =
-    new SudokuBoard[S](dim, data.map(f))
+  def map[S](f: A => S): SudokuBoard[S] = new SudokuBoard[S](dim, data.map(f))
 
-  def get(x: Int, y: Int): A =
-    data(toIndex(x, y))
+  def get(x: Int, y: Int): A = data(toIndex(x, y))
 
-  def get(pos: Position): A =
-    data(toIndex(pos._1, pos._2))
-
-  def set(x: Int, y: Int, value: A): SudokuBoard[A] =
-    new SudokuBoard[A](dim, data.updated(toIndex(x, y), value))
+  def get(pos: Position): A = data(toIndex(pos._1, pos._2))
 
   def set(pos: Position, value: A): SudokuBoard[A] =
     new SudokuBoard[A](dim, data.updated(toIndex(pos._1, pos._2), value))
 
-  def mod(pos: Position, f: A => A): SudokuBoard[A] =
-    set(pos, f(get(pos)))
+  def mod(pos: Position, f: A => A): SudokuBoard[A] = set(pos, f(get(pos)))
 }
 
 object SudokuBoard {
-  def empty(dim: Dimensions): OpenSudokuBoard =
-    new OpenSudokuBoard(dim, Vector.fill[Option[Int]](dim.blockSize * dim.blockSize)(None))
+  def empty(dim: Dimensions): OpenSudokuBoard = fill(dim)(_ => None)
 
   def fill[A](dim: Dimensions)(f: Position => A): SudokuBoard[A] =
     new SudokuBoard[A](dim, rows(dim).flatten.map(f).toVector)
