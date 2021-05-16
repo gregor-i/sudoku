@@ -130,7 +130,7 @@ def scalatest =
   )
 
 def scalaJsDom =
-  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "1.1.0"
+  libraryDependencies += "org.scala-js" % "scalajs-dom_sjs1_2.13" % "1.1.0"
 
 def snabbdom = Seq(
   resolvers += "jitpack" at "https://jitpack.io",

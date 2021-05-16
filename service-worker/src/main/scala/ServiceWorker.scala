@@ -1,9 +1,7 @@
-package stellarExpansion.serviceWorker
-
-import org.scalajs.dom.experimental.Fetch._
-import org.scalajs.dom.experimental._
+import org.scalajs.dom.experimental.Fetch.fetch
 import org.scalajs.dom.experimental.serviceworkers.ServiceWorkerGlobalScope.self
 import org.scalajs.dom.experimental.serviceworkers.{ExtendableEvent, FetchEvent}
+import org.scalajs.dom.experimental.{RequestInfo, Response}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -12,17 +10,17 @@ import scala.scalajs.js.Dynamic
 import scala.scalajs.js.JSConverters._
 import scala.util.chaining._
 
-object Main {
-  val assetCacheName = "assets"
+object ServiceWorker {
+  private val assetCacheName = "assets"
 
-  val assets =
+  private val assets =
     buildinfo.BuildInfo.assetFiles
       .split("\n")
       .filter(_ != "CNAME")
       .map[RequestInfo](fileName => "/" + fileName)
       .toJSArray
 
-  val startUrl: RequestInfo = "/"
+  private val startUrl: RequestInfo = "/"
 
   def main(args: Array[String]): Unit = {
     self.addEventListener(
@@ -30,8 +28,7 @@ object Main {
       (event: ExtendableEvent) =>
         (for {
           _ <- invalidateCache(assetCacheName)
-          _ <- populateCache(assetCacheName, assets)
-          _ <- populateCache(assetCacheName, js.Array(startUrl))
+          _ <- populateCache(assetCacheName, assets ++ js.Array(startUrl))
           _ = Dynamic.global.console.debug(s"service-worker-build-time: ${buildinfo.BuildInfo.buildTime}")
         } yield ()).toJSPromise
           .tap(event.waitUntil(_))
@@ -43,26 +40,26 @@ object Main {
       "fetch",
       (event: FetchEvent) => {
         fromCache(assetCacheName, event.request)
-          .recoverWith(_ => fetch(event.request).toFuture)
+          .recoverWith { case _ => fetch(event.request).toFuture }
           .toJSPromise
           .tap(event.respondWith(_))
       }
     )
   }
 
-  def populateCache(cacheName: String, files: js.Array[RequestInfo]): Future[Unit] =
+  private def populateCache(cacheName: String, files: js.Array[RequestInfo]): Future[Unit] =
     for {
       cache <- self.caches.open(cacheName).toFuture
       _     <- cache.addAll(files).toFuture
     } yield ()
 
-  def fromCache(cacheName: String, request: RequestInfo): Future[Response] =
+  private def fromCache(cacheName: String, request: RequestInfo): Future[Response] =
     for {
       cache         <- self.caches.open(cacheName).toFuture
       maybeResponse <- cache.`match`(request).toFuture
       response      <- Future(maybeResponse.get)
     } yield response
 
-  def invalidateCache(cacheName: String): Future[Boolean] =
+  private def invalidateCache(cacheName: String): Future[Boolean] =
     self.caches.delete(cacheName).toFuture
 }
