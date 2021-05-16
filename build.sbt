@@ -4,9 +4,9 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 
 name := "sudoku"
 
-ThisBuild / scalaVersion := "2.13.5"
-scalacOptions in ThisBuild ++= Seq("-feature", "-deprecation", "-Ymacro-annotations")
-scalafmtOnCompile in ThisBuild := true
+ThisBuild / scalaVersion := "3.0.0"
+ThisBuild / scalacOptions ++= Seq("-feature", "-deprecation")
+ThisBuild / scalafmtOnCompile  := true
 
 // projects
 lazy val root = project
@@ -16,7 +16,9 @@ lazy val root = project
 lazy val model = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("model"))
-  .settings(monocle, scalatest)
+  .settings(scalatest)
+  .jvmSettings(monocleJvm)
+  .jsSettings(monocleJs)
 
 lazy val frontend = project
   .in(file("frontend"))
@@ -29,7 +31,7 @@ lazy val frontend = project
 //      .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
     }
   )
-  .settings(monocle, scalatest, snabbdom, circe)
+  .settings(monocleJs, scalatest, snabbdom, circe)
 
 val `service-worker` = project
   .in(file("service-worker"))
@@ -49,7 +51,7 @@ val analytics = project.in(file("analytics"))
 
 // tasks
 
-compile in frontend := Def.taskDyn {
+frontend / compile := Def.taskDyn {
   val stage = (frontend / Compile / scalaJSStage).value
   val ret   = (frontend / Compile / compile).value
   stage match {
@@ -65,7 +67,7 @@ compile in frontend := Def.taskDyn {
   }
 }.value
 
-compile in `service-worker` := Def.taskDyn {
+`service-worker` / compile := Def.taskDyn {
   val stage = (`service-worker` / Compile / scalaJSStage).value
   val ret   = (`service-worker` / Compile / compile).value
   val buildFrontendTask = stage match {
@@ -80,33 +82,44 @@ compile in `service-worker` := Def.taskDyn {
   }
 }.value
 
-compile in Compile in root := Def
+root / Compile / compile := Def
   .sequential(
-    (compile in Compile in frontend),
-    (compile in Compile in `service-worker`)
+    frontend /  Compile / compile,
+    `service-worker` / Compile / compile
   )
   .value
 
 // dependencies
 
-def monocle = {
+def monocleJs = {
   val version = "2.1.0"
 
   libraryDependencies ++= Seq(
-    "com.github.julien-truffaut" %%% "monocle-core"   % version,
-    "com.github.julien-truffaut" %%% "monocle-macro"  % version,
-    "com.github.julien-truffaut" %%% "monocle-unsafe" % version,
-    "com.github.julien-truffaut" %%% "monocle-state"  % version
+    "com.github.julien-truffaut" % "monocle-core_sjs1_2.13"   % version,
+    "com.github.julien-truffaut" % "monocle-macro_sjs1_2.13"  % version,
+    "com.github.julien-truffaut" % "monocle-unsafe_sjs1_2.13" % version,
+    "com.github.julien-truffaut" % "monocle-state_sjs1_2.13"  % version
+  )
+}
+
+def monocleJvm = {
+  val version = "3.0.0-M5"
+
+  libraryDependencies ++= Seq(
+    "com.github.julien-truffaut" %  "monocle-core_2.13"   % version,
+    "com.github.julien-truffaut" %  "monocle-macro_2.13"  % version,
+    "com.github.julien-truffaut" %  "monocle-unsafe_2.13" % version,
+    "com.github.julien-truffaut" %  "monocle-state_2.13"  % version
   )
 }
 
 def circe = {
   val version = "0.13.0"
   libraryDependencies ++= Seq(
-    "io.circe" %%% "circe-core"           % version,
-    "io.circe" %%% "circe-generic"        % version,
-    "io.circe" %%% "circe-generic-extras" % version,
-    "io.circe" %%% "circe-parser"         % version
+    "io.circe" % "circe-core_sjs1_2.13"           % version,
+    "io.circe" % "circe-generic_sjs1_2.13"        % version,
+    "io.circe" % "circe-generic-extras_sjs1_2.13" % version,
+    "io.circe" % "circe-parser_sjs1_2.13"         % version
   )
 }
 
@@ -121,7 +134,7 @@ def scalaJsDom =
 
 def snabbdom = Seq(
   resolvers += "jitpack" at "https://jitpack.io",
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "scalajs-snabbdom" % "1.2.5",
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-toasts" % "1.2.5",
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-components" % "1.2.5",
+  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" % "scalajs-snabbdom_sjs1_2.13" % "1.2.5",
+  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" % "snabbdom-toasts_sjs1_2.13" % "1.2.5",
+  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" % "snabbdom-components_sjs1_2.13" % "1.2.5",
 )

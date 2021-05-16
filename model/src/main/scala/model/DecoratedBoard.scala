@@ -26,5 +26,5 @@ object DecoratedCell {
   case class Input(value: Int) extends DecoratedCell
   case object Empty            extends DecoratedCell
 
-  def maybeInput(value: Option[Int]): DecoratedCell = value.fold[DecoratedCell](DecoratedCell.Empty)(DecoratedCell.Input)
+  def maybeInput(value: Option[Int]): DecoratedCell = value.fold[DecoratedCell](DecoratedCell.Empty)(DecoratedCell.Input.apply)
 }
