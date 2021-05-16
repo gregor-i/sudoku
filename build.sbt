@@ -25,8 +25,8 @@ lazy val frontend = project
   .settings(
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= {
-      _.withModuleKind(ModuleKind.ESModule)
-      .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
+      _.withModuleKind(ModuleKind.CommonJSModule)
+//      .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
     }
   )
   .settings(monocle, scalatest, snabbdom, circe)
@@ -54,12 +54,12 @@ compile in frontend := Def.taskDyn {
   val ret   = (frontend / Compile / compile).value
   stage match {
     case Stage.FullOpt => (frontend / Compile / fullLinkJS).map { _ =>
-      Seq("./node_modules/.bin/webpack", "--mode", "production").!!
+      Seq("./node_modules/.bin/webpack", "--mode", "production").!
       ret
     }
 
     case Stage.FastOpt => (frontend / Compile / fastLinkJS).map { _ =>
-      Seq("./node_modules/.bin/webpack", "--mode", "development").!!
+      Seq("./node_modules/.bin/webpack", "--mode", "development").!
       ret
     }
   }
@@ -121,7 +121,7 @@ def scalaJsDom =
 
 def snabbdom = Seq(
   resolvers += "jitpack" at "https://jitpack.io",
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "scalajs-snabbdom" % "1.2.4",
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-toasts" % "1.2.4",
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-components" % "1.2.4",
+  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "scalajs-snabbdom" % "1.2.5",
+  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-toasts" % "1.2.5",
+  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-components" % "1.2.5",
 )
