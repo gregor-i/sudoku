@@ -5,7 +5,8 @@ import snabbdom.Node
 
 object SudokuBoardSVG {
   type Extension = (Position, Node) => Node
-  val strokeWidth = (1.0 / 30.0)
+  val strokeWidth  = (1.0 / 30.0)
+  val borderRadius = 1d / 10d
 
   def apply(board: DecoratedBoard, extension: Option[Extension], highlightMistakes: Boolean): Node = {
     val dim = board.dim
@@ -22,7 +23,7 @@ object SudokuBoardSVG {
       .attr("id", "grid")
       .style("pointer-events", "none")
       .child {
-        for (column <- 0 to dim.blockSize; if column % dim.width != 0)
+        for (column <- 1 until dim.blockSize; if column % dim.width != 0)
           yield Node("line")
             .attr("x1", column.toString)
             .attr("x2", column.toString)
@@ -33,19 +34,18 @@ object SudokuBoardSVG {
             .attr("stroke-width", strokeWidth.toString)
       }
       .child {
-        for (row <- 0 to dim.blockSize; if row % dim.height != 0)
+        for (row <- 1 until dim.blockSize; if row % dim.height != 0)
           yield Node("line")
             .attr("x1", "0")
             .attr("x2", dim.blockSize.toString)
             .attr("y1", row.toString)
             .attr("y2", row.toString)
-            .attr("stroke", "lightgrey")
             .attr("stroke", "currentColor")
             .style("opacity", "0.2")
             .attr("stroke-width", strokeWidth.toString)
       }
       .child {
-        for (column <- 0 to dim.blockSize by dim.width)
+        for (column <- dim.width until dim.blockSize by dim.width)
           yield Node("line")
             .attr("x1", column.toString)
             .attr("x2", column.toString)
@@ -55,7 +55,7 @@ object SudokuBoardSVG {
             .attr("stroke-width", strokeWidth.toString)
       }
       .child {
-        for (row <- 0 to dim.blockSize by dim.height)
+        for (row <- dim.height until dim.blockSize by dim.height)
           yield Node("line")
             .attr("x1", "0")
             .attr("x2", dim.blockSize.toString)
@@ -65,6 +65,17 @@ object SudokuBoardSVG {
             .attr("stroke-width", strokeWidth.toString)
             .attr("stroke-linecap", "square")
       }
+      .child(
+        Node("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("rx", borderRadius.toString)
+          .attr("width", dim.blockSize.toString)
+          .attr("height", dim.blockSize.toString)
+          .attr("fill", "none")
+          .attr("stroke", "black")
+          .attr("stroke-width", strokeWidth.toString)
+      )
 
   private def values(board: DecoratedBoard): Node =
     Node("g")

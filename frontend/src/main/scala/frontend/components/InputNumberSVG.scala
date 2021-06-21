@@ -6,13 +6,15 @@ import snabbdom.Node
 object InputNumberSVG {
   type Interaction = (Option[Int], Node) => Node
 
-  val strokeWidth = 1d / 30d
-  val fontSize    = 0.8.toString
+  val strokeWidth  = 1d / 30d
+  val borderRadius = 1d / 10d
+  val fontSize     = 0.8.toString
 
   def apply(dim: Dimensions, interaction: Option[Interaction]): Node = {
     Node("svg.number-input")
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .attr("viewBox", s"${-strokeWidth / 2} ${-strokeWidth / 2} ${dim.width + strokeWidth} ${dim.height + 1 + strokeWidth}")
+      .style("border-radius", (borderRadius / (dim.width + strokeWidth) * 100d) + "%")
       .childOptional(interaction.map(interactionRects(dim, _)))
       .children(grid(dim), values(dim))
   }
@@ -22,17 +24,18 @@ object InputNumberSVG {
       .attr("id", "grid")
       .style("pointer-events", "none")
       .child {
-        for (column <- 0 to dim.width)
+        for (column <- 1 until dim.width)
           yield Node("line")
             .attr("x1", column.toString)
             .attr("x2", column.toString)
             .attr("y1", "0")
-            .attr("y2", (if (column == 0 || column == dim.width) dim.height + 1 else dim.height).toString)
+            .attr("y2", dim.height.toString)
             .attr("stroke", "black")
             .attr("stroke-width", strokeWidth.toString)
+            .style("opacity", "0.2")
       }
       .child {
-        for (row <- 0 to dim.height + 1)
+        for (row <- 1 to dim.height)
           yield Node("line")
             .attr("x1", "0")
             .attr("x2", dim.width.toString)
@@ -41,8 +44,19 @@ object InputNumberSVG {
             .attr("stroke", "black")
             .attr("stroke-width", strokeWidth.toString)
             .attr("stroke-linecap", "square")
+            .style("opacity", "0.2")
       }
-
+      .child(
+        Node("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("rx", borderRadius.toString)
+          .attr("width", dim.width.toString)
+          .attr("height", (dim.height + 1).toString)
+          .attr("fill", "none")
+          .attr("stroke", "black")
+          .attr("stroke-width", strokeWidth.toString)
+      )
   private def values(dim: Dimensions): Node =
     Node("g")
       .attr("id", "values")
