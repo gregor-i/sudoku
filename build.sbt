@@ -4,9 +4,9 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 
 name := "sudoku"
 
-ThisBuild / scalaVersion := "2.13.5"
-scalacOptions in ThisBuild ++= Seq("-feature", "-deprecation", "-Ymacro-annotations")
-scalafmtOnCompile in ThisBuild := true
+ThisBuild / scalaVersion := "2.13.6"
+ThisBuild / scalacOptions ++= Seq("-feature", "-deprecation", "-Ymacro-annotations")
+ThisBuild / scalafmtOnCompile := true
 
 // projects
 lazy val root = project
@@ -80,10 +80,10 @@ compile in `service-worker` := Def.taskDyn {
   }
 }.value
 
-compile in Compile in root := Def
+root / Compile / compile := Def
   .sequential(
-    (compile in Compile in frontend),
-    (compile in Compile in `service-worker`)
+    (frontend / Compile / compile),
+    (`service-worker` / Compile / compile)
   )
   .value
 
@@ -101,7 +101,7 @@ def monocle = {
 }
 
 def circe = {
-  val version = "0.13.0"
+  val version = "0.14.1"
   libraryDependencies ++= Seq(
     "io.circe" %%% "circe-core"           % version,
     "io.circe" %%% "circe-generic"        % version,
