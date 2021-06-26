@@ -25,7 +25,7 @@ object TreeTraversal {
     LazyList.unfold[N, Queue[N]](Queue(root))(loop)
   }
 
-  // an optimized dfs. it only returns the leaves. there is no use for this function based on bfs
+  // an optimized dfs. it only returns the leaves.
   def traverseLeaves[N](root: N, children: N => Iterable[N]): LazyList[N] = {
     @tailrec
     def loop(acc: List[N]): Option[(N, List[N])] =
