@@ -11,6 +11,7 @@ import snabbdom.components.{Button, ButtonList, Modal}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.Random
 import scala.util.chaining.scalaUtilChainingOps
 
 @Lenses
@@ -83,6 +84,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
   private def buttonBar()(implicit context: Context): Node =
     ButtonList
       .right(
+        Button(localized.hint, Icons.hint, Action(giveHint)),
         Button(
           localized.playNewGame,
           Icons.generate,
@@ -90,6 +92,16 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
         )
       )
       .classes("my-2")
+
+  private def giveHint(state: PuzzleState): PuzzleState =
+    (for {
+      _ <- Some(1)
+      emptyFields = SudokuBoard.positions(state.board.dim).filter(pos => state.board.get(pos).toOption.isEmpty)
+      if emptyFields.size > 1
+      posToFill <- Random.shuffle(emptyFields).headOption
+      solution  <- Solver.perfectSolver(state.board.map(_.toOption)).uniqueSolution
+    } yield state.copy(board = state.board.set(posToFill, DecoratedCell.Hint(solution.get(posToFill)))))
+      .getOrElse(state)
 
   private def contextMenu()(implicit context: Context): Option[Node] =
     context.local.focus.map { pos =>
@@ -109,9 +121,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
       case Some(_) =>
         context.update(
           globalState = GlobalState.lastPuzzle.set(None)(context.global),
-          pageState = FinishedPuzzleState(
-            board = updatedBoard
-          )
+          pageState = FinishedPuzzleState(board = updatedBoard)
         )
       case None =>
         val updatedPuzzleState = context.local.copy(

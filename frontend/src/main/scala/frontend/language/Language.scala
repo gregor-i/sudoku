@@ -13,6 +13,7 @@ trait Language {
   def continueLastGame: String
   def settings: String
   def highlightMistakes: String
+  def hint: String
   def yes: String
   def no: String
 }

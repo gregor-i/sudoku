@@ -9,12 +9,14 @@ sealed trait DecoratedCell {
   def toOption: Option[Int] = this match {
     case DecoratedCell.Given(value) => Some(value)
     case DecoratedCell.Input(value) => Some(value)
+    case DecoratedCell.Hint(value)  => Some(value)
     case DecoratedCell.Empty        => None
   }
 
   def isGiven: Boolean = this match {
     case DecoratedCell.Given(_) => true
     case DecoratedCell.Input(_) => false
+    case DecoratedCell.Hint(_)  => false
     case DecoratedCell.Empty    => false
   }
 
@@ -24,6 +26,7 @@ sealed trait DecoratedCell {
 object DecoratedCell {
   case class Given(value: Int) extends DecoratedCell
   case class Input(value: Int) extends DecoratedCell
+  case class Hint(value: Int)  extends DecoratedCell
   case object Empty            extends DecoratedCell
 
   def maybeInput(value: Option[Int]): DecoratedCell = value.fold[DecoratedCell](DecoratedCell.Empty)(DecoratedCell.Input)

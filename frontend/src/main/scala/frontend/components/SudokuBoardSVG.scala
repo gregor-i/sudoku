@@ -87,6 +87,7 @@ object SudokuBoardSVG {
           node <- board.get(pos) match {
             case cell: DecoratedCell.Given => Some(givenNumber(cell))
             case cell: DecoratedCell.Input => Some(inputNumber(cell))
+            case cell: DecoratedCell.Hint  => Some(hintNumber(cell))
             case DecoratedCell.Empty       => None
           }
         } yield Node("text")
@@ -96,17 +97,21 @@ object SudokuBoardSVG {
           .child(node)
       }
 
-  private val numberPrototype =
+  private def numberPrototype(value: Int) =
     Node("tspan")
       .attr("x", "0.5")
       .attr("y", "0.5")
       .attr("dominant-baseline", "central")
+      .text(value.toString)
 
   private def givenNumber(state: DecoratedCell.Given): Node =
-    numberPrototype.text(state.value.toString).classes("given-value")
+    numberPrototype(state.value).classes("given-value")
 
   private def inputNumber(state: DecoratedCell.Input): Node =
-    numberPrototype.text(state.value.toString).classes("input-value")
+    numberPrototype(state.value).classes("input-value")
+
+  private def hintNumber(state: DecoratedCell.Hint): Node =
+    numberPrototype(state.value).classes("hint-value")
 
   private def rects(board: DecoratedBoard, interaction: Option[Extension], highlightMistakes: Boolean): Node =
     Node("g")

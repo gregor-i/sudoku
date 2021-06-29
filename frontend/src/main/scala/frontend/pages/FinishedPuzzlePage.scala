@@ -17,10 +17,7 @@ case class FinishedPuzzleState(
     board: DecoratedBoard,
     tapped: Boolean = false
 ) extends PageState {
-  require(board.data.forall {
-    case Given(_) | Input(_) => true
-    case _                   => false
-  })
+  require(board.data.forall(_.toOption.isDefined))
 }
 
 object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {

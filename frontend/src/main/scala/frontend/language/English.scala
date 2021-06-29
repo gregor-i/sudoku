@@ -13,11 +13,10 @@ object English extends Language {
     case Difficulty.Hard   => "Hard"
   }
 
-  def sizeLabel: String = "Size: "
-
-  def playNewGame: String = "Play new Game"
-
-  def continueLastGame: String = "Continue last Game"
+  override def sizeLabel: String        = "Size: "
+  override def playNewGame: String      = "Play new Game"
+  override def continueLastGame: String = "Continue last Game"
+  override def hint: String             = "Hint"
 
   override def settings: String = "Settings:"
 

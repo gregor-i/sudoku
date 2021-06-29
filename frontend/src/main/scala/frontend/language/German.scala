@@ -17,6 +17,8 @@ object German extends Language {
   override def playNewGame: String      = "Neues Spiel starten"
   override def continueLastGame: String = "Letztes Spiel fortsetzen"
 
+  override def hint: String = "Hinweis"
+
   override def settings: String = "Einstellungen:"
 
   override def highlightMistakes: String = "Falsche Eingaben hervorheben:"
