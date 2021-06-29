@@ -17,7 +17,8 @@ import scala.util.chaining.scalaUtilChainingOps
 case class PuzzleState(
     board: DecoratedBoard,
     focus: Option[Position],
-    newPuzzleModalOpened: Boolean
+    newPuzzleModalOpened: Boolean,
+    numberHighlight: Option[Int]
 ) extends PageState
 
 object PuzzleState {
@@ -31,7 +32,8 @@ object PuzzleState {
       PuzzleState(
         board = board,
         focus = None,
-        newPuzzleModalOpened = false
+        newPuzzleModalOpened = false,
+        numberHighlight = None
       )
     }
 
@@ -54,9 +56,11 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
                 else
                   node
               }),
-              highlightMistakes = context.global.highlightMistakes
+              highlightMistakes = context.global.highlightMistakes,
+              numberHighlight = context.local.numberHighlight
             ).classes("grid-main-svg")
           )
+          .child(valueCounter(context.local.board))
       )
       .child(buttonBar().classes("grid-footer"))
       .child(contextMenu())
@@ -124,5 +128,29 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
           pageState = updatedPuzzleState
         )
     }
+  }
+
+  private def valueCounter(board: DecoratedBoard)(implicit context: Context): Seq[Node] = {
+    SudokuBoard
+      .values(board.dim)
+      .map { value =>
+        val count = board.data
+          .count(_.toOption.contains(value))
+
+        val button = Node("a.button.is-rounded")
+          .`class`("is-primary", context.local.numberHighlight.contains(value))
+          .text(value.toString)
+          .event("click", Action(PuzzleState.numberHighlight.modify {
+            case Some(`value`) => None
+            case _             => Some(value)
+          }))
+
+        count match {
+          case 0 => button
+          case n if n == board.dim.blockSize =>
+            button.child(Node("span.tag.is-success.is-rounded").child("i.fas.fa-check"))
+          case _ => button.child(Node("span.tag.is-info.is-rounded").text(count.toString))
+        }
+      }
   }
 }

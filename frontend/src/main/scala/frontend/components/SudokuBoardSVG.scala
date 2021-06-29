@@ -8,13 +8,18 @@ object SudokuBoardSVG {
   val strokeWidth  = (1.0 / 30.0)
   val borderRadius = 1d / 10d
 
-  def apply(board: DecoratedBoard, extension: Option[Extension], highlightMistakes: Boolean): Node = {
+  def apply(
+      board: DecoratedBoard,
+      extension: Option[Extension],
+      highlightMistakes: Boolean,
+      numberHighlight: Option[Int] = None
+  ): Node = {
     val dim = board.dim
 
     Node("svg.sudoku-board")
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .attr("viewBox", s"${-strokeWidth / 2} ${-strokeWidth / 2} ${dim.blockSize + strokeWidth} ${dim.blockSize + strokeWidth}")
-      .child(rects(board, extension, highlightMistakes))
+      .child(rects(board, extension, highlightMistakes, numberHighlight))
       .children(grid(dim), values(board))
   }
 
@@ -108,7 +113,12 @@ object SudokuBoardSVG {
   private def inputNumber(state: DecoratedCell.Input): Node =
     numberPrototype.text(state.value.toString).classes("input-value")
 
-  private def rects(board: DecoratedBoard, interaction: Option[Extension], highlightMistakes: Boolean): Node =
+  private def rects(
+      board: DecoratedBoard,
+      interaction: Option[Extension],
+      highlightMistakes: Boolean,
+      numberHighlight: Option[Int]
+  ): Node =
     Node("g")
       .attr("id", "rects")
       .child {
@@ -116,6 +126,7 @@ object SudokuBoardSVG {
           yield {
             val node = Node("rect")
               .`class`("wrong-value", highlightMistakes && !Validate.noError(board.map(_.toOption), pos))
+              .`class`("highlight-value", board.get(pos).toOption == numberHighlight && numberHighlight.isDefined)
               .attr("id", s"cell_${pos._1}_${pos._2}")
               .attr("x", pos._1.toString)
               .attr("y", pos._2.toString)
