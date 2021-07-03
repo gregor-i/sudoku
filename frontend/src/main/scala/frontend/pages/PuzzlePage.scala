@@ -11,14 +11,13 @@ import snabbdom.components.{Button, ButtonList, Modal}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.Random
-import scala.util.chaining.scalaUtilChainingOps
 
 @Lenses
 case class PuzzleState(
     board: DecoratedBoard,
     focus: Option[Position],
-    newPuzzleModalOpened: Boolean
+    newPuzzleModalOpened: Boolean,
+    hint: Option[Hint]
 ) extends PageState
 
 object PuzzleState {
@@ -32,7 +31,8 @@ object PuzzleState {
       PuzzleState(
         board = board,
         focus = None,
-        newPuzzleModalOpened = false
+        newPuzzleModalOpened = false,
+        hint = None
       )
     }
 
@@ -47,16 +47,12 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
       .child(
         Node("div.grid-main")
           .child(
-            SudokuBoardSVG(
-              board = context.local.board,
-              extension = Some((pos, node) => {
-                if (context.local.board.get(pos).isNotGiven)
-                  node.event("click", Action(PuzzleState.focus.set(Some(pos))))
-                else
-                  node
-              }),
-              highlightMistakes = context.global.highlightMistakes
-            ).classes("grid-main-svg")
+            SudokuBoardSVG(context.local.board)
+              .extendRects(contextMenuTriggerExtension(context.local.board))
+              .extendRects(SudokuBoardSVG.wrongNumbers(enabled = context.global.highlightMistakes, context.local.board))
+              .extendRects(hintExtension(context.local.hint))
+              .toNode
+              .classes("grid-main-svg")
           )
       )
       .child(buttonBar().classes("grid-footer"))
@@ -81,6 +77,18 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
         )
       )
 
+  private def contextMenuTriggerExtension(board: DecoratedBoard)(implicit context: Context): SudokuBoardSVG.Extension =
+    (pos, node) =>
+      node
+        .maybeModify(board.get(pos).isNotGiven)(_.event("click", Action(PuzzleState.focus.set(Some(pos)))))
+
+  private def hintExtension(hint: Option[Hint]): SudokuBoardSVG.Extension =
+    hint match {
+      case Some(hint) =>
+        (pos, node) => node.maybeModify(pos == hint.position)(_.classes("highlight"))
+      case None => SudokuBoardSVG.emptyExtension
+    }
+
   private def buttonBar()(implicit context: Context): Node =
     ButtonList
       .right(
@@ -93,15 +101,10 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
       )
       .classes("my-2")
 
-  private def giveHint(state: PuzzleState): PuzzleState =
-    (for {
-      _ <- Some(1)
-      emptyFields = SudokuBoard.positions(state.board.dim).filter(pos => state.board.get(pos).toOption.isEmpty)
-      if emptyFields.size > 1
-      posToFill <- Random.shuffle(emptyFields).headOption
-      solution  <- Solver.perfectSolver(state.board.map(_.toOption)).uniqueSolution
-    } yield state.copy(board = state.board.set(posToFill, DecoratedCell.Hint(solution.get(posToFill)))))
-      .getOrElse(state)
+  private def giveHint(state: PuzzleState): PuzzleState = {
+    val hint = Hint.of(state.board.map(_.toOption))
+    state.copy(hint = hint)
+  }
 
   private def contextMenu()(implicit context: Context): Option[Node] =
     context.local.focus.map { pos =>
@@ -126,6 +129,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
       case None =>
         val updatedPuzzleState = context.local.copy(
           focus = None,
+          hint = None,
           board = updatedBoard
         )
 

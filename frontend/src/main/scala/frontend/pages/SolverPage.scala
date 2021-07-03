@@ -35,11 +35,11 @@ object SudokuSolverPage extends Page[SolverState] with NoRouting {
       .child(
         Node("div.grid-main")
           .child(
-            SudokuBoardSVG(
-              decoratedBoard,
-              extension = Some(rectInteraction),
-              highlightMistakes = true
-            ).classes("grid-main-svg")
+            SudokuBoardSVG(decoratedBoard)
+              .extendRects(rectInteraction)
+              .extendRects(SudokuBoardSVG.wrongNumbers(enabled = true, decoratedBoard))
+              .toNode
+              .classes("grid-main-svg")
           )
       )
       .child(

@@ -1,51 +1,33 @@
 package frontend.components
 
+import frontend.components.SudokuBoardSVG.Extension
 import model._
 import snabbdom.Node
 
-object SudokuBoardSVG {
-  type Extension = (Position, Node) => Node
-  val strokeWidth  = (1.0 / 30.0)
-  val borderRadius = 1d / 10d
+case class SudokuBoardSVG(board: DecoratedBoard, extension: Extension = SudokuBoardSVG.emptyExtension) {
+  private val strokeWidth  = 1.0 / 30.0
+  private val borderRadius = 1d / 10d
 
-  def apply(board: DecoratedBoard, extension: Option[Extension], highlightMistakes: Boolean): Node = {
+  def extendRects(extension: Extension): SudokuBoardSVG =
+    copy(extension = SudokuBoardSVG.and(this.extension, extension))
+
+  def toNode: Node = {
     val dim = board.dim
 
     Node("svg.sudoku-board")
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .attr("viewBox", s"${-strokeWidth / 2} ${-strokeWidth / 2} ${dim.blockSize + strokeWidth} ${dim.blockSize + strokeWidth}")
-      .child(rects(board, extension, highlightMistakes))
-      .children(grid(dim), values(board))
+      .children(rects(), grid())
   }
 
-  private def grid(dim: Dimensions): Node =
+  private def grid(): Node = {
+    val dim = board.dim
+
     Node("g")
       .attr("id", "grid")
       .style("pointer-events", "none")
       .child {
-        for (column <- 1 until dim.blockSize; if column % dim.width != 0)
-          yield Node("line")
-            .attr("x1", column.toString)
-            .attr("x2", column.toString)
-            .attr("y1", "0")
-            .attr("y2", dim.blockSize.toString)
-            .attr("stroke", "currentColor")
-            .style("opacity", "0.2")
-            .attr("stroke-width", strokeWidth.toString)
-      }
-      .child {
-        for (row <- 1 until dim.blockSize; if row % dim.height != 0)
-          yield Node("line")
-            .attr("x1", "0")
-            .attr("x2", dim.blockSize.toString)
-            .attr("y1", row.toString)
-            .attr("y2", row.toString)
-            .attr("stroke", "currentColor")
-            .style("opacity", "0.2")
-            .attr("stroke-width", strokeWidth.toString)
-      }
-      .child {
-        for (column <- dim.width until dim.blockSize by dim.width)
+        for (column <- 1 until dim.blockSize)
           yield Node("line")
             .attr("x1", column.toString)
             .attr("x2", column.toString)
@@ -53,9 +35,10 @@ object SudokuBoardSVG {
             .attr("y2", dim.blockSize.toString)
             .attr("stroke", "currentColor")
             .attr("stroke-width", strokeWidth.toString)
+            .maybeModify(column % dim.width != 0)(_.style("opacity", "0.2"))
       }
       .child {
-        for (row <- dim.height until dim.blockSize by dim.height)
+        for (row <- 1 until dim.blockSize)
           yield Node("line")
             .attr("x1", "0")
             .attr("x2", dim.blockSize.toString)
@@ -63,7 +46,7 @@ object SudokuBoardSVG {
             .attr("y2", row.toString)
             .attr("stroke", "currentColor")
             .attr("stroke-width", strokeWidth.toString)
-            .attr("stroke-linecap", "square")
+            .maybeModify(row % dim.height != 0)(_.style("opacity", "0.2"))
       }
       .child(
         Node("rect")
@@ -76,62 +59,61 @@ object SudokuBoardSVG {
           .attr("stroke", "black")
           .attr("stroke-width", strokeWidth.toString)
       )
+  }
 
-  private def values(board: DecoratedBoard): Node =
-    Node("g")
-      .attr("id", "values")
-      .style("pointer-events", "none")
-      .child {
-        for {
-          pos <- SudokuBoard.positions(board.dim)
-          node <- board.get(pos) match {
-            case cell: DecoratedCell.Given => Some(givenNumber(cell))
-            case cell: DecoratedCell.Input => Some(inputNumber(cell))
-            case cell: DecoratedCell.Hint  => Some(hintNumber(cell))
-            case DecoratedCell.Empty       => None
-          }
-        } yield Node("text")
-          .attr("transform", s"translate(${pos._1} ${pos._2 * 1})")
-          .attr("text-anchor", "middle")
-          .attr("font-size", "0.8")
-          .child(node)
-      }
+  private def numberNode(cell: DecoratedCell): Option[Node] = {
+    def numberNode(value: Int, `class`: String): Node =
+      Node("text")
+        .attr("text-anchor", "middle")
+        .attr("font-size", "0.8")
+        .style("pointer-events", "none")
+        .child {
+          Node("tspan")
+            .classes(`class`)
+            .attr("x", "0.5")
+            .attr("y", "0.5")
+            .attr("dominant-baseline", "central")
+            .text(value.toString)
+        }
 
-  private def numberPrototype(value: Int) =
-    Node("tspan")
-      .attr("x", "0.5")
-      .attr("y", "0.5")
-      .attr("dominant-baseline", "central")
-      .text(value.toString)
+    cell match {
+      case DecoratedCell.Given(value) => Some(numberNode(value, `class` = "given-value"))
+      case DecoratedCell.Input(value) => Some(numberNode(value, `class` = "input-value"))
+      case DecoratedCell.Hint(value)  => Some(numberNode(value, `class` = "hint-value"))
+      case DecoratedCell.Empty        => None
+    }
+  }
 
-  private def givenNumber(state: DecoratedCell.Given): Node =
-    numberPrototype(state.value).classes("given-value")
-
-  private def inputNumber(state: DecoratedCell.Input): Node =
-    numberPrototype(state.value).classes("input-value")
-
-  private def hintNumber(state: DecoratedCell.Hint): Node =
-    numberPrototype(state.value).classes("hint-value")
-
-  private def rects(board: DecoratedBoard, interaction: Option[Extension], highlightMistakes: Boolean): Node =
+  private def rects(): Node =
     Node("g")
       .attr("id", "rects")
       .child {
         for (pos <- SudokuBoard.positions(board.dim))
           yield {
-            val node = Node("rect")
-              .`class`("wrong-value", highlightMistakes && !Validate.noError(board.map(_.toOption), pos))
-              .attr("id", s"cell_${pos._1}_${pos._2}")
-              .attr("x", pos._1.toString)
-              .attr("y", pos._2.toString)
-              .attr("width", "1")
-              .attr("height", "1")
-              .attr("stroke", "none")
-
-            interaction match {
-              case Some(interaction) => interaction(pos, node)
-              case None              => node
-            }
+            Node("g")
+              .attr("transform", s"translate(${pos._1} ${pos._2})")
+              .child(
+                Node("rect")
+                  .attr("id", s"cell_${pos._1}_${pos._2}")
+                  .attr("x", "0")
+                  .attr("y", "0")
+                  .attr("width", "1")
+                  .attr("height", "1")
+                  .attr("stroke", "none")
+                  .modify(extension(pos, _))
+              )
+              .childOptional(numberNode(board.get(pos)))
           }
       }
+}
+
+object SudokuBoardSVG {
+  type Extension = (Position, Node) => Node
+
+  val emptyExtension: Extension = (pos, node) => node
+
+  def and(left: Extension, right: Extension): Extension = (pos, node) => right(pos, left(pos, node))
+
+  def wrongNumbers(enabled: Boolean, board: DecoratedBoard): Extension =
+    (pos, node) => node.`class`("wrong-value", enabled && Validate.hasError(board.map(_.toOption), pos))
 }

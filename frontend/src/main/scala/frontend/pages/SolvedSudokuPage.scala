@@ -19,7 +19,7 @@ object SolvedSudokuPage extends Page[SolvedSudokuState] with NoRouting {
       .child(
         Node("div.grid-main")
           .child(
-            SudokuBoardSVG(context.local.board.map(DecoratedCell.Input), extension = None, highlightMistakes = false)
+            SudokuBoardSVG(context.local.board.map(DecoratedCell.Input)).toNode
               .classes("grid-main-svg")
           )
       )

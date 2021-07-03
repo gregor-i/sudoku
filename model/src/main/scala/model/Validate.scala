@@ -15,6 +15,9 @@ object Validate {
       .allSubsetsOf(pos)(board.dim)
       .forall(_.flatMap(board.get).pipe(noDuplicate))
 
+  def hasError(board: OpenSudokuBoard, pos: Position): Boolean =
+    !noError(board, pos)
+
   def correct(board: SolvedSudokuBoard): Boolean =
     SudokuBoard.allSubsets(board.dim).forall {
       _.map(board.get).sorted == SudokuBoard.values(board.dim)

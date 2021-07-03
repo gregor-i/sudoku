@@ -3,10 +3,13 @@ package model
 object OptionsSudokuBoard {
   def apply(board: OpenSudokuBoard): OptionsSudokuBoard =
     SudokuBoard.fill(board.dim) { pos =>
-      SudokuBoard
-        .values(board.dim)
-        .toSet
-        .removedAll(SudokuBoard.allSubsetsOf(pos)(board.dim).flatten.flatMap(board.get))
+      if (board.get(pos).isDefined)
+        Set.empty
+      else
+        SudokuBoard
+          .values(board.dim)
+          .toSet
+          .removedAll(SudokuBoard.allSubsetsOf(pos)(board.dim).flatten.flatMap(board.get))
     }
 
   def initial(dim: Dimensions): OptionsSudokuBoard = {
