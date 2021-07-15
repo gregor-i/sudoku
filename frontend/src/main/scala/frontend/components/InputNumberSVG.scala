@@ -14,7 +14,7 @@ object InputNumberSVG {
     Node("svg.number-input")
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .attr("viewBox", s"${-strokeWidth / 2} ${-strokeWidth / 2} ${dim.width + strokeWidth} ${dim.height + 1 + strokeWidth}")
-      .style("border-radius", (borderRadius / (dim.width + strokeWidth) * 100d) + "%")
+      .style("border-radius", s"${borderRadius / (dim.width + strokeWidth) * 100d}%")
       .childOptional(interaction.map(interactionRects(dim, _)))
       .children(grid(dim), values(dim))
   }
