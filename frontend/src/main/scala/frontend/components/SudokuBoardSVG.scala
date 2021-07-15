@@ -79,7 +79,6 @@ case class SudokuBoardSVG(board: DecoratedBoard, extension: Extension = SudokuBo
     cell match {
       case DecoratedCell.Given(value) => Some(numberNode(value, `class` = "given-value"))
       case DecoratedCell.Input(value) => Some(numberNode(value, `class` = "input-value"))
-      case DecoratedCell.Hint(value)  => Some(numberNode(value, `class` = "hint-value"))
       case DecoratedCell.Empty        => None
     }
   }
