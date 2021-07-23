@@ -25,7 +25,7 @@ lazy val frontend = project
   .settings(
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= {
-      _.withModuleKind(ModuleKind.CommonJSModule)
+      _.withModuleKind(ModuleKind.ESModule)
 //      .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
     }
   )
@@ -44,7 +44,8 @@ val `service-worker` = project
   )
   .settings(scalaJsDom)
 
-val analytics = project.in(file("analytics"))
+val analytics = project
+  .in(file("analytics"))
   .dependsOn(model.jvm)
 
 // tasks
@@ -121,7 +122,7 @@ def scalaJsDom =
 
 def snabbdom = Seq(
   resolvers += "jitpack" at "https://jitpack.io",
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "scalajs-snabbdom" % "1.2.5",
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-toasts" % "1.2.5",
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-components" % "1.2.5",
+  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "scalajs-snabbdom"    % "1.2.6",
+  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-toasts"     % "1.2.6",
+  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-components" % "1.2.6"
 )
