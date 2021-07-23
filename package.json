@@ -5,24 +5,22 @@
     "snabbdom": "^3.0.1"
   },
   "devDependencies": {
-    "node-static": "^0.7",
+    "esbuild": "^0.12.15",
     "nodemon": "^2.0",
     "npm-run-all": "^4.1",
-    "sass": "^1.35.1",
-    "webpack": "^5.39.1",
-    "webpack-cli": "^4.7.2"
+    "sass": "^1.35.1"
   },
   "scripts": {
     "develop": "run-p mkdir server watch",
     "mkdir": "mkdir build  -p",
-    "server": "static -c-1 build",
+    "server": "esbuild --serve=8080 --servedir=build",
     "watch": "run-p watch-*",
     "watch-frontend": "sbt ~frontend/compile",
     "watch-static": "nodemon --watch frontend/src/main/static -e '*' --exec 'npm run build-static'",
     "watch-css": "nodemon --watch frontend/src/main/css -e '*' --exec 'npm run build-css'",
     "watch-fa": "nodemon --watch node_modules/@fortawesome -e '*' --exec 'npm run build-fa'",
     "build": "run-s mkdir build-frontend build-static build-css build-fa build-sw",
-    "build-frontend": "sbt 'set scalaJSStage in ThisBuild := org.scalajs.sbtplugin.Stage.FullOpt; frontend/compile'",
+    "build-frontend": "sbt 'set ThisBuild / scalaJSStage := org.scalajs.sbtplugin.Stage.FullOpt; frontend/compile'",
     "build-static": "cp frontend/src/main/static/* build/. && cp node_modules/@fortawesome/fontawesome-free/svgs/solid/trash.svg build/.",
     "build-css": "sass frontend/src/main/css/app.sass build/app.css --no-source-map",
     "build-fa": "cp -r node_modules/@fortawesome/fontawesome-free/webfonts/* build/.",

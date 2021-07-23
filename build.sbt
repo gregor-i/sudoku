@@ -49,23 +49,23 @@ val analytics = project.in(file("analytics"))
 
 // tasks
 
-compile in frontend := Def.taskDyn {
+frontend / compile := Def.taskDyn {
   val stage = (frontend / Compile / scalaJSStage).value
   val ret   = (frontend / Compile / compile).value
   stage match {
-    case Stage.FullOpt => (frontend / Compile / fullLinkJS).map { _ =>
-      Seq("./node_modules/.bin/webpack", "--mode", "production").!
+    case Stage.FullOpt => (frontend / Compile / fullOptJS).map { file =>
+      Seq("./node_modules/.bin/esbuild", file.data.getAbsolutePath, "--outfile=build/app.js", "--bundle", "--minify").!
       ret
     }
 
-    case Stage.FastOpt => (frontend / Compile / fastLinkJS).map { _ =>
-      Seq("./node_modules/.bin/webpack", "--mode", "development").!
+    case Stage.FastOpt => (frontend / Compile / fastOptJS).map { file =>
+      Seq("./node_modules/.bin/esbuild", file.data.getAbsolutePath, "--outfile=build/app.js", "--bundle").!
       ret
     }
   }
 }.value
 
-compile in `service-worker` := Def.taskDyn {
+`service-worker` / compile := Def.taskDyn {
   val stage = (`service-worker` / Compile / scalaJSStage).value
   val ret   = (`service-worker` / Compile / compile).value
   val buildFrontendTask = stage match {
