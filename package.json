@@ -5,7 +5,7 @@
     "snabbdom": "^3.0.1"
   },
   "devDependencies": {
-    "esbuild": "^0.12.16",
+    "esbuild": "^0.12.17",
     "nodemon": "^2.0",
     "npm-run-all": "^4.1",
     "sass": "^1.35.1"
