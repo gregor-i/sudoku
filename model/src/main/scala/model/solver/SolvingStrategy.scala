@@ -1,7 +1,7 @@
 package model.solver
 
 import model.SolverResult.{CouldNotSolve, UniqueSolution}
-import model.{OpenSudokuBoard, Position, SolverResult, SudokuBoard, Validate}
+import model.{OpenSudokuBoard, Position, SolverResult, Subset, SudokuBoard, Validate}
 
 import scala.annotation.tailrec
 
@@ -26,21 +26,54 @@ private[solver] object SolvingStrategy {
 
     loop(SolverNode.initial(puzzle))
   }
+}
 
-  def singleOptionForPosition(node: SolverNode): Iterable[(Position, Int)] =
+private[solver] sealed trait SolvingStrategy {
+  def solve(node: SolverNode): LazyList[(Position, Int)]
+  def hint(board: SolverNode): Option[Hint]
+}
+
+private[solver] object SingleOptionForPosition extends SolvingStrategy {
+  def solve(node: SolverNode): LazyList[(Position, Int)] =
     for {
-      pos <- node.openPositions
+      pos <- node.openPositions.to(LazyList)
       options = node.options.get(pos)
       if options.size == 1
       option <- options
     } yield (pos, option)
 
-  def uniqueOptionInSubset(node: SolverNode): Iterable[(Position, Int)] =
+  def hint(node: SolverNode): Option[Hint] =
+    solve(node).headOption.map {
+      case (pos, value) =>
+        Hint(
+          position = pos,
+          value = value,
+          blockingPositions =
+            SudokuBoard.allSubsetsOf(pos)(node.board.dim).flatten.filter(pos => node.board.get(pos).isDefined).toSet
+        )
+    }
+}
+
+private[solver] object UniqueOptionInSubset extends SolvingStrategy {
+  private def calculate(node: SolverNode): LazyList[(Position, Int, Subset)] =
     for {
-      subset <- SudokuBoard.allSubsets(node.board.dim)
+      subset <- SudokuBoard.allSubsets(node.board.dim).to(LazyList)
       value  <- SudokuBoard.values(node.board.dim)
       posWithValue = subset.filter(node.options.get(_).contains(value))
       if posWithValue.size == 1
       pos <- posWithValue
-    } yield (pos, value)
+    } yield (pos, value, subset)
+
+  def solve(node: SolverNode): LazyList[(Position, Int)] =
+    calculate(node).map { case (pos, value, _) => (pos, value) }
+
+  def hint(node: SolverNode): Option[Hint] =
+    calculate(node).headOption.map {
+      case (pos, value, subset) =>
+        Hint(
+          position = pos,
+          value = value,
+          blockingPositions = subset.toSet
+        )
+    }
 }

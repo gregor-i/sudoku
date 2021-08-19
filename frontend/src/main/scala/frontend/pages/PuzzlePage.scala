@@ -4,6 +4,7 @@ import frontend.components._
 import frontend.util.{Action, AsyncUtil}
 import frontend.{GlobalState, NoRouting, Page, PageState}
 import model._
+import model.solver.Hint
 import monocle.macros.Lenses
 import org.scalajs.dom.document
 import snabbdom.Node
@@ -85,7 +86,10 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
   private def hintExtension(hint: Option[Hint]): SudokuBoardSVG.Extension =
     hint match {
       case Some(hint) =>
-        (pos, node) => node.maybeModify(pos == hint.position)(_.classes("highlight"))
+        (pos, node) =>
+          node
+            .maybeModify(pos == hint.position)(_.classes("highlight-strong"))
+            .maybeModify(hint.blockingPositions.contains(pos))(_.classes("highlight-weak"))
       case None => SudokuBoardSVG.emptyExtension
     }
 
