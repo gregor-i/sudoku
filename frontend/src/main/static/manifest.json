@@ -6,11 +6,6 @@
       "src": "/favicon.svg",
       "type": "image/svg+xml",
       "sizes": "256x256"
-    },
-    {
-      "src": "/favicon.png",
-      "type": "image/png",
-      "sizes": "256x256"
     }
   ],
   "start_url": "/",
