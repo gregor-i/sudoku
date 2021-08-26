@@ -32,7 +32,7 @@ object InputContextMenu {
             "width"      -> s"${width}px",
             "background" -> "white",
             "box-shadow" -> "2px 2px 3px 4px rgba(0,0,0,0.2)",
-            "animation"  -> "pulse 0.1s linear 1"
+            "animation"  -> "fade-in 0.1s linear 1"
           )
         )
       }
