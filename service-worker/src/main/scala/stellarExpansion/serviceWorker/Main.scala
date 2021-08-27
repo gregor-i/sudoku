@@ -2,6 +2,7 @@ package stellarExpansion.serviceWorker
 
 import org.scalajs.dom.experimental.Fetch._
 import org.scalajs.dom.experimental._
+import org.scalajs.dom.experimental.cachestorage.CacheStorage
 import org.scalajs.dom.experimental.serviceworkers.ServiceWorkerGlobalScope.self
 import org.scalajs.dom.experimental.serviceworkers.{ExtendableEvent, FetchEvent}
 
@@ -50,19 +51,21 @@ object Main {
     )
   }
 
+  private def caches: CacheStorage = self.caches.getOrElse(throw new RuntimeException("caches are undefined ..."))
+
   def populateCache(cacheName: String, files: js.Array[RequestInfo]): Future[Unit] =
     for {
-      cache <- self.caches.open(cacheName).toFuture
+      cache <- caches.open(cacheName).toFuture
       _     <- cache.addAll(files).toFuture
     } yield ()
 
   def fromCache(cacheName: String, request: RequestInfo): Future[Response] =
     for {
-      cache         <- self.caches.open(cacheName).toFuture
+      cache         <- caches.open(cacheName).toFuture
       maybeResponse <- cache.`match`(request).toFuture
       response      <- Future(maybeResponse.get)
     } yield response
 
   def invalidateCache(cacheName: String): Future[Boolean] =
-    self.caches.delete(cacheName).toFuture
+    caches.delete(cacheName).toFuture
 }
