@@ -79,7 +79,7 @@ object Generator {
     board.map(v => shuffled(v - 1) + 1)
   }
 
-  private def makePuzzle(
+  def makePuzzle(
       seed: Int,
       solvedBoard: SolvedSudokuBoard,
       difficulty: Difficulty

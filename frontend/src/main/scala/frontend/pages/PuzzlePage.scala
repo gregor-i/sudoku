@@ -23,6 +23,32 @@ case class PuzzleState(
   def setGlobalState(globalState: GlobalState): PuzzleState = copy()(globalState = globalState)
 }
 
+object ContinuePuzzle {
+  def apply(board: DecoratedBoard, seed: Int, difficulty: Difficulty): DecoratedBoard = {
+    def columnBlocks = SudokuBoard.columns(board.dim).grouped(board.dim.width).flatten
+    def rowBlocks    = SudokuBoard.rows(board.dim).grouped(board.dim.height).flatten
+
+    def subsetIsCompleted(subset: Subset): Boolean = subset.forall(board.get(_).toOption.isDefined)
+
+    val maybeContinuedBoard =
+      for {
+        completedSubset <- columnBlocks.concat(rowBlocks).find(subsetIsCompleted)
+        solution        <- Solver.perfectSolver(board.map(_.toOption)).uniqueSolution
+      } yield {
+        val alternativeBoard = Generator.makePuzzle(seed, solution, difficulty)
+        SudokuBoard.fill[DecoratedCell](board.dim) {
+          pos =>
+            if (completedSubset.contains(pos))
+              alternativeBoard.get(pos).fold[DecoratedCell](DecoratedCell.Empty)(DecoratedCell.Given.apply)
+            else
+              board.get(pos)
+        }
+      }
+
+    maybeContinuedBoard.getOrElse(board)
+  }
+}
+
 object PuzzleState {
   val newPuzzleModalOpened =
     Lens[PuzzleState, Boolean](_.newPuzzleModalOpened)(s => t => t.copy(newPuzzleModalOpened = s)(t.globalState))
@@ -125,6 +151,8 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
   private def inputValue(pos: Position, value: Option[Int])(using context: Context): Unit = {
     val updatedBoard = pageState.board
       .set(pos, DecoratedCell.maybeInput(value))
+
+    val continutedBoard = ContinuePuzzle(updatedBoard, seed = scala.util.Random.nextInt(), globalState.difficulty)
 
     val newState = Validate(updatedBoard.map(_.toOption)) match {
       case Some(_) =>
