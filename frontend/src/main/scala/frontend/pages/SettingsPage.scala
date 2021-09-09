@@ -40,17 +40,15 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
         )
       }
 
-  def assistance()(implicit context: Context): Seq[Node] =
-    Seq(
-      selectInput[Boolean](
-        label = localized.highlightMistakes,
-        options = Seq(
-          localized.yes -> true,
-          localized.no  -> false
-        ),
-        lens = GlobalState.highlightMistakes,
-        eqFunction = (a, b) => a == b
-      )
+  def assistance()(implicit context: Context): Node =
+    selectInput[Boolean](
+      label = localized.highlightMistakes,
+      options = Seq(
+        localized.yes -> true,
+        localized.no  -> false
+      ),
+      lens = GlobalState.highlightMistakes,
+      eqFunction = (a, b) => a == b
     )
 
   def selectInput[A](
