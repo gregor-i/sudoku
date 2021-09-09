@@ -8,8 +8,6 @@ object Pages {
     ErrorPage,
     LoadingPage,
     LandingPage,
-    SudokuSolverPage,
-    SolvedSudokuPage,
     PuzzlePage,
     FinishedPuzzlePage,
     SettingsPage
