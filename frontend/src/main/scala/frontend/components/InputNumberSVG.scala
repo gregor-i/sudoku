@@ -6,18 +6,16 @@ import snabbdom.Node
 object InputNumberSVG {
   type Interaction = (Option[Int], Node) => Node
 
-  val strokeWidth  = 1d / 30d
-  val borderRadius = 1d / 10d
-  val fontSize     = 0.8.toString
+  private val strokeWidth  = 1d / 30d
+  private val borderRadius = 1d / 10d
+  private val fontSize     = 0.8.toString
 
-  def apply(dim: Dimensions, interaction: Option[Interaction]): Node = {
+  def apply(dim: Dimensions, interaction: Interaction): Node =
     Node("svg.number-input")
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .attr("viewBox", s"${-strokeWidth / 2} ${-strokeWidth / 2} ${dim.width + strokeWidth} ${dim.height + 1 + strokeWidth}")
       .style("border-radius", s"${borderRadius / (dim.width + strokeWidth) * 100d}%")
-      .childOptional(interaction.map(interactionRects(dim, _)))
-      .children(grid(dim), values(dim))
-  }
+      .children(grid(dim), values(dim), interactionRects(dim, interaction))
 
   private def grid(dim: Dimensions): Node =
     Node("g")
@@ -94,7 +92,7 @@ object InputNumberSVG {
 
   private def interactionRects(dim: Dimensions, interaction: Interaction): Node =
     Node("g")
-      .attr("id", "interationRects")
+      .attr("id", "interactionRects")
       .child {
         for {
           x <- 0 until dim.width

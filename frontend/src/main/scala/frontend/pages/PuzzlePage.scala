@@ -65,18 +65,6 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
           )
         )
       }
-      .modify(
-        InputContextMenu.globalEventListener(
-          dim = context.local.board.dim,
-          focus = context.local.focus,
-          setValue = (pos, value) => inputValue(pos, value),
-          setFocus = pos => {
-            if (context.local.board.get(pos).isNotGiven)
-              context.update(PuzzleState.focus.set(Some(pos))(context.local))
-            else ()
-          }
-        )
-      )
 
   private def contextMenuTriggerExtension(board: DecoratedBoard)(implicit context: Context): SudokuBoardSVG.Extension =
     (pos, node) =>
@@ -111,14 +99,16 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
   }
 
   private def contextMenu()(implicit context: Context): Option[Node] =
-    context.local.focus.map { pos =>
-      InputContextMenu(
-        dim = context.local.board.dim,
-        reference = document.getElementById(s"cell_${pos._1}_${pos._2}"),
-        setFocus = pos => context.update(PuzzleState.focus.set(pos)(context.local)),
-        setValue = value => inputValue(pos, value)
-      )
-    }
+    context.local.focus
+      .map { pos =>
+        InputContextMenu(
+          focus = pos,
+          dim = context.local.board.dim,
+          reference = document.getElementById(s"cell_${pos._1}_${pos._2}"),
+          setFocus = pos => context.update(PuzzleState.focus.set(pos)(context.local)),
+          setValue = value => inputValue(pos, value)
+        )
+      }
 
   private def inputValue(pos: Position, value: Option[Int])(implicit context: Context): Unit = {
     val updatedBoard = context.local.board
