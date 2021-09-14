@@ -5,7 +5,7 @@ import frontend.util.{Action, AsyncUtil}
 import frontend.{GlobalState, NoRouting, Page, PageState}
 import model._
 import model.solver.Hint
-import monocle.macros.Lenses
+import monocle.Lens
 import org.scalajs.dom.document
 import snabbdom.Node
 import snabbdom.components.{Button, ButtonList, Modal}
@@ -13,7 +13,6 @@ import snabbdom.components.{Button, ButtonList, Modal}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-@Lenses
 case class PuzzleState(
     board: DecoratedBoard,
     focus: Option[Position],
@@ -22,6 +21,9 @@ case class PuzzleState(
 ) extends PageState
 
 object PuzzleState {
+  val newPuzzleModalOpened = Lens[PuzzleState, Boolean](_.newPuzzleModalOpened)(s => _.copy(newPuzzleModalOpened = s))
+  val focus                = Lens[PuzzleState, Option[Position]](_.focus)(s => _.copy(focus = s))
+
   def process(seed: Int, desiredDifficulty: Difficulty, dimensions: Dimensions): Future[PuzzleState] =
     AsyncUtil.future {
       val board = Generator(dimensions, seed, desiredDifficulty)
@@ -60,7 +62,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
       .child(contextMenu())
       .maybeModify(context.local.newPuzzleModalOpened) {
         _.child(
-          Modal(closeAction = Some(Action(PuzzleState.newPuzzleModalOpened.set(false))))(
+          Modal(closeAction = Some(Action(PuzzleState.newPuzzleModalOpened.replace(false))))(
             NewPuzzleModal(None)
           )
         )
@@ -69,7 +71,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
   private def contextMenuTriggerExtension(board: DecoratedBoard)(implicit context: Context): SudokuBoardSVG.Extension =
     (pos, node) =>
       node
-        .maybeModify(board.get(pos).isNotGiven)(_.event("click", Action(PuzzleState.focus.set(Some(pos)))))
+        .maybeModify(board.get(pos).isNotGiven)(_.event("click", Action(PuzzleState.focus.replace(Some(pos)))))
 
   private def hintExtension(hint: Option[Hint]): SudokuBoardSVG.Extension =
     hint match {
@@ -88,7 +90,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
         Button(
           localized.playNewGame,
           Icons.generate,
-          Action(PuzzleState.newPuzzleModalOpened.set(true))
+          Action(PuzzleState.newPuzzleModalOpened.replace(true))
         )
       )
       .classes("my-2")
@@ -100,14 +102,15 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
 
   private def contextMenu()(implicit context: Context): Option[Node] =
     context.local.focus
-      .map { pos =>
-        InputContextMenu(
-          focus = pos,
-          dim = context.local.board.dim,
-          reference = document.getElementById(s"cell_${pos._1}_${pos._2}"),
-          setFocus = pos => context.update(PuzzleState.focus.set(pos)(context.local)),
-          setValue = value => inputValue(pos, value)
-        )
+      .map {
+        pos =>
+          InputContextMenu(
+            focus = pos,
+            dim = context.local.board.dim,
+            reference = document.getElementById(s"cell_${pos._1}_${pos._2}"),
+            setFocus = pos => context.update(PuzzleState.focus.replace(pos)(context.local)),
+            setValue = value => inputValue(pos, value)
+          )
       }
 
   private def inputValue(pos: Position, value: Option[Int])(implicit context: Context): Unit = {
@@ -117,7 +120,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
     Validate(updatedBoard.map(_.toOption)) match {
       case Some(_) =>
         context.update(
-          globalState = GlobalState.lastPuzzle.set(None)(context.global),
+          globalState = GlobalState.lastPuzzle.replace(None)(context.global),
           pageState = FinishedPuzzleState(board = updatedBoard)
         )
       case None =>
@@ -128,7 +131,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
         )
 
         context.update(
-          globalState = GlobalState.lastPuzzle.set(Some(updatedPuzzleState))(context.global),
+          globalState = GlobalState.lastPuzzle.replace(Some(updatedPuzzleState))(context.global),
           pageState = updatedPuzzleState
         )
     }

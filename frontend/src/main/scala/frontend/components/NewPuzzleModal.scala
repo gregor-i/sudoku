@@ -33,13 +33,14 @@ object NewPuzzleModal {
     Node("div.buttons")
       .style("display", "flex")
       .child(
-        difficulties.map { diff =>
-          Button(
-            text = localized.difficulty(diff),
-            icon = Icons.difficulty(diff),
-            onclick = _ => context.update(context.global.copy(difficulty = diff))
-          ).style("flex", "auto 1")
-            .maybeModify(context.global.difficulty == diff) { _.classes("is-active").style("border-width", "2px") }
+        difficulties.map {
+          diff =>
+            Button(
+              text = localized.difficulty(diff),
+              icon = Icons.difficulty(diff),
+              onclick = _ => context.update(context.global.copy(difficulty = diff))
+            ).style("flex", "auto 1")
+              .maybeModify(context.global.difficulty == diff) { _.classes("is-active").style("border-width", "2px") }
         }
       )
   }
@@ -55,12 +56,13 @@ object NewPuzzleModal {
     Node("div.buttons")
       .style("display", "flex")
       .child(
-        dimensions.map { dim =>
-          Button(
-            text = s"1–${dim.blockSize}",
-            onclick = _ => context.update(context.global.copy(dimensions = dim))
-          ).style("flex", "auto 1")
-            .maybeModify(context.global.dimensions == dim) { _.classes("is-active").style("border-width", "2px") }
+        dimensions.map {
+          dim =>
+            Button(
+              text = s"1–${dim.blockSize}",
+              onclick = _ => context.update(context.global.copy(dimensions = dim))
+            ).style("flex", "auto 1")
+              .maybeModify(context.global.dimensions == dim) { _.classes("is-active").style("border-width", "2px") }
         }
       )
   }

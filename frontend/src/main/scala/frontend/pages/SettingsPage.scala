@@ -4,13 +4,15 @@ import frontend.components.{Header, Icons, NewPuzzleModal}
 import frontend.util.Action
 import frontend.{GlobalState, NoRouting, Page, PageState}
 import monocle.Lens
-import monocle.macros.Lenses
 import org.scalajs.dom.raw.HTMLSelectElement
 import snabbdom.{Event, Node}
 import snabbdom.components.{Button, Modal}
 
-@Lenses
 case class SettingsState(modalOpened: Boolean = false) extends PageState
+
+object SettingsState {
+  val modalOpened = Lens[SettingsState, Boolean](_.modalOpened)(s => _.copy(modalOpened = s))
+}
 
 object SettingsPage extends Page[SettingsState] with NoRouting {
 
@@ -28,13 +30,13 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
       .child(
         "div.grid-footer.my-2.buttons"
           .child(
-            Button(localized.playSudoku, Icons.play, Action(SettingsState.modalOpened.set(true)))
+            Button(localized.playSudoku, Icons.play, Action(SettingsState.modalOpened.replace(true)))
               .classes("is-fullwidth", "is-primary")
           )
       )
       .maybeModify(context.local.modalOpened) {
         _.child(
-          Modal(closeAction = Some(Action(SettingsState.modalOpened.set(false))))(
+          Modal(closeAction = Some(Action(SettingsState.modalOpened.replace(false))))(
             NewPuzzleModal(context.global.lastPuzzle)
           )
         )
@@ -56,8 +58,8 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
       options: Seq[(String, A)],
       lens: Lens[GlobalState, A],
       eqFunction: (A, A) => Boolean
-  )(
-      implicit context: Context
+  )(implicit
+      context: Context
   ) = {
     val currentValue = lens.get(context.global)
 
@@ -78,7 +80,7 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
                       options
                         .find(_._1 == selected)
                         .map(_._2)
-                        .foreach(input => context.update(lens.set(input)(context.global)))
+                        .foreach(input => context.update(lens.replace(input)(context.global)))
                     }
                   )
                   .child(

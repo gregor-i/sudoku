@@ -4,7 +4,6 @@ import frontend.components.Header
 import frontend.{NoRouting, Page, PageState}
 import snabbdom.Node
 
-@monocle.macros.Lenses()
 case class ErrorState(message: String) extends PageState
 
 object ErrorState {

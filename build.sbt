@@ -4,8 +4,8 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 
 name := "sudoku"
 
-ThisBuild / scalaVersion := "2.13.6"
-ThisBuild / scalacOptions ++= Seq("-feature", "-deprecation", "-Ymacro-annotations")
+ThisBuild / scalaVersion := "3.0.2"
+ThisBuild / scalacOptions ++= Seq("-feature", "-deprecation")
 ThisBuild / scalafmtOnCompile := true
 
 // projects
@@ -54,15 +54,19 @@ frontend / compile := Def.taskDyn {
   val stage = (frontend / Compile / scalaJSStage).value
   val ret   = (frontend / Compile / compile).value
   stage match {
-    case Stage.FullOpt => (frontend / Compile / fullOptJS).map { file =>
-      Seq("./node_modules/.bin/esbuild", file.data.getAbsolutePath, "--outfile=build/app.js", "--bundle", "--minify").!
-      ret
-    }
+    case Stage.FullOpt =>
+      (frontend / Compile / fullOptJS).map {
+        file =>
+          Seq("./node_modules/.bin/esbuild", file.data.getAbsolutePath, "--outfile=build/app.js", "--bundle", "--minify").!
+          ret
+      }
 
-    case Stage.FastOpt => (frontend / Compile / fastOptJS).map { file =>
-      Seq("./node_modules/.bin/esbuild", file.data.getAbsolutePath, "--outfile=build/app.js", "--bundle").!
-      ret
-    }
+    case Stage.FastOpt =>
+      (frontend / Compile / fastOptJS).map {
+        file =>
+          Seq("./node_modules/.bin/esbuild", file.data.getAbsolutePath, "--outfile=build/app.js", "--bundle").!
+          ret
+      }
   }
 }.value
 
@@ -74,10 +78,11 @@ frontend / compile := Def.taskDyn {
     case Stage.FastOpt => (`service-worker` / Compile / fastOptJS)
   }
   streams.value.log.info(s"integrating frontend (${stage})")
-  buildFrontendTask.map { buildFrontend =>
-    val outputFile = "build/sw.js"
-    Seq("cp", buildFrontend.data.toString, outputFile).!!
-    ret
+  buildFrontendTask.map {
+    buildFrontend =>
+      val outputFile = "build/sw.js"
+      Seq("cp", buildFrontend.data.toString, outputFile).!!
+      ret
   }
 }.value
 
@@ -91,23 +96,22 @@ root / Compile / compile := Def
 // dependencies
 
 def monocle = {
-  val version = "2.1.0"
+  val version = "3.1.0"
 
   libraryDependencies ++= Seq(
-    "com.github.julien-truffaut" %%% "monocle-core"   % version,
-    "com.github.julien-truffaut" %%% "monocle-macro"  % version,
-    "com.github.julien-truffaut" %%% "monocle-unsafe" % version,
-    "com.github.julien-truffaut" %%% "monocle-state"  % version
+    "dev.optics" %%% "monocle-core"  % version cross CrossVersion.for3Use2_13,
+    "dev.optics" %%% "monocle-macro" % version cross CrossVersion.for3Use2_13
   )
 }
 
 def circe = {
   val version = "0.14.1"
   libraryDependencies ++= Seq(
-    "io.circe" %%% "circe-core"           % version,
-    "io.circe" %%% "circe-generic"        % version,
-    "io.circe" %%% "circe-generic-extras" % version,
-    "io.circe" %%% "circe-parser"         % version
+    "io.circe" %%% "circe-core"    % version,
+    "io.circe" %%% "circe-generic" % version,
+    "io.circe" %%% "circe-parser"  % version,
+    // todo: this transitive dependency should be supplied by circe
+    "org.typelevel" %%% "cats-core" % "2.6.1"
   )
 }
 
@@ -118,11 +122,11 @@ def scalatest =
   )
 
 def scalaJsDom =
-  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "1.2.0"
+  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "1.2.0" cross CrossVersion.for3Use2_13
 
 def snabbdom = Seq(
   resolvers += "jitpack" at "https://jitpack.io",
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "scalajs-snabbdom"    % "1.2.6",
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-toasts"     % "1.2.6",
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-components" % "1.2.6"
+  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "scalajs-snabbdom" % "1.2.6" cross CrossVersion.for3Use2_13,
+  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-toasts"  % "1.2.6" cross CrossVersion.for3Use2_13,
+  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-components" % "1.2.6" cross CrossVersion.for3Use2_13
 )

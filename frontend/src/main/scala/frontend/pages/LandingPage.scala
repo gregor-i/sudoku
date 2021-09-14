@@ -26,12 +26,13 @@ object LandingPage extends Page[LandingPageState] {
     val dim    = Dimensions(3, 3)
     val random = new scala.util.Random(0)
     import model.DecoratedCell._
-    SudokuBoard.fill(dim) { pos =>
-      val value = Generator.initialValue(dim)(pos)
-      if (random.nextDouble() >= 0.66)
-        Given(value)
-      else
-        Input(value)
+    SudokuBoard.fill(dim) {
+      pos =>
+        val value = Generator.initialValue(dim)(pos)
+        if (random.nextDouble() >= 0.66)
+          Given(value)
+        else
+          Input(value)
     }
   }
 

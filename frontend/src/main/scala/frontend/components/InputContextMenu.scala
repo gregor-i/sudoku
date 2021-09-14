@@ -22,10 +22,10 @@ object InputContextMenu {
         InputNumberSVG(dim, interaction = (value, node) => node.event[Event]("click", _ => setValue(value)))
           .styles(
             Seq(
-              "position"   -> "absolute",
-              "left"       -> s"min(calc(100vw - ${width}px), max(0px, ${clientRect.left + (clientRect.width - width) / 2.0}px))",
-              "top"        -> s"min(calc(100vh - ${height}px), max(0px, ${clientRect.top + (clientRect.height - height) / 2.0}px))",
-              "width"      -> s"${width}px",
+              "position" -> "absolute",
+              "left"     -> s"min(calc(100vw - ${width}px), max(0px, ${clientRect.left + (clientRect.width - width) / 2.0}px))",
+              "top"      -> s"min(calc(100vh - ${height}px), max(0px, ${clientRect.top + (clientRect.height - height) / 2.0}px))",
+              "width"    -> s"${width}px",
               "background" -> "white",
               "box-shadow" -> "2px 2px 3px 4px rgba(0,0,0,0.2)",
               "animation"  -> "fade-in 0.1s linear 1"

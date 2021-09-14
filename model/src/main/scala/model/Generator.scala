@@ -89,12 +89,13 @@ object Generator {
     val board             = solvedBoard.map[Option[Int]](Some.apply)
     val solver            = Solver.forDifficulty(difficulty)
 
-    shuffledPositions.foldLeft(board) { (board, position) =>
-      val reducedBoard = board.set(position, None)
-      if (solver(reducedBoard).uniqueSolution.isDefined)
-        reducedBoard
-      else
-        board
+    shuffledPositions.foldLeft(board) {
+      (board, position) =>
+        val reducedBoard = board.set(position, None)
+        if (solver(reducedBoard).uniqueSolution.isDefined)
+          reducedBoard
+        else
+          board
     }
   }
 }

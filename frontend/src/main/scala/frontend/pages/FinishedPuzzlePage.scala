@@ -5,19 +5,23 @@ import frontend.util.Action
 import frontend.{NoRouting, Page, PageState}
 import model.DecoratedCell.{Given, Input}
 import model._
-import monocle.macros.Lenses
+import monocle.Lens
 import org.scalajs.dom
 import snabbdom.Node
 import snabbdom.components.{Button, ButtonList, Modal}
 
 import scala.util.Random
+import monocle.syntax.all._
 
-@Lenses
 case class FinishedPuzzleState(
     board: DecoratedBoard,
     tapped: Boolean = false
 ) extends PageState {
   require(board.data.forall(_.toOption.isDefined))
+}
+
+object FinishedPuzzleState {
+  def tapped: Lens[FinishedPuzzleState, Boolean] = Lens[FinishedPuzzleState, Boolean](_.tapped)(s => t => t.copy(tapped = s))
 }
 
 object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
@@ -33,20 +37,20 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
               .extendRects(animations(context.local.board))
               .toNode
               .classes("grid-main-svg", "finished-sudoku")
-              .event("click", Action(FinishedPuzzleState.tapped.set(true)))
+              .event("click", Action(FinishedPuzzleState.tapped.replace(true)))
           )
       )
       .child(buttonBar().classes("grid-footer", "buttons", "my-2"))
       .maybeModify(context.local.tapped)(_.child(finishedModal()))
 
   private def finishedModal()(implicit context: Context): Node =
-    Modal(closeAction = Some(Action(FinishedPuzzleState.tapped.set(false))))(
+    Modal(closeAction = Some(Action(FinishedPuzzleState.tapped.replace(false))))(
       NewPuzzleModal(None)
     )
 
   private def buttonBar()(implicit context: Context): Node =
     ButtonList.right(
-      Button(localized.playNewGame, Icons.generate, Action(FinishedPuzzleState.tapped.set(true)))
+      Button(localized.playNewGame, Icons.generate, Action(FinishedPuzzleState.tapped.replace(true)))
         .classes("is-primary")
     )
 
@@ -79,20 +83,22 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
     var intervalHandle: Option[Int] = None
 
     node
-      .hookInsert { elem =>
-        elem.elm.get.style.animation = animation()
-        intervalHandle = Some(
-          dom.window.setInterval(
-            () => {
-              tick = tick + 1
-              elem.elm.get.style.animation = animation()
-            },
-            (duration + pause) * 1000
+      .hookInsert {
+        elem =>
+          elem.elm.get.style.animation = animation()
+          intervalHandle = Some(
+            dom.window.setInterval(
+              () => {
+                tick = tick + 1
+                elem.elm.get.style.animation = animation()
+              },
+              (duration + pause) * 1000
+            )
           )
-        )
       }
-      .hookDestroy { _ =>
-        intervalHandle.foreach(dom.window.clearInterval)
+      .hookDestroy {
+        _ =>
+          intervalHandle.foreach(dom.window.clearInterval)
       }
   }
 }

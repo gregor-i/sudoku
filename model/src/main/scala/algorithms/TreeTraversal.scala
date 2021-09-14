@@ -18,8 +18,9 @@ object TreeTraversal {
 
   def breadthFirstSearch[N](root: N, children: N => Iterable[N]): LazyList[N] = {
     def loop(acc: Queue[N]): Option[(N, Queue[N])] =
-      acc.headOption.map { head =>
-        (head, acc.tail.enqueueAll(children(head)))
+      acc.headOption.map {
+        head =>
+          (head, acc.tail.enqueueAll(children(head)))
       }
 
     LazyList.unfold[N, Queue[N]](Queue(root))(loop)

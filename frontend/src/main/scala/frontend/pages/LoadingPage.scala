@@ -3,14 +3,12 @@ package frontend.pages
 import frontend.Router.Location
 import frontend.components.Header
 import frontend.{Page, PageState}
-import monocle.macros.Lenses
 import snabbdom._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-@Lenses
 case class LoadingState(process: Future[PageState]) extends PageState
 
 object LoadingPage extends Page[LoadingState] {
@@ -34,10 +32,11 @@ object LoadingPage extends Page[LoadingState] {
           )
       )
       .key(context.local.process.hashCode())
-      .hookInsert { _ =>
-        context.local.process.onComplete {
-          case Success(newState) => context.update(newState)
-          case Failure(error)    => context.update(ErrorState.asyncLoadError(error))
-        }
+      .hookInsert {
+        _ =>
+          context.local.process.onComplete {
+            case Success(newState) => context.update(newState)
+            case Failure(error)    => context.update(ErrorState.asyncLoadError(error))
+          }
       }
 }
