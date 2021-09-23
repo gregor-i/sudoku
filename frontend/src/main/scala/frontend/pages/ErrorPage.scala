@@ -19,7 +19,7 @@ object ErrorPage extends Page[ErrorState] with NoRouting {
               .child(
                 Node("div.message-body")
                   .child(Node("div.title").text("An unexpected error occurred."))
-                  .child(Node("div.subtitle").text(context.local.message))
+                  .child(Node("div.subtitle").text(pageState.message))
                   .child(Node("a").attr("href", "/").text("return to landing page"))
               )
           )

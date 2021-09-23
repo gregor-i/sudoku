@@ -1,7 +1,7 @@
 package frontend.pages
 
 import frontend.components.*
-import frontend.util.{Action, AsyncUtil}
+import frontend.util.AsyncUtil
 import frontend.{Context, GlobalState, NoRouting, Page, PageState}
 import model.*
 import model.solver.Hint
@@ -45,13 +45,7 @@ object PuzzleState {
           case None        => DecoratedCell.Empty
           case Some(value) => DecoratedCell.Given(value)
         }
-      PuzzleState(
-        globalState = globalState,
-        board = board,
-        focus = None,
-        newPuzzleModalOpened = false,
-        hint = None
-      )
+      forBoard(globalState, board)
     }
 
   def loading(seed: Int, desiredDifficulty: Difficulty, dimensions: Dimensions)(using context: Context[_]): LoadingState =
@@ -65,21 +59,21 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
       .child(
         Node("div.grid-main")
           .child(
-            SudokuBoardSVG(context.local.board)
-              .extendRects(contextMenuTriggerExtension(context.local.board))
+            SudokuBoardSVG(pageState.board)
+              .extendRects(contextMenuTriggerExtension(pageState.board))
               .extendRects(
-                SudokuBoardSVG.wrongNumbers(enabled = globalState.highlightMistakes, context.local.board)
+                SudokuBoardSVG.wrongNumbers(enabled = globalState.highlightMistakes, pageState.board)
               )
-              .extendRects(hintExtension(context.local.hint))
+              .extendRects(hintExtension(pageState.hint))
               .toNode
               .classes("grid-main-svg")
           )
       )
       .child(buttonBar().classes("grid-footer"))
       .child(contextMenu())
-      .maybeModify(context.local.newPuzzleModalOpened) {
+      .maybeModify(pageState.newPuzzleModalOpened) {
         _.child(
-          Modal(closeAction = Some(Action(PuzzleState.newPuzzleModalOpened.replace(false))))(
+          Modal(closeAction = Some(action(PuzzleState.newPuzzleModalOpened.replace(false))))(
             NewPuzzleModal(None)
           )
         )
@@ -88,7 +82,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
   private def contextMenuTriggerExtension(board: DecoratedBoard)(using context: Context): SudokuBoardSVG.Extension =
     (pos, node) =>
       node
-        .maybeModify(board.get(pos).isNotGiven)(_.event("click", Action(PuzzleState.focus.replace(Some(pos)))))
+        .maybeModify(board.get(pos).isNotGiven)(_.event("click", action(PuzzleState.focus.replace(Some(pos)))))
 
   private def hintExtension(hint: Option[Hint]): SudokuBoardSVG.Extension =
     hint match {
@@ -103,11 +97,11 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
   private def buttonBar()(using context: Context): Node =
     ButtonList
       .right(
-        Button(localized.hint, Icons.hint, Action(giveHint)),
+        Button(localized.hint, Icons.hint, action(giveHint)),
         Button(
           localized.playNewGame,
           Icons.generate,
-          Action(PuzzleState.newPuzzleModalOpened.replace(true))
+          action(PuzzleState.newPuzzleModalOpened.replace(true))
         )
       )
       .classes("my-2")
@@ -118,38 +112,34 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
   }
 
   private def contextMenu()(using context: Context): Option[Node] =
-    context.local.focus
+    pageState.focus
       .map {
         pos =>
           InputContextMenu(
             focus = pos,
-            dim = context.local.board.dim,
+            dim = pageState.board.dim,
             reference = document.getElementById(s"cell_${pos._1}_${pos._2}"),
-            setFocus = pos => context.update(PuzzleState.focus.replace(pos)(context.local)),
+            setFocus = pos => action(PuzzleState.focus.replace(pos)),
             setValue = value => inputValue(pos, value)
           )
       }
 
   private def inputValue(pos: Position, value: Option[Int])(using context: Context): Unit = {
-    val updatedBoard = context.local.board
+    val updatedBoard = pageState.board
       .set(pos, DecoratedCell.maybeInput(value))
 
-    Validate(updatedBoard.map(_.toOption)) match {
+    val newState = Validate(updatedBoard.map(_.toOption)) match {
       case Some(_) =>
-        context.update(
-          FinishedPuzzleState(GlobalState.lastPuzzle.replace(None)(globalState), board = updatedBoard)
-        )
+        FinishedPuzzleState(GlobalState.lastPuzzle.replace(None)(globalState), board = updatedBoard)
       case None =>
-        val updatedPuzzleState = context.local.copy(
+        pageState.copy(
           focus = None,
           hint = None,
           board = updatedBoard,
           globalState = GlobalState.lastPuzzle.replace(Some(updatedBoard))(globalState)
         )
-
-        context.update(
-          updatedPuzzleState
-        )
     }
+
+    context.update(newState)
   }
 }

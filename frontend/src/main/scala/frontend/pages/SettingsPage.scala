@@ -1,7 +1,6 @@
 package frontend.pages
 
 import frontend.components.{Header, Icons, NewPuzzleModal}
-import frontend.util.Action
 import frontend.{GlobalState, NoRouting, Page, PageState}
 import monocle.{Lens, PLens}
 import org.scalajs.dom.raw.HTMLSelectElement
@@ -32,13 +31,13 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
       .child(
         "div.grid-footer.my-2.buttons"
           .child(
-            Button(localized.playSudoku, Icons.play, Action(SettingsState.modalOpened.replace(true)))
+            Button(localized.playSudoku, Icons.play, action(SettingsState.modalOpened.replace(true)))
               .classes("is-fullwidth", "is-primary")
           )
       )
-      .maybeModify(context.local.modalOpened) {
+      .maybeModify(pageState.modalOpened) {
         _.child(
-          Modal(closeAction = Some(Action(SettingsState.modalOpened.replace(false))))(
+          Modal(closeAction = Some(action(SettingsState.modalOpened.replace(false))))(
             NewPuzzleModal(globalState.lastPuzzle)
           )
         )
@@ -63,7 +62,7 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
   )(using
       context: Context
   ) = {
-    val currentValue = lens.get(context.local)
+    val currentValue = lens.get(pageState)
 
     "div.field"
       .child(
@@ -82,7 +81,7 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
                       options
                         .find(_._1 == selected)
                         .map(_._2)
-                        .foreach(input => context.update(lens.replace(input)(context.local)))
+                        .foreach(input => action[State](lens.replace(input)))
                     }
                   )
                   .child(

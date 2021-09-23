@@ -37,7 +37,7 @@ object NewPuzzleModal {
             Button(
               text = localized.difficulty(diff),
               icon = Icons.difficulty(diff),
-              onclick = _ => context.update(PageState.globalState.andThen(GlobalState.difficulty).replace(diff)(context.local))
+              onclick = action(PageState.globalState.andThen(GlobalState.difficulty).replace(diff))
             ).style("flex", "auto 1")
               .maybeModify(globalState.difficulty == diff) { _.classes("is-active").style("border-width", "2px") }
         }
@@ -59,7 +59,7 @@ object NewPuzzleModal {
           dim =>
             Button(
               text = s"1–${dim.blockSize}",
-              onclick = _ => context.update(PageState.globalState.andThen(GlobalState.dimensions).replace(dim)(context.local))
+              onclick = _ => action(PageState.globalState.andThen(GlobalState.dimensions).replace(dim))
             ).style("flex", "auto 1")
               .maybeModify(globalState.dimensions == dim) { _.classes("is-active").style("border-width", "2px") }
         }
@@ -71,10 +71,9 @@ object NewPuzzleModal {
     val playButton = Button(
       text = localized.playNewGame,
       icon = Icons.generate,
-      onclick = _ =>
-        context.update(
-          PuzzleState.loading(seed = Random.nextInt(), globalState.difficulty, globalState.dimensions)
-        )
+      onclick = setState(
+        PuzzleState.loading(seed = Random.nextInt(), globalState.difficulty, globalState.dimensions)
+      )
     ).style("flex", "auto 1")
 
     val continueButton = lastPuzzle.map(
@@ -82,7 +81,7 @@ object NewPuzzleModal {
         Button(
           text = localized.continueLastGame,
           icon = Icons.continue,
-          onclick = _ => context.update(PuzzleState.forBoard(globalState, decoratedBoard))
+          onclick = setState(PuzzleState.forBoard(globalState, decoratedBoard))
         ).classes("is-primary", "is-outlined", "is-light")
           .style("flex", "auto 1")
     )

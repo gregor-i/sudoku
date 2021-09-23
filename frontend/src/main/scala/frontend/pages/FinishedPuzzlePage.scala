@@ -1,7 +1,6 @@
 package frontend.pages
 
 import frontend.components.{Header, Icons, NewPuzzleModal, SudokuBoardSVG}
-import frontend.util.Action
 import frontend.{NoRouting, Page, PageState}
 import model.DecoratedCell.{Given, Input}
 import model._
@@ -37,24 +36,24 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
       .child(
         Node("div.grid-main")
           .child(
-            SudokuBoardSVG(context.local.board)
-              .extendRects(animations(context.local.board))
+            SudokuBoardSVG(pageState.board)
+              .extendRects(animations(pageState.board))
               .toNode
               .classes("grid-main-svg", "finished-sudoku")
-              .event("click", Action(FinishedPuzzleState.tapped.replace(true)))
+              .event("click", action(FinishedPuzzleState.tapped.replace(true)))
           )
       )
       .child(buttonBar().classes("grid-footer", "buttons", "my-2"))
-      .maybeModify(context.local.tapped)(_.child(finishedModal()))
+      .maybeModify(pageState.tapped)(_.child(finishedModal()))
 
   private def finishedModal()(using context: Context): Node =
-    Modal(closeAction = Some(Action(FinishedPuzzleState.tapped.replace(false))))(
+    Modal(closeAction = Some(action(FinishedPuzzleState.tapped.replace(false))))(
       NewPuzzleModal(None)
     )
 
   private def buttonBar()(using context: Context): Node =
     ButtonList.right(
-      Button(localized.playNewGame, Icons.generate, Action(FinishedPuzzleState.tapped.replace(true)))
+      Button(localized.playNewGame, Icons.generate, action(FinishedPuzzleState.tapped.replace(true)))
         .classes("is-primary")
     )
 

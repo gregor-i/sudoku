@@ -33,10 +33,10 @@ object LoadingPage extends Page[LoadingState] {
             )
           )
       )
-      .key(context.local.process.hashCode())
+      .key(pageState.process.hashCode())
       .hookInsert {
         _ =>
-          context.local.process.onComplete {
+          pageState.process.onComplete {
             case Success(newState) => context.update(newState)
             case Failure(error) =>
               context.update(
