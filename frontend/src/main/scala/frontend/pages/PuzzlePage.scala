@@ -25,8 +25,8 @@ case class PuzzleState(
 
 object ContinuePuzzle {
   def apply(board: DecoratedBoard, seed: Int, difficulty: Difficulty): DecoratedBoard = {
-    def columnBlocks = SudokuBoard.columns(board.dim).grouped(board.dim.width).flatten
-    def rowBlocks    = SudokuBoard.rows(board.dim).grouped(board.dim.height).flatten
+    def columnBlocks = SudokuBoard.columns(board.dim).grouped(board.dim.width).map(_.flatten)
+    def rowBlocks    = SudokuBoard.rows(board.dim).grouped(board.dim.height).map(_.flatten)
 
     def subsetIsCompleted(subset: Subset): Boolean = subset.forall(board.get(_).toOption.isDefined)
 
