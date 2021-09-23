@@ -18,7 +18,7 @@ object LoadingPage extends Page[LoadingState] {
 
   def stateToUrl(state: State): Option[Location] = None
 
-  def render(implicit context: Context) =
+  def render(using context: Context) =
     Node("div")
       .child(Header.renderHeader())
       .child(

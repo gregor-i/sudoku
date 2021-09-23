@@ -6,7 +6,7 @@ import snabbdom.components.Button
 import snabbdom.{Event, Node}
 
 object Header {
-  def renderHeader()(implicit context: Context[_]): Node =
+  def renderHeader()(using context: Context[_]): Node =
     "div.top-bar"
       .child(
         "div"

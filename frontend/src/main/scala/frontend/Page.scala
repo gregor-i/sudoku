@@ -12,7 +12,7 @@ abstract class Page[S <: PageState: ClassTag] {
 
   def stateToUrl(state: State): Option[Router.Location]
 
-  def render(implicit context: Context): Node
+  def render(using context: Context): Node
 
   def acceptState(nutriaState: PageState): Boolean = implicitly[ClassTag[State]].runtimeClass == nutriaState.getClass
 }

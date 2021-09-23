@@ -28,10 +28,10 @@ object GlobalState {
     highlightMistakes = true
   )
 
-  implicit val encoder: Encoder[GlobalState] =
+  given encoder: Encoder[GlobalState] =
     io.circe.generic.semiauto.deriveEncoder[GlobalState]
 
-  implicit val decoder: Decoder[GlobalState] =
+  given decoder: Decoder[GlobalState] =
     Decoder[JsonObject].map {
       json =>
         GlobalState(

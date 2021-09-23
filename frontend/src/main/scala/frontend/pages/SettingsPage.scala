@@ -18,7 +18,7 @@ object SettingsState {
 
 object SettingsPage extends Page[SettingsState] with NoRouting {
 
-  override def render(implicit context: Context): Node =
+  override def render(using context: Context): Node =
     "div.grid-layout"
       .key("SettingsPage")
       .child(Header.renderHeader())
@@ -44,7 +44,7 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
         )
       }
 
-  def assistance()(implicit context: Context): Node =
+  def assistance()(using context: Context): Node =
     selectInput[Boolean](
       label = localized.highlightMistakes,
       options = Seq(
@@ -60,7 +60,7 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
       options: Seq[(String, A)],
       lens: Lens[PageState, A],
       eqFunction: (A, A) => Boolean
-  )(implicit
+  )(using
       context: Context
   ) = {
     val currentValue = lens.get(context.local)

@@ -11,7 +11,7 @@ object AsyncUtil {
     p.future
   }
 
-  def future[A](op: => A)(implicit ex: ExecutionContext): Future[A] = {
+  def future[A](op: => A)(using ex: ExecutionContext): Future[A] = {
     sleep(0).map(_ => op)
   }
 }

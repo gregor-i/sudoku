@@ -9,7 +9,7 @@ case class ErrorState(globalState: GlobalState, message: String) extends PageSta
 }
 
 object ErrorPage extends Page[ErrorState] with NoRouting {
-  def render(implicit context: Context): Node =
+  def render(using context: Context): Node =
     Node("div")
       .child(Header.renderHeader())
       .child(

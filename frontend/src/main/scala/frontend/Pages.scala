@@ -4,7 +4,7 @@ import frontend.pages._
 import snabbdom.Node
 
 object Pages {
-  val all: Seq[Page[_ <: PageState]] = Seq(
+  val all: Seq[Page[_]] = Seq(
     ErrorPage,
     LoadingPage,
     LandingPage,
@@ -20,5 +20,5 @@ object Pages {
       .getOrElse(throw new Exception(s"No Page defined for '${nutriaState.getClass.getSimpleName}'"))
 
   def ui(context: Context[PageState]): Node =
-    selectPage(context.local).render(context)
+    selectPage(context.local).render(using context)
 }

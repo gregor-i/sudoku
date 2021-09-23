@@ -28,13 +28,13 @@ object Language {
 
   val default: Language = English
 
-  implicit val encoder: Encoder[Language] =
+  given encoder: Encoder[Language] =
     Encoder.encodeString.contramap {
       case English => "en"
       case German  => "de"
     }
 
-  implicit val decoder: Decoder[Language] =
+  given decoder: Decoder[Language] =
     Decoder.decodeString.emap {
       case "en" => Right(English)
       case "de" => Right(German)

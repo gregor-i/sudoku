@@ -30,7 +30,7 @@ object FinishedPuzzleState {
 
 object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
 
-  override def render(implicit context: Context): Node =
+  override def render(using context: Context): Node =
     Node("div.grid-layout.no-scroll")
       .key("FinishedPuzzlePage")
       .child(Header.renderHeader())
@@ -47,12 +47,12 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
       .child(buttonBar().classes("grid-footer", "buttons", "my-2"))
       .maybeModify(context.local.tapped)(_.child(finishedModal()))
 
-  private def finishedModal()(implicit context: Context): Node =
+  private def finishedModal()(using context: Context): Node =
     Modal(closeAction = Some(Action(FinishedPuzzleState.tapped.replace(false))))(
       NewPuzzleModal(None)
     )
 
-  private def buttonBar()(implicit context: Context): Node =
+  private def buttonBar()(using context: Context): Node =
     ButtonList.right(
       Button(localized.playNewGame, Icons.generate, Action(FinishedPuzzleState.tapped.replace(true)))
         .classes("is-primary")

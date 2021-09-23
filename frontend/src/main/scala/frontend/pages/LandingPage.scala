@@ -23,7 +23,7 @@ object LandingPage extends Page[LandingPageState] {
 
   override def stateToUrl(state: State): Option[(Path, QueryParameter)] = Some(("/", Map.empty))
 
-  override def render(implicit context: Context): Node =
+  override def render(using context: Context): Node =
     Modal(background = Some(background))(NewPuzzleModal(globalState.lastPuzzle))
       .classes("landing-page")
 

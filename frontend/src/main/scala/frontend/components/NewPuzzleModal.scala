@@ -11,7 +11,7 @@ import frontend.PageState
 import scala.util.Random
 
 object NewPuzzleModal {
-  def apply(lastPuzzle: Option[DecoratedBoard])(implicit context: Context[_]): Node =
+  def apply(lastPuzzle: Option[DecoratedBoard])(using context: Context[_]): Node =
     Node("div")
       .children(
         Node("div")
@@ -26,7 +26,7 @@ object NewPuzzleModal {
         Node("div").child(playButtons(lastPuzzle))
       )
 
-  private def difficultyButtons()(implicit context: Context[_]) = {
+  private def difficultyButtons()(using context: Context[_]) = {
     val difficulties = Seq(Difficulty.Easy, Difficulty.Medium, Difficulty.Hard)
 
     Node("div.buttons")
@@ -44,7 +44,7 @@ object NewPuzzleModal {
       )
   }
 
-  private def dimensionButtons()(implicit context: Context[_]) = {
+  private def dimensionButtons()(using context: Context[_]) = {
     val dimensions = Seq(
       Dimensions(2, 2),
       Dimensions(2, 3),
@@ -66,7 +66,7 @@ object NewPuzzleModal {
       )
   }
 
-  private def playButtons(lastPuzzle: Option[DecoratedBoard])(implicit context: Context[_]) = {
+  private def playButtons(lastPuzzle: Option[DecoratedBoard])(using context: Context[_]) = {
 
     val playButton = Button(
       text = localized.playNewGame,

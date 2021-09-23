@@ -36,7 +36,7 @@ object PuzzleState {
       hint = None
     )
 
-  def process(seed: Int, desiredDifficulty: Difficulty, dimensions: Dimensions)(implicit
+  def process(seed: Int, desiredDifficulty: Difficulty, dimensions: Dimensions)(using
       context: Context[_]
   ): Future[PuzzleState] =
     AsyncUtil.future {
@@ -54,12 +54,12 @@ object PuzzleState {
       )
     }
 
-  def loading(seed: Int, desiredDifficulty: Difficulty, dimensions: Dimensions)(implicit context: Context[_]): LoadingState =
+  def loading(seed: Int, desiredDifficulty: Difficulty, dimensions: Dimensions)(using context: Context[_]): LoadingState =
     LoadingState(globalState, process(seed, desiredDifficulty, dimensions))
 }
 
 object PuzzlePage extends Page[PuzzleState] with NoRouting {
-  override def render(implicit context: Context): Node =
+  override def render(using context: Context): Node =
     Node("div.grid-layout.no-scroll")
       .child(Header.renderHeader())
       .child(
@@ -85,7 +85,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
         )
       }
 
-  private def contextMenuTriggerExtension(board: DecoratedBoard)(implicit context: Context): SudokuBoardSVG.Extension =
+  private def contextMenuTriggerExtension(board: DecoratedBoard)(using context: Context): SudokuBoardSVG.Extension =
     (pos, node) =>
       node
         .maybeModify(board.get(pos).isNotGiven)(_.event("click", Action(PuzzleState.focus.replace(Some(pos)))))
@@ -100,7 +100,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
       case None => SudokuBoardSVG.emptyExtension
     }
 
-  private def buttonBar()(implicit context: Context): Node =
+  private def buttonBar()(using context: Context): Node =
     ButtonList
       .right(
         Button(localized.hint, Icons.hint, Action(giveHint)),
@@ -117,7 +117,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
     state.copy(hint = hint)
   }
 
-  private def contextMenu()(implicit context: Context): Option[Node] =
+  private def contextMenu()(using context: Context): Option[Node] =
     context.local.focus
       .map {
         pos =>
@@ -130,7 +130,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
           )
       }
 
-  private def inputValue(pos: Position, value: Option[Int])(implicit context: Context): Unit = {
+  private def inputValue(pos: Position, value: Option[Int])(using context: Context): Unit = {
     val updatedBoard = context.local.board
       .set(pos, DecoratedCell.maybeInput(value))
 
