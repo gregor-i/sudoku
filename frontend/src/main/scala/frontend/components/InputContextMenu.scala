@@ -1,8 +1,12 @@
 package frontend.components
 
+import frontend.util.AsyncUtil
 import model.{Dimensions, Position, SudokuBoard}
 import org.scalajs.dom.{Element, KeyboardEvent, document}
-import snabbdom.{Event, Node}
+import org.scalajs.dom
+import snabbdom.{Event, Node, VNode}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.scalajs.js
 
 object InputContextMenu {
   def apply(
@@ -28,13 +32,14 @@ object InputContextMenu {
               "width"    -> s"${width}px",
               "background" -> "white",
               "box-shadow" -> "2px 2px 3px 4px rgba(0,0,0,0.2)",
-              "animation"  -> "fade-in 0.1s linear 1"
+              "animation"  -> "fade-in 0.1s linear 1 forwards"
             )
           )
       }
       .hookInsert(_ => setupKeyboardHook(focus, dim, setValue, setFocus))
       .hookPostpatch((_, _) => setupKeyboardHook(focus, dim, setValue, setFocus))
       .hookDestroy(_ => destroyKeyboardHook())
+      .hookRemove(removeHook)
   }
 
   private def setupKeyboardHook(
@@ -74,4 +79,10 @@ object InputContextMenu {
   private def destroyKeyboardHook(): Unit = {
     document.body.onkeydown = _ => ()
   }
+
+  private def removeHook: js.Function2[VNode, js.Function0[Unit], Unit] =
+    (node, trigger) => {
+      node.elm.foreach(_.style.animation = "fade-out 0.1s linear 1 forwards")
+      AsyncUtil.sleep(150).foreach(_ => trigger())
+    }
 }
