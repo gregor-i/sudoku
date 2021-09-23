@@ -12,12 +12,16 @@ import snabbdom.components.{Button, ButtonList, Modal}
 
 import scala.util.Random
 import monocle.syntax.all._
+import frontend.GlobalState
 
 case class FinishedPuzzleState(
+    globalState: GlobalState,
     board: DecoratedBoard,
     tapped: Boolean = false
 ) extends PageState {
   require(board.data.forall(_.toOption.isDefined))
+
+  def setGlobalState(globalState: GlobalState): FinishedPuzzleState = copy(globalState = globalState)
 }
 
 object FinishedPuzzleState {

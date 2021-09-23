@@ -4,22 +4,27 @@ import frontend.Router.{Path, QueryParameter}
 import frontend.components.{NewPuzzleModal, SudokuBoardSVG}
 import frontend.{GlobalState, Page, PageState}
 import model.{DecoratedBoard, Dimensions, Generator, SudokuBoard}
+import monocle.Lens
 import snabbdom.Node
 import snabbdom.components.Modal
 
-case class LandingPageState() extends PageState
+case class LandingPageState(
+    globalState: GlobalState
+) extends PageState {
+  def setGlobalState(globalState: GlobalState): LandingPageState = copy(globalState = globalState)
+}
 
 object LandingPage extends Page[LandingPageState] {
   override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = {
-    case (_, "/", _)       => LandingPageState()
-    case (_, "/puzzle", _) => LandingPageState()
-    case (_, "/solver", _) => LandingPageState()
+    case (globalState, "/", _)       => LandingPageState(globalState)
+    case (globalState, "/puzzle", _) => LandingPageState(globalState)
+    case (globalState, "/solver", _) => LandingPageState(globalState)
   }
 
   override def stateToUrl(state: State): Option[(Path, QueryParameter)] = Some(("/", Map.empty))
 
   override def render(implicit context: Context): Node =
-    Modal(background = Some(background))(NewPuzzleModal(context.global.lastPuzzle))
+    Modal(background = Some(background))(NewPuzzleModal(globalState.lastPuzzle))
       .classes("landing-page")
 
   private val backgroundBoard: DecoratedBoard = {

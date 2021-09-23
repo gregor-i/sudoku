@@ -1,15 +1,17 @@
 package frontend.components
 
-import frontend.Context
+import frontend.{Context, GlobalState}
 import frontend.pages.PuzzleState
-import model.{Difficulty, Dimensions}
+import model.{DecoratedBoard, Difficulty, Dimensions}
+import monocle.Lens
 import snabbdom.Node
 import snabbdom.components.Button
+import frontend.PageState
 
 import scala.util.Random
 
 object NewPuzzleModal {
-  def apply(lastPuzzle: Option[PuzzleState])(implicit context: Context[_]): Node =
+  def apply(lastPuzzle: Option[DecoratedBoard])(implicit context: Context[_]): Node =
     Node("div")
       .children(
         Node("div")
@@ -21,10 +23,7 @@ object NewPuzzleModal {
             dimensionButtons()
           ),
         Node("div").style("height", "4rem"),
-        Node("div")
-          .child(
-            playButtons(lastPuzzle)
-          )
+        Node("div").child(playButtons(lastPuzzle))
       )
 
   private def difficultyButtons()(implicit context: Context[_]) = {
@@ -38,9 +37,9 @@ object NewPuzzleModal {
             Button(
               text = localized.difficulty(diff),
               icon = Icons.difficulty(diff),
-              onclick = _ => context.update(context.global.copy(difficulty = diff))
+              onclick = _ => context.update(PageState.globalState.andThen(GlobalState.difficulty).replace(diff)(context.local))
             ).style("flex", "auto 1")
-              .maybeModify(context.global.difficulty == diff) { _.classes("is-active").style("border-width", "2px") }
+              .maybeModify(globalState.difficulty == diff) { _.classes("is-active").style("border-width", "2px") }
         }
       )
   }
@@ -60,30 +59,30 @@ object NewPuzzleModal {
           dim =>
             Button(
               text = s"1–${dim.blockSize}",
-              onclick = _ => context.update(context.global.copy(dimensions = dim))
+              onclick = _ => context.update(PageState.globalState.andThen(GlobalState.dimensions).replace(dim)(context.local))
             ).style("flex", "auto 1")
-              .maybeModify(context.global.dimensions == dim) { _.classes("is-active").style("border-width", "2px") }
+              .maybeModify(globalState.dimensions == dim) { _.classes("is-active").style("border-width", "2px") }
         }
       )
   }
 
-  private def playButtons(lastPuzzle: Option[PuzzleState])(implicit context: Context[_]) = {
+  private def playButtons(lastPuzzle: Option[DecoratedBoard])(implicit context: Context[_]) = {
 
     val playButton = Button(
       text = localized.playNewGame,
       icon = Icons.generate,
       onclick = _ =>
         context.update(
-          PuzzleState.loading(seed = Random.nextInt(), context.global.difficulty, context.global.dimensions)
+          PuzzleState.loading(seed = Random.nextInt(), globalState.difficulty, globalState.dimensions)
         )
     ).style("flex", "auto 1")
 
     val continueButton = lastPuzzle.map(
-      puzzleState =>
+      decoratedBoard =>
         Button(
           text = localized.continueLastGame,
           icon = Icons.continue,
-          onclick = _ => context.update(puzzleState)
+          onclick = _ => context.update(PuzzleState.forBoard(globalState, decoratedBoard))
         ).classes("is-primary", "is-outlined", "is-light")
           .style("flex", "auto 1")
     )

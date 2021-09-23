@@ -33,13 +33,13 @@ class App(container: Element) {
 
   def start(): Unit = {
     val globalState = loadGlobalState().getOrElse(GlobalState.initial)
-    renderState(globalState, Router.stateFromUrl(globalState, dom.window.location))
+    renderState(Router.stateFromUrl(globalState, dom.window.location))
   }
 
-  def renderState(globalState: GlobalState, state: PageState): Unit = {
-    saveGlobalState(globalState)
+  def renderState(state: PageState): Unit = {
+    saveGlobalState(state.globalState)
 
-    val context = Context(state, globalState, renderState)
+    val context = Context(state, renderState)
 
     node = patch(node, Pages.ui(context).toVNode)
   }

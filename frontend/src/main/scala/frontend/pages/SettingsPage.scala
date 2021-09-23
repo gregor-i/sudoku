@@ -3,12 +3,14 @@ package frontend.pages
 import frontend.components.{Header, Icons, NewPuzzleModal}
 import frontend.util.Action
 import frontend.{GlobalState, NoRouting, Page, PageState}
-import monocle.Lens
+import monocle.{Lens, PLens}
 import org.scalajs.dom.raw.HTMLSelectElement
 import snabbdom.{Event, Node}
 import snabbdom.components.{Button, Modal}
 
-case class SettingsState(modalOpened: Boolean = false) extends PageState
+case class SettingsState(globalState: GlobalState, modalOpened: Boolean = false) extends PageState {
+  def setGlobalState(globalState: GlobalState): SettingsState = copy(globalState = globalState)
+}
 
 object SettingsState {
   val modalOpened = Lens[SettingsState, Boolean](_.modalOpened)(s => _.copy(modalOpened = s))
@@ -37,7 +39,7 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
       .maybeModify(context.local.modalOpened) {
         _.child(
           Modal(closeAction = Some(Action(SettingsState.modalOpened.replace(false))))(
-            NewPuzzleModal(context.global.lastPuzzle)
+            NewPuzzleModal(globalState.lastPuzzle)
           )
         )
       }
@@ -49,19 +51,19 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
         localized.yes -> true,
         localized.no  -> false
       ),
-      lens = GlobalState.highlightMistakes,
+      lens = PageState.globalState.andThen(GlobalState.highlightMistakes),
       eqFunction = (a, b) => a == b
     )
 
   def selectInput[A](
       label: String,
       options: Seq[(String, A)],
-      lens: Lens[GlobalState, A],
+      lens: Lens[PageState, A],
       eqFunction: (A, A) => Boolean
   )(implicit
       context: Context
   ) = {
-    val currentValue = lens.get(context.global)
+    val currentValue = lens.get(context.local)
 
     "div.field"
       .child(
@@ -80,7 +82,7 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
                       options
                         .find(_._1 == selected)
                         .map(_._2)
-                        .foreach(input => context.update(lens.replace(input)(context.global)))
+                        .foreach(input => context.update(lens.replace(input)(context.local)))
                     }
                   )
                   .child(

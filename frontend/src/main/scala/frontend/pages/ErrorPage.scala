@@ -1,13 +1,11 @@
 package frontend.pages
 
 import frontend.components.Header
-import frontend.{NoRouting, Page, PageState}
+import frontend.{GlobalState, NoRouting, Page, PageState}
 import snabbdom.Node
 
-case class ErrorState(message: String) extends PageState
-
-object ErrorState {
-  def asyncLoadError(error: Throwable) = ErrorState(s"unexpected problem while initializing app: ${error.getMessage}")
+case class ErrorState(globalState: GlobalState, message: String) extends PageState {
+  def setGlobalState(globalState: GlobalState): ErrorState = copy(globalState = globalState)
 }
 
 object ErrorPage extends Page[ErrorState] with NoRouting {

@@ -1,9 +1,9 @@
 package frontend.pages
 
-import frontend.components._
+import frontend.components.*
 import frontend.util.{Action, AsyncUtil}
-import frontend.{GlobalState, NoRouting, Page, PageState}
-import model._
+import frontend.{Context, GlobalState, NoRouting, Page, PageState}
+import model.*
 import model.solver.Hint
 import monocle.Lens
 import org.scalajs.dom.document
@@ -14,17 +14,31 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 case class PuzzleState(
+    globalState: GlobalState,
     board: DecoratedBoard,
     focus: Option[Position],
     newPuzzleModalOpened: Boolean,
     hint: Option[Hint]
-) extends PageState
+) extends PageState {
+  def setGlobalState(globalState: GlobalState): PuzzleState = copy(globalState = globalState)
+}
 
 object PuzzleState {
   val newPuzzleModalOpened = Lens[PuzzleState, Boolean](_.newPuzzleModalOpened)(s => _.copy(newPuzzleModalOpened = s))
   val focus                = Lens[PuzzleState, Option[Position]](_.focus)(s => _.copy(focus = s))
 
-  def process(seed: Int, desiredDifficulty: Difficulty, dimensions: Dimensions): Future[PuzzleState] =
+  def forBoard(globalState: GlobalState, decoratedBoard: DecoratedBoard): PuzzleState =
+    PuzzleState(
+      globalState = globalState,
+      board = decoratedBoard,
+      focus = None,
+      newPuzzleModalOpened = false,
+      hint = None
+    )
+
+  def process(seed: Int, desiredDifficulty: Difficulty, dimensions: Dimensions)(implicit
+      context: Context[_]
+  ): Future[PuzzleState] =
     AsyncUtil.future {
       val board = Generator(dimensions, seed, desiredDifficulty)
         .map[DecoratedCell] {
@@ -32,6 +46,7 @@ object PuzzleState {
           case Some(value) => DecoratedCell.Given(value)
         }
       PuzzleState(
+        globalState = globalState,
         board = board,
         focus = None,
         newPuzzleModalOpened = false,
@@ -39,8 +54,8 @@ object PuzzleState {
       )
     }
 
-  def loading(seed: Int, desiredDifficulty: Difficulty, dimensions: Dimensions): LoadingState =
-    LoadingState(process(seed, desiredDifficulty, dimensions))
+  def loading(seed: Int, desiredDifficulty: Difficulty, dimensions: Dimensions)(implicit context: Context[_]): LoadingState =
+    LoadingState(globalState, process(seed, desiredDifficulty, dimensions))
 }
 
 object PuzzlePage extends Page[PuzzleState] with NoRouting {
@@ -52,7 +67,9 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
           .child(
             SudokuBoardSVG(context.local.board)
               .extendRects(contextMenuTriggerExtension(context.local.board))
-              .extendRects(SudokuBoardSVG.wrongNumbers(enabled = context.global.highlightMistakes, context.local.board))
+              .extendRects(
+                SudokuBoardSVG.wrongNumbers(enabled = globalState.highlightMistakes, context.local.board)
+              )
               .extendRects(hintExtension(context.local.hint))
               .toNode
               .classes("grid-main-svg")
@@ -120,19 +137,18 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
     Validate(updatedBoard.map(_.toOption)) match {
       case Some(_) =>
         context.update(
-          globalState = GlobalState.lastPuzzle.replace(None)(context.global),
-          pageState = FinishedPuzzleState(board = updatedBoard)
+          FinishedPuzzleState(GlobalState.lastPuzzle.replace(None)(globalState), board = updatedBoard)
         )
       case None =>
         val updatedPuzzleState = context.local.copy(
           focus = None,
           hint = None,
-          board = updatedBoard
+          board = updatedBoard,
+          globalState = GlobalState.lastPuzzle.replace(Some(updatedBoard))(globalState)
         )
 
         context.update(
-          globalState = GlobalState.lastPuzzle.replace(Some(updatedPuzzleState))(context.global),
-          pageState = updatedPuzzleState
+          updatedPuzzleState
         )
     }
   }

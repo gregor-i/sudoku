@@ -2,14 +2,16 @@ package frontend.pages
 
 import frontend.Router.Location
 import frontend.components.Header
-import frontend.{Page, PageState}
-import snabbdom._
+import frontend.{GlobalState, Page, PageState}
+import snabbdom.*
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-case class LoadingState(process: Future[PageState]) extends PageState
+case class LoadingState(globalState: GlobalState, process: Future[PageState]) extends PageState {
+  def setGlobalState(globalState: GlobalState): LoadingState = copy(globalState = globalState)
+}
 
 object LoadingPage extends Page[LoadingState] {
   def stateFromUrl = PartialFunction.empty
@@ -36,7 +38,10 @@ object LoadingPage extends Page[LoadingState] {
         _ =>
           context.local.process.onComplete {
             case Success(newState) => context.update(newState)
-            case Failure(error)    => context.update(ErrorState.asyncLoadError(error))
+            case Failure(error) =>
+              context.update(
+                ErrorState(globalState, s"unexpected problem while initializing app: ${error.getMessage}")
+              )
           }
       }
 }
