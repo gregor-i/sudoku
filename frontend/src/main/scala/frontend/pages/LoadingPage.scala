@@ -2,7 +2,7 @@ package frontend.pages
 
 import frontend.Router.Location
 import frontend.components.Header
-import frontend.{GlobalState, Page, PageState}
+import frontend.{GlobalState, NoRouting, Page, PageState}
 import snabbdom.*
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -13,10 +13,7 @@ case class LoadingState(globalState: GlobalState, process: Future[PageState]) ex
   def setGlobalState(globalState: GlobalState): LoadingState = copy(globalState = globalState)
 }
 
-object LoadingPage extends Page[LoadingState] {
-  def stateFromUrl = PartialFunction.empty
-
-  def stateToUrl(state: State): Option[Location] = None
+object LoadingPage extends Page[LoadingState] with NoRouting {
 
   def render(using context: Context) =
     Node("div")

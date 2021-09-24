@@ -20,8 +20,13 @@ object Router {
   def stateFromUrl(globalState: GlobalState, location: Location): PageState =
     stateFromUrlPF((globalState, location._1, location._2)).getOrElse(ErrorState(globalState, "unknown url"))
 
-  def stateToUrl[State <: PageState](state: State): Option[Location] =
-    Pages.selectPage(state).stateToUrl(state)
+  private val stateToUrlPF: PageState => Option[Location] =
+    Pages.all
+      .map(_.stateToUrl)
+      .reduce(_ orElse _)
+      .lift
+
+  def stateToUrl(state: PageState): Option[Location] = stateToUrlPF(state)
 
   def queryParamsToUrl(search: QueryParameter): String = {
     val stringSearch = search

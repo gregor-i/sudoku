@@ -13,12 +13,12 @@ object Pages {
     SettingsPage
   )
 
-  def selectPage[State <: PageState](nutriaState: State): Page[State] =
-    all
-      .find(_.acceptState(nutriaState))
-      .map(_.asInstanceOf[Page[State]])
-      .getOrElse(throw new Exception(s"No Page defined for '${nutriaState.getClass.getSimpleName}'"))
-
-  def ui(context: Context[PageState]): Node =
-    selectPage(context.local).render(using context)
+  def ui(context: Context[PageState]): Node = context.local match {
+    case _: ErrorPage.State          => ErrorPage.render(using context.asInstanceOf)
+    case _: LoadingPage.State        => LoadingPage.render(using context.asInstanceOf)
+    case _: LandingPage.State        => LandingPage.render(using context.asInstanceOf)
+    case _: PuzzlePage.State         => PuzzlePage.render(using context.asInstanceOf)
+    case _: FinishedPuzzlePage.State => FinishedPuzzlePage.render(using context.asInstanceOf)
+    case _: SettingsPage.State       => SettingsPage.render(using context.asInstanceOf)
+  }
 }

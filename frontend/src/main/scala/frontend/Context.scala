@@ -4,7 +4,7 @@ import model.{Difficulty, Dimensions}
 import monocle.Lens
 import model.DecoratedBoard
 
-trait Context[+S <: PageState] {
+sealed trait Context[+S <: PageState] {
   def local: S
   def update(pageState: PageState): Unit
 }

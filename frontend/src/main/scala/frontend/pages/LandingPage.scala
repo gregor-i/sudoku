@@ -16,12 +16,13 @@ case class LandingPageState(
 
 object LandingPage extends Page[LandingPageState] {
   override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = {
-    case (globalState, "/", _)       => LandingPageState(globalState)
-    case (globalState, "/puzzle", _) => LandingPageState(globalState)
-    case (globalState, "/solver", _) => LandingPageState(globalState)
+    case (globalState, "/", _)           => LandingPageState(globalState)
+    case (globalState, "/index.html", _) => LandingPageState(globalState)
   }
 
-  override def stateToUrl(state: State): Option[(Path, QueryParameter)] = Some(("/", Map.empty))
+  override def stateToUrl = {
+    case _: State => ("/", Map.empty)
+  }
 
   override def render(using context: Context): Node =
     Modal(background = Some(background))(NewPuzzleModal(globalState.lastPuzzle))
