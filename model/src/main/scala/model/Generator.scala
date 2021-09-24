@@ -89,7 +89,11 @@ object Generator {
     val board             = solvedBoard.map[Option[Int]](Some.apply)
     val solver            = Solver.forDifficulty(difficulty)
 
-    shuffledPositions.foldLeft(board) {
+    makePuzzle(random = random, positions = shuffledPositions, board = board, solver = solver)
+  }
+
+  def makePuzzle(random: Random, positions: Seq[Position], board: OpenSudokuBoard, solver: Solver): OpenSudokuBoard = {
+    positions.foldLeft(board) {
       (board, position) =>
         val reducedBoard = board.set(position, None)
         if (solver(reducedBoard).uniqueSolution.isDefined)

@@ -23,32 +23,6 @@ case class PuzzleState(
   def setGlobalState(globalState: GlobalState): PuzzleState = copy()(globalState = globalState)
 }
 
-object ContinuePuzzle {
-  def apply(board: DecoratedBoard, seed: Int, difficulty: Difficulty): DecoratedBoard = {
-    def columnBlocks = SudokuBoard.columns(board.dim).grouped(board.dim.width).map(_.flatten)
-    def rowBlocks    = SudokuBoard.rows(board.dim).grouped(board.dim.height).map(_.flatten)
-
-    def subsetIsCompleted(subset: Subset): Boolean = subset.forall(board.get(_).toOption.isDefined)
-
-    val maybeContinuedBoard =
-      for {
-        completedSubset <- columnBlocks.concat(rowBlocks).find(subsetIsCompleted)
-        solution        <- Solver.perfectSolver(board.map(_.toOption)).uniqueSolution
-      } yield {
-        val alternativeBoard = Generator.makePuzzle(seed, solution, difficulty)
-        SudokuBoard.fill[DecoratedCell](board.dim) {
-          pos =>
-            if (completedSubset.contains(pos))
-              alternativeBoard.get(pos).fold[DecoratedCell](DecoratedCell.Empty)(DecoratedCell.Given.apply)
-            else
-              board.get(pos)
-        }
-      }
-
-    maybeContinuedBoard.getOrElse(board)
-  }
-}
-
 object PuzzleState {
   val newPuzzleModalOpened =
     Lens[PuzzleState, Boolean](_.newPuzzleModalOpened)(s => t => t.copy(newPuzzleModalOpened = s)(t.globalState))
@@ -152,17 +126,17 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
     val updatedBoard = pageState.board
       .set(pos, DecoratedCell.maybeInput(value))
 
-    val continutedBoard = ContinuePuzzle(updatedBoard, seed = scala.util.Random.nextInt(), globalState.difficulty)
+    val continutedBoard = ContinuePuzzle.maybeContinue(updatedBoard, seed = scala.util.Random.nextInt(), globalState.difficulty)
 
     val newState = Validate(updatedBoard.map(_.toOption)) match {
       case Some(_) =>
-        FinishedPuzzleState(board = updatedBoard)(GlobalState.lastPuzzle.replace(None)(globalState))
+        FinishedPuzzleState(board = continutedBoard)(GlobalState.lastPuzzle.replace(None)(globalState))
       case None =>
         pageState.copy(
           focus = None,
           hint = None,
-          board = updatedBoard
-        )(GlobalState.lastPuzzle.replace(Some(updatedBoard))(globalState))
+          board = continutedBoard
+        )(GlobalState.lastPuzzle.replace(Some(continutedBoard))(globalState))
     }
 
     context.update(newState)
