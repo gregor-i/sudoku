@@ -5,7 +5,7 @@
 
 A simple Single-page application and Progressive web application to play Sudoku. Powered by `Scala.js`, `snabbdom` and `bulma`.
 
-Deployed at: [http://sudoku.ihmor.com/]()
+Deployed at: [https://sudoku.ihmor.com/](https://sudoku.ihmor.com/)
 
 ### Generating png icon. Requires inkscape
 ```
