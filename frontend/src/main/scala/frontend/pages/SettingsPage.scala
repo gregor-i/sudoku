@@ -10,12 +10,12 @@ import snabbdom.components.{Button, Modal}
 
 import scala.util.Random
 
-case class SettingsState(globalState: GlobalState, modalOpened: Boolean = false) extends PageState {
-  def setGlobalState(globalState: GlobalState): SettingsState = copy(globalState = globalState)
+case class SettingsState(modalOpened: Boolean = false)(implicit val globalState: GlobalState) extends PageState {
+  def setGlobalState(globalState: GlobalState): SettingsState = copy()(globalState = globalState)
 }
 
 object SettingsState {
-  val modalOpened = Lens[SettingsState, Boolean](_.modalOpened)(s => _.copy(modalOpened = s))
+  val modalOpened = Lens[SettingsState, Boolean](_.modalOpened)(s => t => t.copy(modalOpened = s)(t.globalState))
 }
 
 object SettingsPage extends Page[SettingsState] with NoRouting {
@@ -45,7 +45,7 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
       text = localized.playNewGame,
       icon = Icons.generate,
       onclick = setState(
-        PuzzleState.loading(seed = Random.nextInt(), globalState.difficulty, globalState.dimensions)
+        PuzzleState.loading(seed = Random.nextInt(), globalState.difficulty, globalState.dimensions)(using globalState)
       )
     ).style("flex", "auto 1")
 
@@ -54,7 +54,7 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
         Button(
           text = localized.continueLastGame,
           icon = Icons.continue,
-          onclick = setState(PuzzleState.forBoard(globalState, decoratedBoard))
+          onclick = setState(PuzzleState.forBoard(decoratedBoard)(using globalState))
         ).classes("is-primary", "is-outlined", "is-light")
           .style("flex", "auto 1")
     )

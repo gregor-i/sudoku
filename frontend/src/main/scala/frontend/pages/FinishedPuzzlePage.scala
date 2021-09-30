@@ -14,17 +14,18 @@ import monocle.syntax.all._
 import frontend.GlobalState
 
 case class FinishedPuzzleState(
-    globalState: GlobalState,
     board: DecoratedBoard,
     tapped: Boolean = false
-) extends PageState {
+)(implicit val globalState: GlobalState)
+    extends PageState {
   require(board.data.forall(_.toOption.isDefined))
 
-  def setGlobalState(globalState: GlobalState): FinishedPuzzleState = copy(globalState = globalState)
+  def setGlobalState(globalState: GlobalState): FinishedPuzzleState = copy()(globalState = globalState)
 }
 
 object FinishedPuzzleState {
-  def tapped: Lens[FinishedPuzzleState, Boolean] = Lens[FinishedPuzzleState, Boolean](_.tapped)(s => t => t.copy(tapped = s))
+  def tapped: Lens[FinishedPuzzleState, Boolean] =
+    Lens[FinishedPuzzleState, Boolean](_.tapped)(s => t => t.copy(tapped = s)(t.globalState))
 }
 
 object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {

@@ -14,12 +14,12 @@ object Header {
             "div"
               .child("figure.image.is-32x32".child("img".attr("src", Images.logo)))
               .child("span".text("Sudoku"))
-              .event[Event]("click", setState(LandingPageState(globalState)))
+              .event[Event]("click", setState(LandingPageState()(globalState)))
           )
           .child(
             "div".child(
               Button
-                .icon(Icons.settings, setState(SettingsState(globalState)), round = false)
+                .icon(Icons.settings, setState(SettingsState()(globalState)), round = false)
                 .classes("is-text")
                 .style("text-decoration", "none")
             )

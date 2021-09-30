@@ -8,16 +8,14 @@ import monocle.Lens
 import snabbdom.Node
 import snabbdom.components.Modal
 
-case class LandingPageState(
-    globalState: GlobalState
-) extends PageState {
-  def setGlobalState(globalState: GlobalState): LandingPageState = copy(globalState = globalState)
+case class LandingPageState()(implicit val globalState: GlobalState) extends PageState {
+  def setGlobalState(globalState: GlobalState): LandingPageState = copy()(globalState = globalState)
 }
 
 object LandingPage extends Page[LandingPageState] {
   override def stateFromUrl: PartialFunction[(GlobalState, Path, QueryParameter), PageState] = {
-    case (globalState, "/", _)           => LandingPageState(globalState)
-    case (globalState, "/index.html", _) => LandingPageState(globalState)
+    case (globalState, "/", _)           => LandingPageState()(globalState)
+    case (globalState, "/index.html", _) => LandingPageState()(globalState)
   }
 
   override def stateToUrl = {

@@ -4,8 +4,8 @@ import frontend.components.Header
 import frontend.{GlobalState, NoRouting, Page, PageState}
 import snabbdom.Node
 
-case class ErrorState(globalState: GlobalState, message: String) extends PageState {
-  def setGlobalState(globalState: GlobalState): ErrorState = copy(globalState = globalState)
+case class ErrorState(message: String)(implicit val globalState: GlobalState) extends PageState {
+  def setGlobalState(globalState: GlobalState): ErrorState = copy()(globalState = globalState)
 }
 
 object ErrorPage extends Page[ErrorState] with NoRouting {

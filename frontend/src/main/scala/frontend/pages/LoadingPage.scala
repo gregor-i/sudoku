@@ -9,8 +9,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-case class LoadingState(globalState: GlobalState, process: Future[PageState]) extends PageState {
-  def setGlobalState(globalState: GlobalState): LoadingState = copy(globalState = globalState)
+case class LoadingState(process: Future[PageState])(implicit val globalState: GlobalState) extends PageState {
+  def setGlobalState(globalState: GlobalState): LoadingState = copy()(globalState = globalState)
 }
 
 object LoadingPage extends Page[LoadingState] with NoRouting {
@@ -37,7 +37,7 @@ object LoadingPage extends Page[LoadingState] with NoRouting {
             case Success(newState) => context.update(newState)
             case Failure(error) =>
               context.update(
-                ErrorState(globalState, s"unexpected problem while initializing app: ${error.getMessage}")
+                ErrorState(s"unexpected problem while initializing app: ${error.getMessage}")(globalState)
               )
           }
       }

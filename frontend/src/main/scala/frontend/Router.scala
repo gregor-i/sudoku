@@ -18,7 +18,7 @@ object Router {
       .lift
 
   def stateFromUrl(globalState: GlobalState, location: Location): PageState =
-    stateFromUrlPF((globalState, location._1, location._2)).getOrElse(ErrorState(globalState, "unknown url"))
+    stateFromUrlPF((globalState, location._1, location._2)).getOrElse(ErrorState("unknown url")(globalState))
 
   private val stateToUrlPF: PageState => Option[Location] =
     Pages.all

@@ -72,7 +72,7 @@ object NewPuzzleModal {
       text = localized.playNewGame,
       icon = Icons.generate,
       onclick = setState(
-        PuzzleState.loading(seed = Random.nextInt(), globalState.difficulty, globalState.dimensions)
+        PuzzleState.loading(seed = Random.nextInt(), globalState.difficulty, globalState.dimensions)(using globalState)
       )
     ).style("flex", "auto 1")
 
@@ -81,7 +81,7 @@ object NewPuzzleModal {
         Button(
           text = localized.continueLastGame,
           icon = Icons.continue,
-          onclick = setState(PuzzleState.forBoard(globalState, decoratedBoard))
+          onclick = setState(PuzzleState.forBoard(decoratedBoard)(using globalState))
         ).classes("is-primary", "is-outlined", "is-light")
           .style("flex", "auto 1")
     )
