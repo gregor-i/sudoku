@@ -8,7 +8,7 @@ trait Syntax {
   inline final def globalState(using Context[_]): GlobalState              = pageState.globalState
   inline final def localized(using Context[_]): Language                   = pageState.globalState.language
 
-  inline final def setState(pageState: PageState)(using context: Context[_]): Event => Unit =
+  inline final def setState(pageState: => PageState)(using context: Context[_]): Event => Unit =
     _ => context.update(pageState)
 
   inline final def action[A <: PageState](action: A => PageState)(using context: Context[A]): Event => Unit =
