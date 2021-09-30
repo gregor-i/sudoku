@@ -43,7 +43,7 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
         )
       }
 
-  def assistance()(using context: Context): Node =
+  def assistance()(using Context): Node =
     selectInput[Boolean](
       label = localized.highlightMistakes,
       options = Seq(
@@ -59,9 +59,7 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
       options: Seq[(String, A)],
       lens: Lens[PageState, A],
       eqFunction: (A, A) => Boolean
-  )(using
-      context: Context
-  ) = {
+  )(using context: Context) = {
     val currentValue = lens.get(pageState)
 
     "div.field"
@@ -81,7 +79,7 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
                       options
                         .find(_._1 == selected)
                         .map(_._2)
-                        .foreach(input => action[State](lens.replace(input)))
+                        .foreach(input => action[State](lens.replace(input))(event))
                     }
                   )
                   .child(
