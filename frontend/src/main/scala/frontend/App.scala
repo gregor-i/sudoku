@@ -1,12 +1,14 @@
 package frontend
 
+import frontend.pages.PuzzleState
 import io.circe.parser
-import io.circe.syntax._
+import io.circe.syntax.*
 import org.scalajs.dom
 import org.scalajs.dom.Element
 import snabbdom.{PatchFunction, Snabbdom, VNode}
 
 import scala.scalajs.js.{UndefOr, |}
+import scala.util.Random
 
 class App(container: Element) {
 
@@ -33,7 +35,18 @@ class App(container: Element) {
 
   def start(): Unit = {
     val globalState = loadGlobalState().getOrElse(GlobalState.initial)
-    renderState(Router.stateFromUrl(globalState, dom.window.location))
+
+    val pageState = globalState.lastPuzzle match {
+      case Some(lastPuzzle) => PuzzleState.forBoard(lastPuzzle)(using globalState)
+      case None =>
+        PuzzleState.loading(
+          seed = Random.nextInt(),
+          desiredDifficulty = globalState.difficulty,
+          dimensions = globalState.dimensions
+        )(using globalState)
+    }
+
+    renderState(pageState)
   }
 
   def renderState(state: PageState): Unit = {
@@ -44,7 +57,7 @@ class App(container: Element) {
     node = patch(node, Pages.ui(context).toVNode)
   }
 
-  dom.window.onpopstate = _ => start()
+  dom.window.onpopstate = _ => ()
 
   start()
 }

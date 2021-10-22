@@ -14,7 +14,7 @@ object English extends Language {
   }
 
   override def sizeLabel: String        = "Size: "
-  override def playNewGame: String      = "Play new Game"
+  override def playNewGame: String      = "Start new Game"
   override def continueLastGame: String = "Continue last Game"
   override def hint: String             = "Hint"
 

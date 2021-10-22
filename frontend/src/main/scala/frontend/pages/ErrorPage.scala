@@ -1,14 +1,14 @@
 package frontend.pages
 
 import frontend.components.Header
-import frontend.{GlobalState, NoRouting, Page, PageState}
+import frontend.{GlobalState, Page, PageState}
 import snabbdom.Node
 
 case class ErrorState(message: String)(implicit val globalState: GlobalState) extends PageState {
   def setGlobalState(globalState: GlobalState): ErrorState = copy()(globalState = globalState)
 }
 
-object ErrorPage extends Page[ErrorState] with NoRouting {
+object ErrorPage extends Page[ErrorState] {
   def render(using context: Context): Node =
     Node("div")
       .child(Header.renderHeader())

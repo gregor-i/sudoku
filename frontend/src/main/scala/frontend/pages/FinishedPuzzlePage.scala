@@ -1,7 +1,7 @@
 package frontend.pages
 
-import frontend.components.{Header, Icons, NewPuzzleModal, SudokuBoardSVG}
-import frontend.{NoRouting, Page, PageState}
+import frontend.components.{Header, Icons, SudokuBoardSVG}
+import frontend.{Page, PageState}
 import model.DecoratedCell.{Given, Input}
 import model._
 import monocle.Lens
@@ -13,22 +13,13 @@ import scala.util.Random
 import monocle.syntax.all._
 import frontend.GlobalState
 
-case class FinishedPuzzleState(
-    board: DecoratedBoard,
-    tapped: Boolean = false
-)(implicit val globalState: GlobalState)
-    extends PageState {
+case class FinishedPuzzleState(board: DecoratedBoard)(implicit val globalState: GlobalState) extends PageState {
   require(board.data.forall(_.toOption.isDefined))
 
   def setGlobalState(globalState: GlobalState): FinishedPuzzleState = copy()(globalState = globalState)
 }
 
-object FinishedPuzzleState {
-  def tapped: Lens[FinishedPuzzleState, Boolean] =
-    Lens[FinishedPuzzleState, Boolean](_.tapped)(s => t => t.copy(tapped = s)(t.globalState))
-}
-
-object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
+object FinishedPuzzlePage extends Page[FinishedPuzzleState] {
 
   override def render(using context: Context): Node =
     Node("div.grid-layout.no-scroll")
@@ -41,20 +32,23 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] with NoRouting {
               .extendRects(animations(pageState.board))
               .toNode
               .classes("grid-main-svg", "finished-sudoku")
-              .event("click", action(FinishedPuzzleState.tapped.replace(true)))
           )
       )
       .child(buttonBar().classes("grid-footer", "buttons", "my-2"))
-      .maybeModify(pageState.tapped)(_.child(finishedModal()))
-
-  private def finishedModal()(using context: Context): Node =
-    Modal(closeAction = Some(action(FinishedPuzzleState.tapped.replace(false))))(
-      NewPuzzleModal(None)
-    )
 
   private def buttonBar()(using context: Context): Node =
     ButtonList.right(
-      Button(localized.playNewGame, Icons.generate, action(FinishedPuzzleState.tapped.replace(true)))
+      Button(
+        localized.playNewGame,
+        Icons.generate,
+        setState(
+          PuzzleState.loading(
+            seed = Random.nextInt(),
+            dimensions = globalState.dimensions,
+            desiredDifficulty = globalState.difficulty
+          )(using globalState)
+        )
+      )
         .classes("is-primary")
     )
 

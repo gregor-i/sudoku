@@ -2,7 +2,7 @@ package frontend.pages
 
 import frontend.components.*
 import frontend.util.AsyncUtil
-import frontend.{Context, GlobalState, NoRouting, Page, PageState}
+import frontend.{Context, GlobalState, Page, PageState}
 import model.*
 import model.inifinit.ContinuePuzzle
 import model.solver.Hint
@@ -17,7 +17,6 @@ import scala.concurrent.Future
 case class PuzzleState(
     board: DecoratedBoard,
     focus: Option[Position],
-    newPuzzleModalOpened: Boolean,
     hint: Option[Hint]
 )(implicit val globalState: GlobalState)
     extends PageState {
@@ -25,15 +24,12 @@ case class PuzzleState(
 }
 
 object PuzzleState {
-  val newPuzzleModalOpened =
-    Lens[PuzzleState, Boolean](_.newPuzzleModalOpened)(s => t => t.copy(newPuzzleModalOpened = s)(t.globalState))
   val focus = Lens[PuzzleState, Option[Position]](_.focus)(s => t => t.copy(focus = s)(t.globalState))
 
   def forBoard(decoratedBoard: DecoratedBoard)(using GlobalState): PuzzleState =
     PuzzleState(
       board = decoratedBoard,
       focus = None,
-      newPuzzleModalOpened = false,
       hint = None
     )
 
@@ -51,7 +47,7 @@ object PuzzleState {
     LoadingState(process(seed, desiredDifficulty, dimensions))
 }
 
-object PuzzlePage extends Page[PuzzleState] with NoRouting {
+object PuzzlePage extends Page[PuzzleState] {
   override def render(using context: Context): Node =
     Node("div.grid-layout.no-scroll")
       .child(Header.renderHeader())
@@ -70,13 +66,6 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
       )
       .child(buttonBar().classes("grid-footer"))
       .child(contextMenu())
-      .maybeModify(pageState.newPuzzleModalOpened) {
-        _.child(
-          Modal(closeAction = Some(action(PuzzleState.newPuzzleModalOpened.replace(false))))(
-            NewPuzzleModal(None)
-          )
-        )
-      }
 
   private def contextMenuTriggerExtension(board: DecoratedBoard)(using context: Context): SudokuBoardSVG.Extension =
     (pos, node) =>
@@ -95,14 +84,7 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
 
   private def buttonBar()(using context: Context): Node =
     ButtonList
-      .right(
-        Button(localized.hint, Icons.hint, action(giveHint)),
-        Button(
-          localized.playNewGame,
-          Icons.generate,
-          action(PuzzleState.newPuzzleModalOpened.replace(true))
-        )
-      )
+      .right(Button(localized.hint, Icons.hint, action(giveHint)))
       .classes("my-2")
 
   private def giveHint(state: PuzzleState): PuzzleState = {

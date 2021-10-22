@@ -1,7 +1,7 @@
 package frontend.pages
 
 import frontend.components.{Header, Icons}
-import frontend.{Context, GlobalState, NoRouting, Page, PageState}
+import frontend.{Context, GlobalState, Page, PageState}
 import model.{DecoratedBoard, Difficulty, Dimensions}
 import monocle.{Lens, PLens}
 import org.scalajs.dom.raw.HTMLSelectElement
@@ -10,15 +10,15 @@ import snabbdom.components.{Button, Modal}
 
 import scala.util.Random
 
-case class SettingsState(modalOpened: Boolean = false)(implicit val globalState: GlobalState) extends PageState {
+case class SettingsState(oldGlobalState: GlobalState)(implicit val globalState: GlobalState) extends PageState {
   def setGlobalState(globalState: GlobalState): SettingsState = copy()(globalState = globalState)
+
+  def changesAllowContinuing: Boolean =
+    oldGlobalState.dimensions == globalState.dimensions &&
+      oldGlobalState.difficulty == globalState.difficulty
 }
 
-object SettingsState {
-  val modalOpened = Lens[SettingsState, Boolean](_.modalOpened)(s => t => t.copy(modalOpened = s)(t.globalState))
-}
-
-object SettingsPage extends Page[SettingsState] with NoRouting {
+object SettingsPage extends Page[SettingsState] {
 
   override def render(using context: Context): Node =
     "div.grid-layout"
@@ -35,13 +35,10 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
           )
       )
       .child(
-        "div.grid-footer.my-2.buttons"
-          .child(
-            playButtons(globalState.lastPuzzle)
-          )
+        "div.grid-footer.my-2.buttons".child(buttons(globalState.lastPuzzle))
       )
 
-  private def playButtons(lastPuzzle: Option[DecoratedBoard])(using Context) = {
+  private def buttons(lastPuzzle: Option[DecoratedBoard])(using Context) = {
     val playButton = Button(
       text = localized.playNewGame,
       icon = Icons.generate,
@@ -50,21 +47,29 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
       )
     ).style("flex", "auto 1")
 
-    val continueButton = lastPuzzle.map(
-      decoratedBoard =>
+    val continueButton = lastPuzzle match {
+      case Some(decoratedBoard) if pageState.changesAllowContinuing =>
         Button(
           text = localized.continueLastGame,
           icon = Icons.continue,
           onclick = setState(PuzzleState.forBoard(decoratedBoard)(using globalState))
         ).classes("is-primary", "is-outlined", "is-light")
           .style("flex", "auto 1")
-    )
+      case _ =>
+        Button(
+          text = localized.continueLastGame,
+          icon = Icons.continue,
+          onclick = _ => ()
+        )
+          .boolAttr("disabled", true)
+          .style("flex", "auto 1")
+    }
 
     Node("div.buttons.my-2")
       .style("display", "flex")
       .style("width", "100%")
       .child(playButton)
-      .childOptional(continueButton)
+      .child(continueButton)
   }
 
   private def assistance()(using Context): Seq[Node] = {

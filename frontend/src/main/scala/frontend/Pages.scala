@@ -7,7 +7,6 @@ object Pages {
   val all: Seq[Page[_]] = Seq(
     ErrorPage,
     LoadingPage,
-    LandingPage,
     PuzzlePage,
     FinishedPuzzlePage,
     SettingsPage
@@ -16,7 +15,6 @@ object Pages {
   def ui(context: Context[PageState]): Node = context.local match {
     case _: ErrorPage.State          => ErrorPage.render(using context.asInstanceOf)
     case _: LoadingPage.State        => LoadingPage.render(using context.asInstanceOf)
-    case _: LandingPage.State        => LandingPage.render(using context.asInstanceOf)
     case _: PuzzlePage.State         => PuzzlePage.render(using context.asInstanceOf)
     case _: FinishedPuzzlePage.State => FinishedPuzzlePage.render(using context.asInstanceOf)
     case _: SettingsPage.State       => SettingsPage.render(using context.asInstanceOf)
