@@ -1,6 +1,6 @@
 package model.solver
 
-import model.BoardExamples.{easyExample, hardExample, mediumExample}
+import model.BoardExamples.{easyExample, hardExample, mediumExample, multipleSolutionsExample}
 import model.SolverResult.MultipleSolutions
 import model.{Dimensions, SudokuBoard, Validate}
 import org.scalatest.funsuite.AnyFunSuite
@@ -67,5 +67,21 @@ class PerfectSolverTest extends AnyFunSuite {
   test("given an empty board") {
     val result = PerfectSolver(SudokuBoard.empty(Dimensions(3, 3)))
     assert(result.isInstanceOf[MultipleSolutions])
+  }
+
+  test("withShuffle behaves the same as the perfect solver, except for multiple solutions") {
+    val shufflingPerfectSolver = PerfectSolver.withShuffle(0)
+    for (example <- Seq(easyExample, hardExample, mediumExample))
+      assert(shufflingPerfectSolver(example) == PerfectSolver(example))
+  }
+
+  test("withShuffle yields solutions in a different order, dependant on the seed") {
+    val aSolver    = PerfectSolver.withShuffle(0)
+    val bSolver    = PerfectSolver.withShuffle(1)
+    val aSokutions = aSolver(multipleSolutionsExample).asInstanceOf[MultipleSolutions].solutions
+    val bSokutions = bSolver(multipleSolutionsExample).asInstanceOf[MultipleSolutions].solutions
+
+    assert(aSokutions.head != bSokutions)
+    assert(aSokutions.size == bSokutions.size)
   }
 }

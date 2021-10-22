@@ -22,6 +22,7 @@ object German extends Language {
   override def settings: String = "Einstellungen:"
 
   override def highlightMistakes: String = "Falsche Eingaben hervorheben:"
+  override def infinitePuzzles: String   = "Unendliche Sudokus:"
 
   override def yes: String = "Ja"
 

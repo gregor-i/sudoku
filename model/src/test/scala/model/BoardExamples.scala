@@ -77,4 +77,6 @@ object BoardExamples {
       |_ 9 _ _ _ _ 4 _ _
       |""".stripMargin
   }
+
+  val multipleSolutionsExample = hardExample.mod((0, 0), _ => None)
 }

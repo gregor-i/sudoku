@@ -9,6 +9,8 @@ object Icons {
   val play     = "fa-play"
   val settings = "fa-cog"
   val hint     = "fa-question"
+//  val infinity = "fa-infinity"
+//  <i class="fas fa-circle-notch"></i>
 
   val continue = "fa-play"
   val easy     = "fa-ice-cream"

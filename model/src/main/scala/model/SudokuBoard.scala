@@ -65,6 +65,17 @@ object SudokuBoard {
   def allSubsetsOf(position: Position)(dim: Dimensions): Seq[Subset] =
     Seq(rowOf(position)(dim), columnOf(position)(dim), blockOf(position)(dim))
 
+  def columnBlock(i: Int, dim: Dimensions): Subset =
+    (dim.width * i until dim.width * (i + 1))
+      .flatMap(column(_)(dim))
+
+  def rowBlock(i: Int, dim: Dimensions): Subset =
+    (dim.height * i until dim.height * (i + 1))
+      .flatMap(row(_)(dim))
+
+  def columnBlocks(dim: Dimensions): Seq[Subset] = for (i <- 0 until dim.height) yield columnBlock(i, dim)
+  def rowBlocks(dim: Dimensions): Seq[Subset]    = for (i <- 0 until dim.width) yield rowBlock(i, dim)
+
   def positions(dim: Dimensions): Seq[Position] =
     for {
       x <- 0 until dim.blockSize

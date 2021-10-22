@@ -11,7 +11,8 @@ case class GlobalState(
     difficulty: Difficulty,
     dimensions: Dimensions,
     language: Language,
-    highlightMistakes: Boolean
+    highlightMistakes: Boolean,
+    infinitePuzzles: Boolean
 )
 
 object GlobalState {
@@ -19,13 +20,15 @@ object GlobalState {
   val highlightMistakes = Lens[GlobalState, Boolean](_.highlightMistakes)(s => _.copy(highlightMistakes = s))
   val difficulty        = Lens[GlobalState, Difficulty](_.difficulty)(s => _.copy(difficulty = s))
   val dimensions        = Lens[GlobalState, Dimensions](_.dimensions)(s => _.copy(dimensions = s))
+  val infinitePuzzles   = Lens[GlobalState, Boolean](_.infinitePuzzles)(s => _.copy(infinitePuzzles = s))
 
   val initial: GlobalState = GlobalState(
     lastPuzzle = None,
     difficulty = Difficulty.Medium,
     dimensions = Dimensions(3, 3),
     language = Language.detect.getOrElse(Language.default),
-    highlightMistakes = true
+    highlightMistakes = true,
+    infinitePuzzles = false
   )
 
   given encoder: Encoder[GlobalState] =
@@ -39,7 +42,9 @@ object GlobalState {
           difficulty = json.apply("difficulty").flatMap(_.as[Difficulty].toOption).getOrElse(initial.difficulty),
           dimensions = json.apply("dimensions").flatMap(_.as[Dimensions].toOption).getOrElse(initial.dimensions),
           language = json.apply("language").flatMap(_.as[Language].toOption).getOrElse(initial.language),
-          highlightMistakes = json.apply("highlightMistakes").flatMap(_.as[Boolean].toOption).getOrElse(initial.highlightMistakes)
+          highlightMistakes =
+            json.apply("highlightMistakes").flatMap(_.as[Boolean].toOption).getOrElse(initial.highlightMistakes),
+          infinitePuzzles = json.apply("infinitePuzzles").flatMap(_.as[Boolean].toOption).getOrElse(initial.infinitePuzzles)
         )
     }
 }

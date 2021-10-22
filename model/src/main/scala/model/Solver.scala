@@ -12,6 +12,8 @@ object Solver {
   def mediumSolver: Solver  = MediumSolver
   def easySolver: Solver    = EasySolver
 
+  def shufflingPerfectSolver(seed: Int): Solver = PerfectSolver.withShuffle(seed)
+
   def forDifficulty(difficulty: Difficulty): Solver =
     difficulty match {
       case Difficulty.Hard   => perfectSolver

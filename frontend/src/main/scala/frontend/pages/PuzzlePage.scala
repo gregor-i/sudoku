@@ -4,6 +4,7 @@ import frontend.components.*
 import frontend.util.AsyncUtil
 import frontend.{Context, GlobalState, NoRouting, Page, PageState}
 import model.*
+import model.inifinit.ContinuePuzzle
 import model.solver.Hint
 import monocle.Lens
 import org.scalajs.dom.document
@@ -123,20 +124,27 @@ object PuzzlePage extends Page[PuzzleState] with NoRouting {
       }
 
   private def inputValue(pos: Position, value: Option[Int])(using context: Context): Unit = {
-    val updatedBoard = pageState.board
-      .set(pos, DecoratedCell.maybeInput(value))
-
-    val continutedBoard = ContinuePuzzle.maybeContinue(updatedBoard, seed = scala.util.Random.nextInt(), globalState.difficulty)
+    val updatedBoard = pageState.board.set(pos, DecoratedCell.maybeInput(value))
 
     val newState = Validate(updatedBoard.map(_.toOption)) match {
-      case Some(_) =>
-        FinishedPuzzleState(board = continutedBoard)(GlobalState.lastPuzzle.replace(None)(globalState))
-      case None =>
+      case Some(_) if !globalState.infinitePuzzles =>
+        FinishedPuzzleState(board = updatedBoard)(GlobalState.lastPuzzle.replace(None)(globalState))
+
+      case _ if globalState.infinitePuzzles =>
+        val continutedBoard =
+          ContinuePuzzle.maybeContinue(updatedBoard, seed = scala.util.Random.nextInt(), globalState.difficulty)
         pageState.copy(
           focus = None,
           hint = None,
-          board = continutedBoard
-        )(GlobalState.lastPuzzle.replace(Some(continutedBoard))(globalState))
+          board = continutedBoard.getOrElse(updatedBoard)
+        )(GlobalState.lastPuzzle.replace(Some(updatedBoard))(globalState))
+
+      case _ =>
+        pageState.copy(
+          focus = None,
+          hint = None,
+          board = updatedBoard
+        )(GlobalState.lastPuzzle.replace(Some(updatedBoard))(globalState))
     }
 
     context.update(newState)

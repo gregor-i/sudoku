@@ -30,7 +30,8 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
             "h1.title".text(localized.settings),
             difficultyButtons(),
             dimensionButtons(),
-            assistance()
+            assistance(),
+            infinitePuzzles()
           )
       )
       .child(
@@ -84,6 +85,29 @@ object SettingsPage extends Page[SettingsState] with NoRouting {
                 onclick = action(PageState.globalState.andThen(GlobalState.highlightMistakes).replace(value))
               ).style("flex", "auto 1")
                 .maybeModify(globalState.highlightMistakes == value)(markButtonAsActive)
+          }
+        )
+    )
+  }
+
+  private def infinitePuzzles()(using Context): Seq[Node] = {
+    val options = Seq(
+      localized.yes -> true,
+      localized.no  -> false
+    )
+
+    Seq(
+      "div.label".text(localized.infinitePuzzles),
+      Node("div.buttons")
+        .style("display", "flex")
+        .child(
+          options.map {
+            (text, value) =>
+              Button(
+                text = text,
+                onclick = action(PageState.globalState.andThen(GlobalState.infinitePuzzles).replace(value))
+              ).style("flex", "auto 1")
+                .maybeModify(globalState.infinitePuzzles == value)(markButtonAsActive)
           }
         )
     )
