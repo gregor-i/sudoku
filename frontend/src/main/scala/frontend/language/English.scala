@@ -3,7 +3,7 @@ package frontend.language
 import model.Difficulty
 
 object English extends Language {
-  def playSudoku: String = "Play Sudoku"
+  override def playSudoku: String = "Play Sudoku"
 
   override def difficultyLabel: String = "Difficulty:"
 
@@ -21,6 +21,7 @@ object English extends Language {
   override def settings: String = "Settings:"
 
   override def highlightMistakes: String = "Highlight wrong inputs:"
+  override def infinitePuzzles: String   = "Infinite Sudokus:"
 
   override def yes: String = "Yes"
 

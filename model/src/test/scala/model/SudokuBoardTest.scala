@@ -1,5 +1,6 @@
 package model
 
+import model.inifinit.ContinuationOptions
 import org.scalatest.funsuite.AnyFunSuite
 
 class SudokuBoardTest extends AnyFunSuite {
@@ -117,5 +118,42 @@ class SudokuBoardTest extends AnyFunSuite {
     val positionsBoard = SudokuBoard.fill(Dimensions(3, 3))(identity)
     for (position <- SudokuBoard.positions(positionsBoard.dim))
       assert(positionsBoard.get(position) == position)
+  }
+
+  test("positions are natually sorted") {
+    val pos = SudokuBoard.positions(Dimensions(3, 3))
+    assert(pos == pos.sorted)
+  }
+
+  test("columnBlock describes a column of blocks") {
+    val dim   = Dimensions(2, 3)
+    val area1 = SudokuBoard.columnBlock(0, dim)
+    assert(area1.size == 12)
+    assert(area1.contains((0, 0)))
+
+    val area2 = SudokuBoard.columnBlock(1, dim)
+    assert(area2.size == 12)
+    assert(area2.contains((2, 0)))
+
+    val area3 = SudokuBoard.columnBlock(2, dim)
+    assert(area3.size == 12)
+    assert(area3.contains((4, 0)))
+
+    assert((area1 ++ area2 ++ area3).sorted == SudokuBoard.positions(dim))
+    assert(SudokuBoard.columnBlocks(dim) == Seq(area1, area2, area3))
+  }
+
+  test("rowBlock describes a row of blocks") {
+    val dim   = Dimensions(2, 3)
+    val area1 = SudokuBoard.rowBlock(0, dim)
+    assert(area1.size == 18)
+    assert(area1.contains((0, 0)))
+
+    val area2 = SudokuBoard.rowBlock(1, dim)
+    assert(area2.size == 18)
+    assert(area2.contains((0, 3)))
+
+    assert((area1 ++ area2).sorted == SudokuBoard.positions(dim))
+    assert(SudokuBoard.rowBlocks(dim) == Seq(area1, area2))
   }
 }
