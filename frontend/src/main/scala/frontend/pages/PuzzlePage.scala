@@ -100,7 +100,7 @@ object PuzzlePage extends Page[PuzzleState] {
             focus = pos,
             dim = pageState.board.dim,
             reference = document.getElementById(s"cell_${pos._1}_${pos._2}"),
-            setFocus = pos => action(PuzzleState.focus.replace(pos)),
+            setFocus = pos => context.update(PuzzleState.focus.replace(pos)(pageState)),
             setValue = value => inputValue(pos, value)
           )
       }
