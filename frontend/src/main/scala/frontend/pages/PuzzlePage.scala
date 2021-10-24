@@ -5,7 +5,7 @@ import frontend.util.AsyncUtil
 import frontend.{Context, GlobalState, Page, PageState}
 import model.*
 import model.inifinit.ContinuePuzzle
-import model.solver.Hint
+import model.solver.{Hint, NextInputHint, WrongInputHint}
 import monocle.Lens
 import org.scalajs.dom.document
 import snabbdom.Node
@@ -56,9 +56,6 @@ object PuzzlePage extends Page[PuzzleState] {
           .child(
             SudokuBoardSVG(pageState.board)
               .extendRects(contextMenuTriggerExtension(pageState.board))
-              .extendRects(
-                SudokuBoardSVG.wrongNumbers(enabled = globalState.highlightMistakes, pageState.board)
-              )
               .extendRects(hintExtension(pageState.hint))
               .toNode
               .classes("grid-main-svg")
@@ -74,11 +71,16 @@ object PuzzlePage extends Page[PuzzleState] {
 
   private def hintExtension(hint: Option[Hint]): SudokuBoardSVG.Extension =
     hint match {
-      case Some(hint) =>
+      case Some(hint: NextInputHint) =>
         (pos, node) =>
           node
             .maybeModify(pos == hint.position)(_.classes("highlight-strong"))
             .maybeModify(hint.blockingPositions.contains(pos))(_.classes("highlight-weak"))
+      case Some(hint: WrongInputHint) =>
+        (pos, node) =>
+          node
+            .maybeModify(pos == hint.position)(_.classes("wrong-value"))
+            .maybeModify(hint.relatedPositions.contains(pos))(_.classes("wrong-value-weak"))
       case None => SudokuBoardSVG.emptyExtension
     }
 
@@ -88,7 +90,7 @@ object PuzzlePage extends Page[PuzzleState] {
       .classes("my-2")
 
   private def giveHint(state: PuzzleState): PuzzleState = {
-    val hint = Hint.of(state.board.map(_.toOption))
+    val hint = Hint.of(state.board)
     state.copy(hint = hint)(state.globalState)
   }
 

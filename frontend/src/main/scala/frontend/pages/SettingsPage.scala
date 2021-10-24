@@ -30,7 +30,6 @@ object SettingsPage extends Page[SettingsState] {
             "h1.title".text(localized.settings),
             difficultyButtons(),
             dimensionButtons(),
-            assistance(),
             infinitePuzzles()
           )
       )
@@ -70,29 +69,6 @@ object SettingsPage extends Page[SettingsState] {
       .style("width", "100%")
       .child(playButton)
       .child(continueButton)
-  }
-
-  private def assistance()(using Context): Seq[Node] = {
-    val options = Seq(
-      localized.yes -> true,
-      localized.no  -> false
-    )
-
-    Seq(
-      "div.label".text(localized.highlightMistakes),
-      Node("div.buttons")
-        .style("display", "flex")
-        .child(
-          options.map {
-            (text, value) =>
-              Button(
-                text = text,
-                onclick = action(PageState.globalState.andThen(GlobalState.highlightMistakes).replace(value))
-              ).style("flex", "auto 1")
-                .maybeModify(globalState.highlightMistakes == value)(markButtonAsActive)
-          }
-        )
-    )
   }
 
   private def infinitePuzzles()(using Context): Seq[Node] = {

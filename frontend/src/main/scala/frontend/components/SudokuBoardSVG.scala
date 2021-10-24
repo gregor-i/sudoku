@@ -111,8 +111,5 @@ object SudokuBoardSVG {
 
   val emptyExtension: Extension = (pos, node) => node
 
-  def and(left: Extension, right: Extension): Extension = (pos, node) => right(pos, left(pos, node))
-
-  def wrongNumbers(enabled: Boolean, board: DecoratedBoard): Extension =
-    (pos, node) => node.`class`("wrong-value", enabled && Validate.hasError(board.map(_.toOption), pos))
+  private[SudokuBoardSVG] def and(left: Extension, right: Extension): Extension = (pos, node) => right(pos, left(pos, node))
 }

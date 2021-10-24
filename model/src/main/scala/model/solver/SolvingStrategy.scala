@@ -45,7 +45,7 @@ private[solver] object SingleOptionForPosition extends SolvingStrategy {
   def hint(node: SolverNode): Option[Hint] =
     solve(node).headOption.map {
       case (pos, value) =>
-        Hint(
+        NextInputHint(
           position = pos,
           value = value,
           blockingPositions =
@@ -70,7 +70,7 @@ private[solver] object UniqueOptionInSubset extends SolvingStrategy {
   def hint(node: SolverNode): Option[Hint] =
     calculate(node).headOption.map {
       case (pos, value, subset) =>
-        Hint(
+        NextInputHint(
           position = pos,
           value = value,
           blockingPositions = subset.toSet
