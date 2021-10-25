@@ -10,10 +10,10 @@ object AnalyseGenerator {
       .map(seed => Generator(seed = seed, dim = dim, difficulty = difficulty))
 
   def actuallyEasy(puzzle: OpenSudokuBoard): Boolean =
-    Solver.easySolver(puzzle).uniqueSolution.isDefined
+    Solver.forDifficulty(Difficulty.Easy).canSolve(puzzle)
 
   def actuallyMedium(puzzle: OpenSudokuBoard): Boolean =
-    Solver.mediumSolver(puzzle).uniqueSolution.isDefined
+    Solver.forDifficulty(Difficulty.Medium).canSolve(puzzle)
 
   def analyseDifficulty(n: Int, difficulty: Difficulty): Unit = {
     val difficultyDistribution = streamPuzzles(difficulty)

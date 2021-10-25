@@ -3,7 +3,7 @@ package model.solver
 import model._
 
 object MediumSolver extends Solver {
-  def apply(puzzle: OpenSudokuBoard): SolverResult =
+  def solve(puzzle: OpenSudokuBoard): Option[FilledSudokuBoard] =
     SolvingStrategy.solveWithStrategy(puzzle) {
       node =>
         SingleOptionForPosition.solve(node) ++

@@ -1,7 +1,9 @@
 package model
 
+import model.solver.PerfectSolver
+
 import scala.util.Random
-import scala.util.chaining._
+import scala.util.chaining.*
 
 object Generator {
   private type Swap = (Position, Position)
@@ -93,7 +95,7 @@ object Generator {
     positions.foldLeft(board) {
       (board, position) =>
         val reducedBoard = board.mod(position, cell => PuzzleCell.Empty(cell.solution))
-        if (solver(reducedBoard.map(_.visible)).uniqueSolution.isDefined)
+        if (solver.canSolve(reducedBoard.map(_.visible)))
           reducedBoard
         else
           board

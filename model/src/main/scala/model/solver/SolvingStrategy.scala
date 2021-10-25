@@ -1,21 +1,20 @@
 package model.solver
 
-import model.SolverResult.{CouldNotSolve, UniqueSolution}
-import model.{OpenSudokuBoard, Position, SolverResult, Subset, SudokuBoard, Validate}
+import model.{FilledSudokuBoard, OpenSudokuBoard, Position, Subset, SudokuBoard, Validate}
 
 import scala.annotation.tailrec
 
 private[solver] object SolvingStrategy {
-  def solveWithStrategy(puzzle: OpenSudokuBoard)(strategy: SolverNode => Iterable[(Position, Int)]): SolverResult = {
+  def solveWithStrategy(puzzle: OpenSudokuBoard)(strategy: SolverNode => Iterable[(Position, Int)]): Option[FilledSudokuBoard] = {
     @tailrec
-    def loop(node: SolverNode): SolverResult = {
+    def loop(node: SolverNode): Option[FilledSudokuBoard] = {
       if (node.openPositions.isEmpty) {
-        Validate(node.board).fold[SolverResult](CouldNotSolve)(UniqueSolution.apply)
+        Validate(node.board)
       } else {
         val solvedPositions = strategy(node)
 
         if (solvedPositions.isEmpty)
-          CouldNotSolve
+          None
         else
           loop {
             solvedPositions

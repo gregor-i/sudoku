@@ -2,26 +2,33 @@ package model.solver
 
 import algorithms.TreeTraversal
 import model.*
+import model.solver.PerfectSolver.allSolutions
 
 import scala.util.Random
 
-object PerfectSolver extends Solver {
-  override def apply(puzzle: OpenSudokuBoard): SolverResult = {
+trait PerfectSolver {
+  def allSolutions(puzzle: OpenSudokuBoard): LazyList[FilledSudokuBoard]
+
+  final def uniqueSolution(puzzle: OpenSudokuBoard): Option[FilledSudokuBoard] =
+    allSolutions(puzzle) match {
+      case LazyList(solution) => Some(solution)
+      case _                  => None
+    }
+}
+
+object PerfectSolver extends PerfectSolver {
+  def allSolutions(puzzle: OpenSudokuBoard): LazyList[FilledSudokuBoard] = {
     val root = SolverNode.initial(puzzle)
 
-    SolverResult.fromLazyList(
-      TreeTraversal.traverseLeaves(root, children).flatMap(t => Validate(t.board))
-    )
+    TreeTraversal.traverseLeaves(root, children).flatMap(t => Validate(t.board))
   }
 
-  def withShuffle(seed: Int) = new Solver {
-    override def apply(puzzle: OpenSudokuBoard): SolverResult = {
+  def withShuffle(seed: Int) = new PerfectSolver {
+    override def allSolutions(puzzle: OpenSudokuBoard): LazyList[FilledSudokuBoard] = {
       val random = new Random(seed)
       val root   = SolverNode.initial(puzzle)
 
-      SolverResult.fromLazyList(
-        TreeTraversal.traverseLeaves(root, children andThen shuffle(random)).flatMap(t => Validate(t.board))
-      )
+      TreeTraversal.traverseLeaves(root, children andThen shuffle(random)).flatMap(t => Validate(t.board))
     }
 
     private final def shuffle[A](random: Random)(nodes: List[A]): List[A] =

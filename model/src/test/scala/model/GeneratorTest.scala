@@ -1,5 +1,6 @@
 package model
 
+import model.solver.PerfectSolver
 import org.scalatest.funsuite.AnyFunSuite
 
 class GeneratorTest extends AnyFunSuite {
@@ -12,7 +13,7 @@ class GeneratorTest extends AnyFunSuite {
 
     assert(puzzle.data.count(_.isGiven) < dim.boardSize)
     assert(puzzle.data.count(_.isInput) == 0)
-    assert(Solver.perfectSolver.apply(puzzle.map(_.visible)).uniqueSolution.isDefined)
+    assert(PerfectSolver.uniqueSolution(puzzle.map(_.visible)).isDefined)
   }
 
   test(s"initialBoard constructs a solved sudoku board") {
