@@ -35,9 +35,12 @@ object ContinuePuzzle {
 
     val alternativeSolution = ContinuationOptions(puzzle.map(_.solution), positions.toSet, seed = random.nextInt()).head
 
-    val inputForGenerator: SudokuPuzzle =
+    val inputForGenerator: SudokuBoard[PuzzleCell.Empty | PuzzleCell.Given] =
       merge(
-        puzzle,
+        puzzle.map {
+          case cell: PuzzleCell.Given => cell
+          case cell                   => PuzzleCell.Empty(cell.solution)
+        },
         alternativeSolution.map(PuzzleCell.Given.apply),
         positions
       )
@@ -54,9 +57,9 @@ object ContinuePuzzle {
     merge(puzzle, continuedPuzzle, positions)
   }
 
-  private def merge[A](left: SudokuBoard[A], right: SudokuBoard[A], positions: Seq[Position]): SudokuBoard[A] = {
+  private def merge[A, B](left: SudokuBoard[A], right: SudokuBoard[B], positions: Seq[Position]): SudokuBoard[A | B] = {
     require(left.dim == right.dim)
-    SudokuBoard.fill[A](left.dim) {
+    SudokuBoard.fill[A | B](left.dim) {
       pos =>
         if (positions.contains(pos))
           right.get(pos)

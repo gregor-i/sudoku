@@ -26,7 +26,7 @@ class ValidateTest extends AnyFunSuite {
       assert(correctness.get(pos) == Validate.noError(board, pos))
   }
 
-  test("apply returns a SolvedSudokuBoard if the board is complete and correct") {
+  test("apply returns a FilledSudokuBoard if the board is complete and correct") {
     assert(Validate(completedBoard).isDefined)
   }
 }

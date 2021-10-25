@@ -26,9 +26,10 @@ case class PuzzleState(
 object PuzzleState {
   val focus = Lens[PuzzleState, Option[Position]](_.focus)(s => t => t.copy(focus = s)(t.globalState))
 
-  def forBoard(puzzle: SudokuPuzzle)(using GlobalState): PuzzleState =
+  def forBoard[A <: PuzzleCell](puzzle: SudokuBoard[A])(using GlobalState): PuzzleState =
     PuzzleState(
-      board = puzzle,
+      // fixme: remove this .map
+      board = puzzle.map(x => x: PuzzleCell),
       focus = None,
       hint = None
     )
@@ -104,14 +105,14 @@ object PuzzlePage extends Page[PuzzleState] {
       }
 
   private def inputValue(pos: Position, value: Option[Int])(using context: Context): Unit = {
-    val updatedBoard =
-      value match {
-        case scala.Some(input) => pageState.board.mod(pos, cell => PuzzleCell.Input(input, cell.solution))
-        case scala.None        => pageState.board.mod(pos, cell => PuzzleCell.Empty(cell.solution))
-      }
+    val updatedBoard = pageState.board.mod(pos, _.input(value))
 
     val newState = if (updatedBoard.data.forall(_.isCorrectAndFilled) && !globalState.infinitePuzzles) {
-      FinishedPuzzleState(board = updatedBoard)(GlobalState.lastPuzzle.replace(None)(globalState))
+      FinishedPuzzleState(board = updatedBoard.map {
+        case cell: PuzzleCell.Given        => cell
+        case cell: PuzzleCell.CorrectInput => cell
+        case _                             => throw new Error(s"this can't be")
+      })(GlobalState.lastPuzzle.replace(None)(globalState))
 
     } else if (globalState.infinitePuzzles) {
       val continutedBoard =

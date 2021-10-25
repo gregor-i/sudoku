@@ -1,10 +1,10 @@
 package model
 package inifinit
 
-import model.SolvedSudokuBoard
+import model.FilledSudokuBoard
 
 object ContinuationOptions {
-  def apply(board: SolvedSudokuBoard, area: Set[Position], seed: Int): LazyList[SolvedSudokuBoard] = {
+  def apply(board: FilledSudokuBoard, area: Set[Position], seed: Int): LazyList[FilledSudokuBoard] = {
     val cleared = SudokuBoard.fill(board.dim) {
       pos =>
         if (area.contains(pos))

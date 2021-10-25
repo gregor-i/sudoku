@@ -23,7 +23,7 @@ object Solver {
 }
 
 sealed trait SolverResult {
-  def uniqueSolution: Option[SolvedSudokuBoard] = this match {
+  def uniqueSolution: Option[FilledSudokuBoard] = this match {
     case UniqueSolution(solution) => Some(solution)
     case NoSolution               => None
     case MultipleSolutions(_)     => None
@@ -34,10 +34,10 @@ sealed trait SolverResult {
 object SolverResult {
   case object CouldNotSolve                                            extends SolverResult
   case object NoSolution                                               extends SolverResult
-  case class UniqueSolution(solution: SolvedSudokuBoard)               extends SolverResult
-  case class MultipleSolutions(solutions: LazyList[SolvedSudokuBoard]) extends SolverResult
+  case class UniqueSolution(solution: FilledSudokuBoard)               extends SolverResult
+  case class MultipleSolutions(solutions: LazyList[FilledSudokuBoard]) extends SolverResult
 
-  def fromLazyList(lazyList: LazyList[SolvedSudokuBoard]): SolverResult = lazyList match {
+  def fromLazyList(lazyList: LazyList[FilledSudokuBoard]): SolverResult = lazyList match {
     case LazyList(solution) => UniqueSolution(solution)
     case LazyList()         => NoSolution
     case list               => MultipleSolutions(list)

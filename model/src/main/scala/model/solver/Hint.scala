@@ -35,7 +35,7 @@ object Hint {
       .positions(board.dim)
       .map(pos => (pos, board.get(pos)))
       .collectFirst {
-        case (pos, PuzzleCell.Input(input, solution)) if input != solution =>
+        case (pos, PuzzleCell.WrongInput(input, solution)) =>
           WrongInputHint(
             position = pos,
             relatedPositions = SudokuBoard

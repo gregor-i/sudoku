@@ -6,12 +6,17 @@ import scala.util.chaining._
 object Generator {
   private type Swap = (Position, Position)
 
-  def apply(dim: Dimensions, seed: Int, difficulty: Difficulty): SudokuPuzzle = {
+  def apply(dim: Dimensions, seed: Int, difficulty: Difficulty): FreshSudokuPuzzle = {
     val random = new Random(seed)
-    initialBoard(dim)
+    val filledBoard = initialBoard(dim)
       .pipe(swapRowsAndColumns(random.nextInt(), _))
       .pipe(shuffleValues(random.nextInt(), _))
-      .pipe(makePuzzle(random.nextInt(), _, difficulty))
+
+    val shuffledPositions        = SudokuBoard.positions(filledBoard.dim).pipe(random.shuffle(_))
+    val board: FreshSudokuPuzzle = filledBoard.map(PuzzleCell.Given.apply)
+    val solver                   = Solver.forDifficulty(difficulty)
+
+    makePuzzle(random = random, positions = shuffledPositions, board = board, solver = solver)
   }
 
   // See: https://gamedev.stackexchange.com/a/138228
@@ -24,7 +29,7 @@ object Generator {
     (pos._1 + shift) % dim.blockSize + 1
   }
 
-  def initialBoard(dim: Dimensions): SolvedSudokuBoard = SudokuBoard.fill(dim)(initialValue(dim))
+  def initialBoard(dim: Dimensions): FilledSudokuBoard = SudokuBoard.fill(dim)(initialValue(dim))
 
   def swapRowsAndColumns[S](seed: Int, board: SudokuBoard[S]): SudokuBoard[S] =
     swaps(seed, board.dim).foldLeft(board) {
@@ -74,25 +79,17 @@ object Generator {
       swapRowsOfBlocks(random, dim)
   }
 
-  def shuffleValues(seed: Int, board: SolvedSudokuBoard): SolvedSudokuBoard = {
+  def shuffleValues(seed: Int, board: FilledSudokuBoard): FilledSudokuBoard = {
     val shuffled = new Random(seed).shuffle((0 until board.dim.blockSize): IndexedSeq[Int])
     board.map(v => shuffled(v - 1) + 1)
   }
 
   def makePuzzle(
-      seed: Int,
-      solvedBoard: SolvedSudokuBoard,
-      difficulty: Difficulty
-  ): SudokuPuzzle = {
-    val random            = new Random(seed)
-    val shuffledPositions = SudokuBoard.positions(solvedBoard.dim).pipe(random.shuffle(_))
-    val board             = solvedBoard.map[PuzzleCell](PuzzleCell.Given.apply)
-    val solver            = Solver.forDifficulty(difficulty)
-
-    makePuzzle(random = random, positions = shuffledPositions, board = board, solver = solver)
-  }
-
-  def makePuzzle(random: Random, positions: Seq[Position], board: SudokuPuzzle, solver: Solver): SudokuPuzzle = {
+      random: Random,
+      positions: Seq[Position],
+      board: FreshSudokuPuzzle,
+      solver: Solver
+  ): FreshSudokuPuzzle = {
     positions.foldLeft(board) {
       (board, position) =>
         val reducedBoard = board.mod(position, cell => PuzzleCell.Empty(cell.solution))

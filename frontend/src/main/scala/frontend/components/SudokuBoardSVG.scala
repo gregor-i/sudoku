@@ -4,11 +4,11 @@ import frontend.components.SudokuBoardSVG.Extension
 import model._
 import snabbdom.Node
 
-case class SudokuBoardSVG(board: SudokuPuzzle, extension: Extension = SudokuBoardSVG.emptyExtension) {
+case class SudokuBoardSVG[A <: PuzzleCell](board: SudokuBoard[A], extension: Extension = SudokuBoardSVG.emptyExtension) {
   private val strokeWidth  = 1.0 / 30.0
   private val borderRadius = 1d / 10d
 
-  def extendRects(extension: Extension): SudokuBoardSVG =
+  def extendRects(extension: Extension): SudokuBoardSVG[A] =
     copy(extension = SudokuBoardSVG.and(this.extension, extension))
 
   def toNode: Node = {
@@ -77,9 +77,10 @@ case class SudokuBoardSVG(board: SudokuPuzzle, extension: Extension = SudokuBoar
         }
 
     cell match {
-      case PuzzleCell.Given(value)    => Some(numberNode(value, `class` = "given-value"))
-      case PuzzleCell.Input(value, _) => Some(numberNode(value, `class` = "input-value"))
-      case PuzzleCell.Empty(_)        => None
+      case PuzzleCell.Given(value)         => Some(numberNode(value, `class` = "given-value"))
+      case PuzzleCell.CorrectInput(value)  => Some(numberNode(value, `class` = "input-value"))
+      case PuzzleCell.WrongInput(value, _) => Some(numberNode(value, `class` = "input-value"))
+      case PuzzleCell.Empty(_)             => None
     }
   }
 

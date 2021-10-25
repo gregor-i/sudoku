@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 import scala.util.chaining.scalaUtilChainingOps
 
 object Validate {
-  def apply(board: OpenSudokuBoard): Option[SolvedSudokuBoard] =
+  def apply(board: OpenSudokuBoard): Option[FilledSudokuBoard] =
     if (board.data.forall(_.isDefined))
       Some(board.map(_.get)).filter(correct)
     else
@@ -18,7 +18,7 @@ object Validate {
   def hasError(board: OpenSudokuBoard, pos: Position): Boolean =
     !noError(board, pos)
 
-  def correct(board: SolvedSudokuBoard): Boolean =
+  def correct(board: FilledSudokuBoard): Boolean =
     SudokuBoard.allSubsets(board.dim).forall {
       _.map(board.get).sorted == SudokuBoard.values(board.dim)
     }

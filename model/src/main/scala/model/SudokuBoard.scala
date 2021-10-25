@@ -2,6 +2,7 @@ package model
 
 import scala.util.Try
 
+// todo: make a covariant
 case class SudokuBoard[A](dim: Dimensions, data: Vector[A]) {
   import dim._
   require(boardSize == data.length, s"required size is ${boardSize}, but is actually ${data.length}")
