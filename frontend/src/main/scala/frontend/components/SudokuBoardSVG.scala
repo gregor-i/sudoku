@@ -4,11 +4,11 @@ import frontend.components.SudokuBoardSVG.Extension
 import model._
 import snabbdom.Node
 
-case class SudokuBoardSVG[A <: PuzzleCell](board: SudokuBoard[A], extension: Extension = SudokuBoardSVG.emptyExtension) {
+case class SudokuBoardSVG(board: SudokuPuzzle, extension: Extension = SudokuBoardSVG.emptyExtension) {
   private val strokeWidth  = 1.0 / 30.0
   private val borderRadius = 1d / 10d
 
-  def extendRects(extension: Extension): SudokuBoardSVG[A] =
+  def extendRects(extension: Extension): SudokuBoardSVG =
     copy(extension = SudokuBoardSVG.and(this.extension, extension))
 
   def toNode: Node = {

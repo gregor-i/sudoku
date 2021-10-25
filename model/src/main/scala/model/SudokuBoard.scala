@@ -2,8 +2,7 @@ package model
 
 import scala.util.Try
 
-// todo: make a covariant
-case class SudokuBoard[A](dim: Dimensions, data: Vector[A]) {
+case class SudokuBoard[+A](dim: Dimensions, data: Vector[A]) {
   import dim._
   require(boardSize == data.length, s"required size is ${boardSize}, but is actually ${data.length}")
 
@@ -21,10 +20,10 @@ case class SudokuBoard[A](dim: Dimensions, data: Vector[A]) {
 
   def get(pos: Position): A = data(toIndex(pos._1, pos._2))
 
-  def set(pos: Position, value: A): SudokuBoard[A] =
-    new SudokuBoard[A](dim, data.updated(toIndex(pos._1, pos._2), value))
+  def set[AA >: A](pos: Position, value: AA): SudokuBoard[AA] =
+    new SudokuBoard[AA](dim, data.updated(toIndex(pos._1, pos._2), value))
 
-  def mod(pos: Position, f: A => A): SudokuBoard[A] = set(pos, f(get(pos)))
+  def mod[AA >: A](pos: Position, f: A => AA): SudokuBoard[AA] = set(pos, f(get(pos)))
 }
 
 object SudokuBoard {

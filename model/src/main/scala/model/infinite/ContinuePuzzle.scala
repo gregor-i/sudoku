@@ -29,15 +29,15 @@ object ContinuePuzzle {
       seed: Int,
       difficulty: Difficulty
   ): SudokuPuzzle = {
-    require(positions.forall(pos => puzzle.get(pos).isCorrectAndFilled))
+    require(puzzle.data.forall(_.isCorrectAndFilled))
 
     val random = Random(seed)
 
     val alternativeSolution = ContinuationOptions(puzzle.map(_.solution), positions.toSet, seed = random.nextInt()).head
 
-    val inputForGenerator: SudokuBoard[PuzzleCell.Empty | PuzzleCell.Given] =
+    val inputForGenerator =
       merge(
-        puzzle.map {
+        puzzle.map[PuzzleCell.Given | PuzzleCell.Empty] {
           case cell: PuzzleCell.Given => cell
           case cell                   => PuzzleCell.Empty(cell.solution)
         },

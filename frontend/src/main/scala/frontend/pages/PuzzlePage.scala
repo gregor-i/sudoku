@@ -26,10 +26,9 @@ case class PuzzleState(
 object PuzzleState {
   val focus = Lens[PuzzleState, Option[Position]](_.focus)(s => t => t.copy(focus = s)(t.globalState))
 
-  def forBoard[A <: PuzzleCell](puzzle: SudokuBoard[A])(using GlobalState): PuzzleState =
+  def forBoard(puzzle: SudokuPuzzle)(using GlobalState): PuzzleState =
     PuzzleState(
-      // fixme: remove this .map
-      board = puzzle.map(x => x: PuzzleCell),
+      board = puzzle,
       focus = None,
       hint = None
     )
