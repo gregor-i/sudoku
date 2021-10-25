@@ -5,7 +5,7 @@ import model.*
 
 import scala.util.Random
 
-private[model] object PerfectSolver extends Solver {
+object PerfectSolver extends Solver {
   override def apply(puzzle: OpenSudokuBoard): SolverResult = {
     val root = SolverNode.initial(puzzle)
 

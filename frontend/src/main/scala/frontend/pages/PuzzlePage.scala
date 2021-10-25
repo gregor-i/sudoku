@@ -4,7 +4,7 @@ import frontend.components.*
 import frontend.util.AsyncUtil
 import frontend.{Context, GlobalState, Page, PageState}
 import model.*
-import model.inifinit.ContinuePuzzle
+import model.infinite.ContinuePuzzle
 import model.solver.{Hint, NextInputHint, WrongInputHint}
 import monocle.Lens
 import org.scalajs.dom.document

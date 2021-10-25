@@ -1,5 +1,5 @@
 package model
-package inifinit
+package infinite
 
 import model.FilledSudokuBoard
 

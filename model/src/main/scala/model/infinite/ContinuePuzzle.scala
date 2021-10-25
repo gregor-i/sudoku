@@ -1,4 +1,4 @@
-package model.inifinit
+package model.infinite
 
 import model.*
 

@@ -1,6 +1,6 @@
 package model
 
-import model.inifinit.ContinuationOptions
+import model.infinite.ContinuationOptions
 import org.scalatest.funsuite.AnyFunSuite
 
 class SudokuBoardTest extends AnyFunSuite {

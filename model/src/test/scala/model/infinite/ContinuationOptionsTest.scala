@@ -1,4 +1,4 @@
-package model.inifinit
+package model.infinite
 
 import model.{Difficulty, Dimensions, Generator, SudokuBoard}
 import org.scalatest.funsuite.AnyFunSuite
