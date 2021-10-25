@@ -48,7 +48,6 @@ object ContinuePuzzle {
     val continuedPuzzle =
       Generator
         .makePuzzle(
-          random = random,
           positions = random.shuffle(positions),
           board = inputForGenerator,
           solver = Solver.forDifficulty(difficulty)
