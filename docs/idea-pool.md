@@ -27,4 +27,3 @@
 * write a custom json Codex for Sudoku boards
 * better / smarter saving of the current puzzle
   * ie: starting a puzzle, exiting the add, reopening the add should show the same puzzle.
-* evaluate performance of PerfectSolver.withShuffle vs. Generator.{swaps, shuffleValues}
