@@ -99,8 +99,8 @@ def monocle = {
   val version = "3.1.0"
 
   libraryDependencies ++= Seq(
-    "dev.optics" %%% "monocle-core"  % version cross CrossVersion.for3Use2_13,
-    "dev.optics" %%% "monocle-macro" % version cross CrossVersion.for3Use2_13
+    "dev.optics" %%% "monocle-core"  % version,
+    "dev.optics" %%% "monocle-macro" % version
   )
 }
 
@@ -117,12 +117,12 @@ def circe = {
 
 def scalatest =
   Seq(
-    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.2.9" % Test,
+    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.2.10" % Test,
     testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
   )
 
 def scalaJsDom =
-  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "1.2.0" cross CrossVersion.for3Use2_13
+  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "2.0.0"
 
 def snabbdom = Seq(
   resolvers += "jitpack" at "https://jitpack.io",

@@ -1,10 +1,11 @@
 package stellarExpansion.serviceWorker
 
-import org.scalajs.dom.experimental.Fetch._
-import org.scalajs.dom.experimental._
-import org.scalajs.dom.experimental.cachestorage.CacheStorage
-import org.scalajs.dom.experimental.serviceworkers.ServiceWorkerGlobalScope.self
-import org.scalajs.dom.experimental.serviceworkers.{ExtendableEvent, FetchEvent}
+import org.scalajs.dom.Fetch.fetch
+import org.scalajs.dom.RequestInfo
+import org.scalajs.dom.Response
+import org.scalajs.dom.CacheStorage
+import org.scalajs.dom.ServiceWorkerGlobalScope.self
+import org.scalajs.dom.{ExtendableEvent, FetchEvent}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
