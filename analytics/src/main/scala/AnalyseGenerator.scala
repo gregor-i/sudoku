@@ -8,6 +8,10 @@ object AnalyseGenerator {
     LazyList
       .iterate(0)(_ + 1)
       .map(seed => Generator(seed = seed, dim = dim, difficulty = difficulty))
+      .map(_.map {
+        case PuzzleCell.Given(value) => Some(value)
+        case PuzzleCell.Empty(_)     => None
+      })
 
   def actuallyEasy(puzzle: OpenSudokuBoard): Boolean =
     Solver.forDifficulty(Difficulty.Easy).canSolve(puzzle)
