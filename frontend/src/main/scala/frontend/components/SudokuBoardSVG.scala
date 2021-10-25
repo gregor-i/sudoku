@@ -4,7 +4,7 @@ import frontend.components.SudokuBoardSVG.Extension
 import model._
 import snabbdom.Node
 
-case class SudokuBoardSVG(board: DecoratedBoard, extension: Extension = SudokuBoardSVG.emptyExtension) {
+case class SudokuBoardSVG(board: SudokuPuzzle, extension: Extension = SudokuBoardSVG.emptyExtension) {
   private val strokeWidth  = 1.0 / 30.0
   private val borderRadius = 1d / 10d
 
@@ -61,7 +61,7 @@ case class SudokuBoardSVG(board: DecoratedBoard, extension: Extension = SudokuBo
       )
   }
 
-  private def numberNode(cell: DecoratedCell): Option[Node] = {
+  private def numberNode(cell: PuzzleCell): Option[Node] = {
     def numberNode(value: Int, `class`: String): Node =
       Node("text")
         .attr("text-anchor", "middle")
@@ -77,9 +77,9 @@ case class SudokuBoardSVG(board: DecoratedBoard, extension: Extension = SudokuBo
         }
 
     cell match {
-      case DecoratedCell.Given(value) => Some(numberNode(value, `class` = "given-value"))
-      case DecoratedCell.Input(value) => Some(numberNode(value, `class` = "input-value"))
-      case DecoratedCell.Empty        => None
+      case PuzzleCell.Given(value)    => Some(numberNode(value, `class` = "given-value"))
+      case PuzzleCell.Input(value, _) => Some(numberNode(value, `class` = "input-value"))
+      case PuzzleCell.Empty(_)        => None
     }
   }
 

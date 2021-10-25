@@ -2,7 +2,7 @@ package frontend.pages
 
 import frontend.components.{Header, Icons, SudokuBoardSVG}
 import frontend.{Page, PageState}
-import model.DecoratedCell.{Given, Input}
+import model.PuzzleCell.{Given, Input}
 import model._
 import monocle.Lens
 import org.scalajs.dom
@@ -13,8 +13,8 @@ import scala.util.Random
 import monocle.syntax.all._
 import frontend.GlobalState
 
-case class FinishedPuzzleState(board: DecoratedBoard)(implicit val globalState: GlobalState) extends PageState {
-  require(board.data.forall(_.toOption.isDefined))
+case class FinishedPuzzleState(board: SudokuPuzzle)(implicit val globalState: GlobalState) extends PageState {
+  require(board.data.forall(cell => cell.isGiven || cell.isInput))
 
   def setGlobalState(globalState: GlobalState): FinishedPuzzleState = copy()(globalState = globalState)
 }

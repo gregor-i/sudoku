@@ -1,6 +1,6 @@
 package model.solver
 
-import model.{DecoratedBoard, DecoratedCell, OpenSudokuBoard, Position, Solver, SudokuBoard}
+import model.{SudokuPuzzle, PuzzleCell, OpenSudokuBoard, Position, Solver, SudokuBoard}
 
 sealed trait Hint
 case class NextInputHint(
@@ -15,43 +15,36 @@ case class WrongInputHint(
 ) extends Hint
 
 object Hint {
-  def of(board: DecoratedBoard): Option[Hint] = {
+  def of(board: SudokuPuzzle): Option[Hint] = {
     wrongInputHint(board) orElse nextInputHint(board)
   }
 
-  private def nextInputHint(board: DecoratedBoard): Option[Hint] = {
-    val openBoard = board.map(_.toOption)
+  private def nextInputHint(board: SudokuPuzzle): Option[Hint] = {
+    val openBoard = board.map(_.visible)
     val node      = SolverNode.initial(openBoard)
     UniqueOptionInSubset.hint(node) orElse SingleOptionForPosition.hint(node)
   }
 
-  private def wrongInputHint(board: DecoratedBoard): Option[Hint] = {
+  private def wrongInputHint(board: SudokuPuzzle): Option[Hint] = {
     val givens = board.map {
-      case DecoratedCell.Given(value) => Some(value)
-      case _                          => None
+      case PuzzleCell.Given(value) => Some(value)
+      case _                       => None
     }
 
-    val solution = Solver.perfectSolver(givens).uniqueSolution
-
-    solution.flatMap {
-      solution =>
-        SudokuBoard
-          .positions(board.dim)
-          .map {
-            pos => (pos, board.get(pos), solution.get(pos))
-          }
-          .collectFirst {
-            case (pos, DecoratedCell.Input(input), solution) if input != solution =>
-              WrongInputHint(
-                position = pos,
-                relatedPositions = SudokuBoard
-                  .allSubsetsOf(pos)(board.dim)
-                  .flatten
-                  .filter(_ != pos)
-                  .filter(pos => board.get(pos).toOption.contains(input))
-                  .toSet
-              )
-          }
-    }
+    SudokuBoard
+      .positions(board.dim)
+      .map(pos => (pos, board.get(pos)))
+      .collectFirst {
+        case (pos, PuzzleCell.Input(input, solution)) if input != solution =>
+          WrongInputHint(
+            position = pos,
+            relatedPositions = SudokuBoard
+              .allSubsetsOf(pos)(board.dim)
+              .flatten
+              .filter(_ != pos)
+              .filter(pos => board.get(pos).visible.contains(input))
+              .toSet
+          )
+      }
   }
 }

@@ -10,7 +10,7 @@ class EasySolverTest extends AnyFunSuite {
     for (seed <- 0 until 100) {
       val puzzle = Generator(dim = Dimensions(3, 3), seed = seed, difficulty = Difficulty.Easy)
 
-      assert(EasySolver(puzzle).uniqueSolution.isDefined)
+      assert(EasySolver(puzzle.map(_.visible)).uniqueSolution.isDefined)
     }
   }
 

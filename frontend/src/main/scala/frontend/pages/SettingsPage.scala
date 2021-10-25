@@ -2,7 +2,7 @@ package frontend.pages
 
 import frontend.components.{Header, Icons}
 import frontend.{Context, GlobalState, Page, PageState}
-import model.{DecoratedBoard, Difficulty, Dimensions}
+import model.{SudokuPuzzle, Difficulty, Dimensions}
 import monocle.{Lens, PLens}
 import org.scalajs.dom.raw.HTMLSelectElement
 import snabbdom.{Event, Node}
@@ -37,7 +37,7 @@ object SettingsPage extends Page[SettingsState] {
         "div.grid-footer.my-2.buttons".child(buttons(globalState.lastPuzzle))
       )
 
-  private def buttons(lastPuzzle: Option[DecoratedBoard])(using Context) = {
+  private def buttons(lastPuzzle: Option[SudokuPuzzle])(using Context) = {
     val playButton = Button(
       text = localized.playNewGame,
       icon = Icons.generate,

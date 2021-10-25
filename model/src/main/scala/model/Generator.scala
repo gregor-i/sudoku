@@ -6,7 +6,7 @@ import scala.util.chaining._
 object Generator {
   private type Swap = (Position, Position)
 
-  def apply(dim: Dimensions, seed: Int, difficulty: Difficulty): OpenSudokuBoard = {
+  def apply(dim: Dimensions, seed: Int, difficulty: Difficulty): SudokuPuzzle = {
     val random = new Random(seed)
     initialBoard(dim)
       .pipe(swapRowsAndColumns(random.nextInt(), _))
@@ -83,20 +83,20 @@ object Generator {
       seed: Int,
       solvedBoard: SolvedSudokuBoard,
       difficulty: Difficulty
-  ): OpenSudokuBoard = {
+  ): SudokuPuzzle = {
     val random            = new Random(seed)
     val shuffledPositions = SudokuBoard.positions(solvedBoard.dim).pipe(random.shuffle(_))
-    val board             = solvedBoard.map[Option[Int]](Some.apply)
+    val board             = solvedBoard.map[PuzzleCell](PuzzleCell.Given.apply)
     val solver            = Solver.forDifficulty(difficulty)
 
     makePuzzle(random = random, positions = shuffledPositions, board = board, solver = solver)
   }
 
-  def makePuzzle(random: Random, positions: Seq[Position], board: OpenSudokuBoard, solver: Solver): OpenSudokuBoard = {
+  def makePuzzle(random: Random, positions: Seq[Position], board: SudokuPuzzle, solver: Solver): SudokuPuzzle = {
     positions.foldLeft(board) {
       (board, position) =>
-        val reducedBoard = board.set(position, None)
-        if (solver(reducedBoard).uniqueSolution.isDefined)
+        val reducedBoard = board.mod(position, cell => PuzzleCell.Empty(cell.solution))
+        if (solver(reducedBoard.map(_.visible)).uniqueSolution.isDefined)
           reducedBoard
         else
           board

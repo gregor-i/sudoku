@@ -10,9 +10,9 @@ class GeneratorTest extends AnyFunSuite {
   } test(s"apply constructs a puzzle (dim = ${dim}), seed = ${seed}, difficulty = ${difficulty}) with an unique solution") {
     val puzzle = Generator(dim, seed, difficulty)
 
-    assert(puzzle.data.count(_.isDefined) < dim.boardSize)
-
-    assert(Solver.perfectSolver.apply(puzzle).uniqueSolution.isDefined)
+    assert(puzzle.data.count(_.isGiven) < dim.boardSize)
+    assert(puzzle.data.count(_.isInput) == 0)
+    assert(Solver.perfectSolver.apply(puzzle.map(_.visible)).uniqueSolution.isDefined)
   }
 
   test(s"initialBoard constructs a solved sudoku board") {

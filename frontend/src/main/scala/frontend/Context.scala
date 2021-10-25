@@ -2,7 +2,6 @@ package frontend
 
 import model.{Difficulty, Dimensions}
 import monocle.Lens
-import model.DecoratedBoard
 
 sealed trait Context[+S <: PageState] {
   def local: S

@@ -5,5 +5,5 @@ package object model {
   type SolvedSudokuBoard  = SudokuBoard[Int]
   type OpenSudokuBoard    = SudokuBoard[Option[Int]]
   type OptionsSudokuBoard = SudokuBoard[Set[Int]]
-  type DecoratedBoard     = SudokuBoard[DecoratedCell]
+  type SudokuPuzzle       = SudokuBoard[PuzzleCell]
 }

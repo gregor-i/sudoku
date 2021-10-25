@@ -7,15 +7,8 @@ import scala.util.Random
 import scala.util.chaining.*
 
 object ContinuePuzzle {
-  def maybeContinue(puzzle: DecoratedBoard, seed: Int, difficulty: Difficulty): Option[DecoratedBoard] = {
-    val solution = Solver
-      .perfectSolver(puzzle.map {
-        case DecoratedCell.Given(value) => Some(value)
-        case _                          => None
-      })
-      .uniqueSolution
-      .get
-    def subsetIsCompleted(subset: Subset): Boolean = subset.forall(pos => puzzle.get(pos).toOption.contains(solution.get(pos)))
+  def maybeContinue(puzzle: SudokuPuzzle, seed: Int, difficulty: Difficulty): Option[SudokuPuzzle] = {
+    def subsetIsCompleted(subset: Subset): Boolean = subset.forall(pos => puzzle.get(pos).isCorrectAndFilled)
 
     val completedRowsAndColumns = SudokuBoard
       .columnBlocks(puzzle.dim)
@@ -25,32 +18,27 @@ object ContinuePuzzle {
       .distinct
 
     if (completedRowsAndColumns.nonEmpty)
-      Some(apply(solution, puzzle, completedRowsAndColumns, seed, difficulty))
+      Some(apply(puzzle, completedRowsAndColumns, seed, difficulty))
     else
       None
   }
 
   def apply(
-      solution: SolvedSudokuBoard,
-      puzzle: DecoratedBoard,
+      puzzle: SudokuPuzzle,
       positions: Seq[Position],
       seed: Int,
       difficulty: Difficulty
-  ): DecoratedBoard = {
-    require(solution.dim == puzzle.dim)
-    require(positions.forall(pos => puzzle.get(pos).toOption.contains(solution.get(pos))))
+  ): SudokuPuzzle = {
+    require(positions.forall(pos => puzzle.get(pos).isCorrectAndFilled))
 
     val random = Random(seed)
 
-    val alternativeSolution = ContinuationOptions(solution, positions.toSet, seed = random.nextInt()).head
+    val alternativeSolution = ContinuationOptions(puzzle.map(_.solution), positions.toSet, seed = random.nextInt()).head
 
-    val inputForGenerator =
+    val inputForGenerator: SudokuPuzzle =
       merge(
-        puzzle.map {
-          case DecoratedCell.Given(value) => Some(value)
-          case _                          => None
-        },
-        alternativeSolution.map[Option[Int]](Some.apply),
+        puzzle,
+        alternativeSolution.map(PuzzleCell.Given.apply),
         positions
       )
 
@@ -62,10 +50,6 @@ object ContinuePuzzle {
           board = inputForGenerator,
           solver = Solver.forDifficulty(difficulty)
         )
-        .map {
-          case Some(value) => DecoratedCell.Given(value)
-          case None        => DecoratedCell.Empty
-        }
 
     merge(puzzle, continuedPuzzle, positions)
   }

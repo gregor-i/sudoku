@@ -25,9 +25,6 @@
 ## technical stuff
 
 * write a custom json Codex for Sudoku boards
-* puzzle state should know the solution to its puzzle
-  * make the generator return the solution and the puzzle
-  * use the solution for infinite sudoku checks. continue puzzle should return the new solution.
 * better / smarter saving of the current puzzle
   * ie: starting a puzzle, exiting the add, reopening the add should show the same puzzle.
 * evaluate performance of PerfectSolver.withShuffle vs. Generator.{swaps, shuffleValues}
