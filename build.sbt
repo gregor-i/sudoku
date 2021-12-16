@@ -110,8 +110,6 @@ def circe = {
     "io.circe" %%% "circe-core"    % version,
     "io.circe" %%% "circe-generic" % version,
     "io.circe" %%% "circe-parser"  % version,
-    // todo: this transitive dependency should be supplied by circe
-    "org.typelevel" %%% "cats-core" % "2.6.1"
   )
 }
 
