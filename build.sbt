@@ -109,7 +109,7 @@ def circe = {
   libraryDependencies ++= Seq(
     "io.circe" %%% "circe-core"    % version,
     "io.circe" %%% "circe-generic" % version,
-    "io.circe" %%% "circe-parser"  % version,
+    "io.circe" %%% "circe-parser"  % version
   )
 }
 
