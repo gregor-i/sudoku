@@ -40,7 +40,7 @@ class App(container: Element) {
       case Some(lastPuzzle) => PuzzleState.forBoard(lastPuzzle)(using globalState)
       case None =>
         PuzzleState.loading(
-          seed = Random.nextInt(),
+          seed = Random.nextLong(),
           desiredDifficulty = globalState.difficulty,
           dimensions = globalState.dimensions
         )(using globalState)

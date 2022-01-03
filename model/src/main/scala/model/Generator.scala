@@ -6,7 +6,7 @@ import scala.util.Random
 import scala.util.chaining.*
 
 object Generator {
-  def apply(dim: Dimensions, seed: Int, difficulty: Difficulty): FreshSudokuPuzzle = {
+  def apply(dim: Dimensions, seed: Long, difficulty: Difficulty): FreshSudokuPuzzle = {
     val random = new Random(seed)
 
     val fristRow = random.shuffle(SudokuBoard.values(dim))

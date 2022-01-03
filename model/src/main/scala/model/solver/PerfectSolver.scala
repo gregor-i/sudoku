@@ -23,7 +23,7 @@ object PerfectSolver extends PerfectSolver {
     TreeTraversal.traverseLeaves(root, children).flatMap(t => Validate(t.board))
   }
 
-  def withShuffle(seed: Int) = new PerfectSolver {
+  def withShuffle(seed: Long) = new PerfectSolver {
     override def allSolutions(puzzle: OpenSudokuBoard): LazyList[FilledSudokuBoard] = {
       val random = new Random(seed)
       val root   = SolverNode.initial(puzzle)

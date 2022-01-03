@@ -33,13 +33,13 @@ object PuzzleState {
       hint = None
     )
 
-  def process(seed: Int, desiredDifficulty: Difficulty, dimensions: Dimensions)(using GlobalState): Future[PuzzleState] =
+  def process(seed: Long, desiredDifficulty: Difficulty, dimensions: Dimensions)(using GlobalState): Future[PuzzleState] =
     AsyncUtil.future {
       val board = Generator(dimensions, seed, desiredDifficulty)
       forBoard(board)
     }
 
-  def loading(seed: Int, desiredDifficulty: Difficulty, dimensions: Dimensions)(using GlobalState): LoadingState =
+  def loading(seed: Long, desiredDifficulty: Difficulty, dimensions: Dimensions)(using GlobalState): LoadingState =
     LoadingState(process(seed, desiredDifficulty, dimensions))
 }
 

@@ -40,7 +40,7 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] {
         Icons.generate,
         setState(
           PuzzleState.loading(
-            seed = Random.nextInt(),
+            seed = Random.nextLong(),
             dimensions = globalState.dimensions,
             desiredDifficulty = globalState.difficulty
           )(using globalState)

@@ -42,7 +42,7 @@ object SettingsPage extends Page[SettingsState] {
       text = localized.playNewGame,
       icon = Icons.generate,
       onclick = setState(
-        PuzzleState.loading(seed = Random.nextInt(), globalState.difficulty, globalState.dimensions)(using globalState)
+        PuzzleState.loading(seed = Random.nextLong(), globalState.difficulty, globalState.dimensions)(using globalState)
       )
     ).style("flex", "auto 1")
 
