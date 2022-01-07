@@ -6,7 +6,7 @@ import scala.util.Random
 import scala.util.chaining.*
 
 object Generator {
-  def apply(dim: Dimensions, seed: Long, difficulty: Difficulty): FreshSudokuPuzzle = {
+  def apply(dim: Dimensions, seed: Long, difficulty: Difficulty, pattern: Pattern = NoPattern): FreshSudokuPuzzle = {
     val random = new Random(seed)
 
     val fristRow = random.shuffle(SudokuBoard.values(dim))
@@ -17,20 +17,21 @@ object Generator {
       }
 
     makePuzzle(
-      positions = SudokuBoard.positions(dim).pipe(random.shuffle(_)),
+      positions = pattern.groups(dim).pipe(random.shuffle(_)),
       board = PerfectSolver.withShuffle(seed).allSolutions(seededBoard).head.map(PuzzleCell.Given.apply),
       solver = Solver.forDifficulty(difficulty)
     )
   }
 
   def makePuzzle(
-      positions: Seq[Position],
+      positions: Seq[Seq[Position]],
       board: FreshSudokuPuzzle,
       solver: Solver
   ): FreshSudokuPuzzle = {
     positions.foldLeft(board) {
-      (board, position) =>
-        val reducedBoard = board.mod(position, cell => PuzzleCell.Empty(cell.solution))
+      (board, positions) =>
+        val reducedBoard =
+          positions.foldLeft(board)((board, position) => board.mod(position, cell => PuzzleCell.Empty(cell.solution)))
         if (solver.canSolve(reducedBoard.map(_.visible)))
           reducedBoard
         else

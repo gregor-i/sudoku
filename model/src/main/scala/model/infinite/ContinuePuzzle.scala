@@ -33,7 +33,7 @@ object ContinuePuzzle {
       val continuedPuzzle =
         Generator
           .makePuzzle(
-            positions = random.shuffle(positions),
+            positions = random.shuffle(positions).map(List(_)),
             board = inputForGenerator,
             solver = Solver.forDifficulty(difficulty)
           )

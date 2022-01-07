@@ -35,7 +35,7 @@ object PuzzleState {
 
   def process(seed: Long, desiredDifficulty: Difficulty, dimensions: Dimensions)(using GlobalState): Future[PuzzleState] =
     AsyncUtil.future {
-      val board = Generator(dimensions, seed, desiredDifficulty)
+      val board = Generator(dimensions, seed, desiredDifficulty, pattern = RotationalSymmetry)
       forBoard(board)
     }
 

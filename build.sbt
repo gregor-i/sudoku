@@ -6,7 +6,6 @@ name := "sudoku"
 
 ThisBuild / scalaVersion := "3.1.2"
 ThisBuild / scalacOptions ++= Seq("-feature", "-deprecation")
-ThisBuild / scalafmtOnCompile := scala.sys.env.get("CI").isEmpty
 
 // projects
 lazy val root = project

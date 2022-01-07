@@ -3,6 +3,7 @@ package frontend
 import frontend.pages.PuzzleState
 import io.circe.parser
 import io.circe.syntax.*
+import model.MirrorXYAxis
 import org.scalajs.dom
 import org.scalajs.dom.Element
 import snabbdom.{PatchFunction, Snabbdom, VNode}
