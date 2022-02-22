@@ -18,7 +18,7 @@ object Main {
     dom.document.addEventListener[Event](
       "DOMContentLoaded",
       (_: js.Any) => {
-        val container = dom.document.createElement("stellar-expansion-app")
+        val container = dom.document.createElement("sudoku-app")
         dom.document.body.appendChild(container)
         new App(container)
       }
