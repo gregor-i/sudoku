@@ -4,7 +4,7 @@ import org.scalajs.linker.interface.ModuleSplitStyle
 
 name := "sudoku"
 
-ThisBuild / scalaVersion := "3.1.3"
+ThisBuild / scalaVersion := "3.2.0"
 ThisBuild / scalacOptions ++= Seq("-feature", "-deprecation")
 ThisBuild / scalafmtOnCompile := scala.sys.env.get("CI").isEmpty
 
