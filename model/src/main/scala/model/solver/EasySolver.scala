@@ -5,6 +5,7 @@ import model._
 object EasySolver extends Solver {
   def solve(puzzle: OpenSudokuBoard): Option[FilledSudokuBoard] =
     SolvingStrategy.solveWithStrategy(puzzle) {
-      SingleOptionForPosition.solve
+      node =>
+        UniqueOptionInSubset.solve(node).toSet.intersect(SingleOptionForPosition.solve(node).toSet)
     }
 }
