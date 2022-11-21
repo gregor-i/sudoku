@@ -124,7 +124,7 @@ def scalaJsDom =
 
 def snabbdom = Seq(
   resolvers += "jitpack" at "https://jitpack.io",
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "scalajs-snabbdom" % "1.2.6" cross CrossVersion.for3Use2_13,
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-toasts"  % "1.2.6" cross CrossVersion.for3Use2_13,
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-components" % "1.2.6" cross CrossVersion.for3Use2_13
+  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "scalajs-snabbdom" % "1.3.0" cross CrossVersion.for3Use2_13,
+  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-toasts"  % "1.3.0" cross CrossVersion.for3Use2_13,
+  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-components" % "1.3.0" cross CrossVersion.for3Use2_13
 )
