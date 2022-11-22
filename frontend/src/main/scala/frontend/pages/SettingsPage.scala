@@ -4,7 +4,6 @@ import frontend.components.{Header, Icons}
 import frontend.{Context, GlobalState, Page, PageState}
 import model.{SudokuPuzzle, Difficulty, Dimensions}
 import monocle.{Lens, PLens}
-import org.scalajs.dom.raw.HTMLSelectElement
 import snabbdom.{Event, Node}
 import snabbdom.components.{Button, Modal}
 

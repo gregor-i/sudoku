@@ -1,23 +1,21 @@
-package stellarExpansion.serviceWorker
+package serviceWorker
 
 import org.scalajs.dom.Fetch.fetch
-import org.scalajs.dom.RequestInfo
-import org.scalajs.dom.Response
-import org.scalajs.dom.CacheStorage
 import org.scalajs.dom.ServiceWorkerGlobalScope.self
-import org.scalajs.dom.{ExtendableEvent, FetchEvent}
+import org.scalajs.dom.*
+import org.scalajs.dom
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.Dynamic
-import scala.scalajs.js.JSConverters._
-import scala.util.chaining._
+import scala.scalajs.js.JSConverters.*
+import scala.util.chaining.*
 
 object Main {
   val assetCacheName = "assets"
 
-  val assets =
+  val assets: js.Array[dom.RequestInfo] =
     buildinfo.BuildInfo.assetFiles
       .split("\n")
       .filter(_ != "CNAME")

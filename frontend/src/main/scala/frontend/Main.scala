@@ -1,8 +1,7 @@
 package frontend
 
 import org.scalajs.dom
-import org.scalajs.dom.Event
-import org.scalajs.dom.experimental.serviceworkers.{ServiceWorkerContainer, ServiceWorkerRegistration}
+import org.scalajs.dom.{Event, ServiceWorkerContainer, ServiceWorkerRegistrationOptions}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -30,7 +29,9 @@ object Main {
       navigator <- Future {
         Dynamic.global.navigator.serviceWorker.asInstanceOf[ServiceWorkerContainer]
       }.filter(!js.isUndefined(_))
-      registration <- navigator.register("/sw.js", Dynamic.literal(scope = "/")).toFuture
+      registration <- navigator
+        .register("/sw.js", Dynamic.literal(scope = "/").asInstanceOf[ServiceWorkerRegistrationOptions])
+        .toFuture
       _ = registration.addEventListener(
         "updatefound",
         (_: js.Any) => {
@@ -40,7 +41,7 @@ object Main {
       )
     } yield registration)
       .onComplete {
-        case Success(_: ServiceWorkerRegistration) =>
+        case Success(_) =>
           dom.console.log("[Service Worker] registration successful")
         case Failure(_) =>
           dom.console.log("[Service Worker] registration failed")
