@@ -1,5 +1,5 @@
 // build
-addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.2.0")
+addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.0")
 addSbtPlugin("org.scalameta"      % "sbt-scalafmt"             % "2.5.0")
 
 // js
