@@ -1,27 +1,21 @@
 package frontend
 
-import frontend.pages.PuzzleState
+import com.raquo.airstream.state.Var
+import com.raquo.laminar.api.L.*
+import frontend.PageState.PuzzleState
 import io.circe.parser
 import io.circe.syntax.*
 import org.scalajs.dom
 import org.scalajs.dom.Element
-import snabbdom.{PatchFunction, Snabbdom, VNode}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js.{UndefOr, |}
 import scala.util.Random
 
 class App(container: Element) {
 
-  var node: Element | VNode = container
-  var timeout: Option[Int]  = None
-
-  val patch: PatchFunction = Snabbdom.init(
-    classModule = true,
-    attributesModule = true,
-    styleModule = true,
-    eventlistenersModule = true,
-    propsModule = true
-  )
+  val globalState = Var[GlobalState](loadGlobalState().getOrElse(GlobalState.initial))
+  val pageState   = Var[PageState] { PageState.initial(globalState.now()) }
 
   private def saveGlobalState(globalState: GlobalState): Unit =
     dom.window.localStorage.setItem("globalState", globalState.asJson.noSpaces)
@@ -33,31 +27,7 @@ class App(container: Element) {
       .toOption
       .flatMap(parser.decode[GlobalState](_).toOption)
 
-  def start(): Unit = {
-    val globalState = loadGlobalState().getOrElse(GlobalState.initial)
+  def ui = div("Dummy")
 
-    val pageState = globalState.lastPuzzle match {
-      case Some(lastPuzzle) => PuzzleState.forBoard(lastPuzzle)(using globalState)
-      case None =>
-        PuzzleState.loading(
-          seed = Random.nextLong(),
-          desiredDifficulty = globalState.difficulty,
-          dimensions = globalState.dimensions
-        )(using globalState)
-    }
-
-    renderState(pageState)
-  }
-
-  def renderState(state: PageState): Unit = {
-    saveGlobalState(state.globalState)
-
-    val context = Context(state, renderState)
-
-    node = patch(node, Pages.ui(context).toVNode)
-  }
-
-  dom.window.onpopstate = _ => ()
-
-  start()
+  render(container, ui)
 }

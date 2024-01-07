@@ -1,21 +1,20 @@
 {
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.15",
-    "bulma": "^0.9",
-    "snabbdom": "^3.1.0"
+    "@fortawesome/fontawesome-free": "^6.5.1",
+    "bulma": "^0.9"
   },
   "devDependencies": {
-    "esbuild": "^0.13.2",
-    "nodemon": "^2.0",
+    "esbuild": "^0.19.9",
+    "nodemon": "^3.0.2",
     "npm-run-all": "^4.1",
-    "sass": "^1.42"
+    "sass": "^1.69.5"
   },
   "scripts": {
     "develop": "run-p mkdir server watch",
     "mkdir": "mkdir build  -p",
     "server": "esbuild --serve=8080 --servedir=build",
     "watch": "run-p watch-*",
-    "watch-frontend": "sbt ~frontend/compile",
+    "watch-frontend": "sbt ~frontend/fastOptJS",
     "watch-static": "nodemon --watch frontend/src/main/static -e '*' --exec 'npm run build-static'",
     "watch-css": "nodemon --watch frontend/src/main/css -e '*' --exec 'npm run build-css'",
     "watch-fa": "nodemon --watch node_modules/@fortawesome -e '*' --exec 'npm run build-fa'",

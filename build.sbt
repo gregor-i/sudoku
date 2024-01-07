@@ -1,12 +1,12 @@
-import scala.sys.process._
+import scala.sys.process.*
 import org.scalajs.sbtplugin.Stage
 import org.scalajs.linker.interface.ModuleSplitStyle
+import sbt.Keys.libraryDependencies
 
 name := "sudoku"
 
-ThisBuild / scalaVersion := "3.2.1"
+ThisBuild / scalaVersion := "3.3.1"
 ThisBuild / scalacOptions ++= Seq("-feature", "-deprecation")
-ThisBuild / scalafmtOnCompile := scala.sys.env.get("CI").isEmpty
 
 // projects
 lazy val root = project
@@ -27,9 +27,12 @@ lazy val frontend = project
     scalaJSLinkerConfig ~= {
       _.withModuleKind(ModuleKind.ESModule)
 //      .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
-    }
+    },
+    libraryDependencies += "com.raquo" %%% "laminar" % "16.0.0",
+    Compile / fastOptJS / artifactPath  := (ThisBuild / baseDirectory).value / "build" / "app.js",
+    Compile / fullOptJS / artifactPath  := (ThisBuild / baseDirectory).value / "build" / "app.js"
   )
-  .settings(monocle, scalatest, snabbdom, circe)
+  .settings(monocle, scalatest, circe)
 
 val `service-worker` = project
   .in(file("service-worker"))
@@ -49,26 +52,6 @@ val analytics = project
   .dependsOn(model.jvm)
 
 // tasks
-
-frontend / compile := Def.taskDyn {
-  val stage = (frontend / Compile / scalaJSStage).value
-  val ret   = (frontend / Compile / compile).value
-  stage match {
-    case Stage.FullOpt =>
-      (frontend / Compile / fullOptJS).map {
-        file =>
-          Seq("./node_modules/.bin/esbuild", file.data.getAbsolutePath, "--outfile=build/app.js", "--bundle", "--minify").!
-          ret
-      }
-
-    case Stage.FastOpt =>
-      (frontend / Compile / fastOptJS).map {
-        file =>
-          Seq("./node_modules/.bin/esbuild", file.data.getAbsolutePath, "--outfile=build/app.js", "--bundle").!
-          ret
-      }
-  }
-}.value
 
 `service-worker` / compile := Def.taskDyn {
   val stage = (`service-worker` / Compile / scalaJSStage).value
@@ -121,10 +104,3 @@ def scalatest =
 
 def scalaJsDom =
   libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "2.4.0"
-
-def snabbdom = Seq(
-  resolvers += "jitpack" at "https://jitpack.io",
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "scalajs-snabbdom" % "1.3.0" cross CrossVersion.for3Use2_13,
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-toasts"  % "1.3.0" cross CrossVersion.for3Use2_13,
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-components" % "1.3.0" cross CrossVersion.for3Use2_13
-)
