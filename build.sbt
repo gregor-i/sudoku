@@ -1,12 +1,10 @@
 import scala.sys.process._
 import org.scalajs.sbtplugin.Stage
-import org.scalajs.linker.interface.ModuleSplitStyle
 
 name := "sudoku"
 
 ThisBuild / scalaVersion := "3.2.1"
 ThisBuild / scalacOptions ++= Seq("-feature", "-deprecation")
-ThisBuild / scalafmtOnCompile := scala.sys.env.get("CI").isEmpty
 
 // projects
 lazy val root = project
@@ -26,7 +24,6 @@ lazy val frontend = project
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= {
       _.withModuleKind(ModuleKind.ESModule)
-//      .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
     }
   )
   .settings(monocle, scalatest, snabbdom, circe)
