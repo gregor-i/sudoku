@@ -46,5 +46,5 @@ COPY frontend/src/main/static build
 COPY --from=build-sw /app/build/sw.js /app/build/sw.js
 COPY --from=build-css /app/build/app.css /app/build/app.css
 COPY --from=build-frontend /app/build/app.js /app/build/app.js
-EXPOSE 80
-CMD ["busybox", "httpd", "-f", "-v", "-h", "/app/build"]
+EXPOSE 8080
+CMD ["busybox", "httpd", "-f", "-v", "-p", "8080", "-h", "/app/build"]
