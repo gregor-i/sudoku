@@ -6,13 +6,12 @@ mkSbtDerivation {
 
   src = fs.toSource {
     root = ./..;
-    fileset = fs.unions
-      [
-        ../build.sbt
-        ../project/plugins.sbt
-        ../project/build.properties
-        ../service-worker/src/main
-      ];
+    fileset = fs.unions [
+      ../build.sbt
+      ../project/plugins.sbt
+      ../project/build.properties
+      ../service-worker/src/main
+    ];
   };
 
   inherit assets;

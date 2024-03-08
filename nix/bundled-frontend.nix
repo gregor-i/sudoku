@@ -6,10 +6,7 @@ pkgs.buildNpmPackage {
 
   src = fs.toSource {
     root = ./..;
-    fileset = fs.unions
-      [
-        ../package-lock.json
-      ];
+    fileset = fs.unions [ ../package-lock.json ];
   };
 
   dontNpmBuild = true;

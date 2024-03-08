@@ -6,14 +6,13 @@ mkSbtDerivation {
 
   src = fs.toSource {
     root = ./..;
-    fileset = fs.unions
-      [
-        ../build.sbt
-        ../project/plugins.sbt
-        ../project/build.properties
-        ../model/src/main
-        ../frontend/src/main
-      ];
+    fileset = fs.unions [
+      ../build.sbt
+      ../project/plugins.sbt
+      ../project/build.properties
+      ../model/src/main
+      ../frontend/src/main
+    ];
   };
 
   depsWarmupCommand = "sbt frontend/fullLinkJS";
