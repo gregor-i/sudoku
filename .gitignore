@@ -4,7 +4,8 @@
 .sass-cache/
 .bsp/
 
-build/
+result
+result/
 
 target/
 

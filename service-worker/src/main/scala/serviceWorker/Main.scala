@@ -18,7 +18,6 @@ object Main {
   val assets: js.Array[dom.RequestInfo] =
     buildinfo.BuildInfo.assetFiles
       .split("\n")
-      .filter(_ != "CNAME")
       .map[RequestInfo](fileName => "/" + fileName)
       .toJSArray
 

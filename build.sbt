@@ -1,10 +1,8 @@
-import scala.sys.process._
-import org.scalajs.sbtplugin.Stage
-
 name := "sudoku"
 
 ThisBuild / scalaVersion := "3.2.1"
 ThisBuild / scalacOptions ++= Seq("-feature", "-deprecation")
+ThisBuild / fork := true
 
 // projects
 lazy val root = project
@@ -36,7 +34,7 @@ val `service-worker` = project
   .settings(
     buildInfoKeys := Seq(
       BuildInfoKey.action("buildTime") { System.currentTimeMillis },
-      BuildInfoKey.action("assetFiles") { "ls build".!! }
+      BuildInfoKey.action("assetFiles") { sys.env.getOrElse("ASSET_FILES", "") }
     )
   )
   .settings(scalaJsDom)
@@ -44,51 +42,6 @@ val `service-worker` = project
 val analytics = project
   .in(file("analytics"))
   .dependsOn(model.jvm)
-
-// tasks
-
-frontend / compile := Def.taskDyn {
-  val stage = (frontend / Compile / scalaJSStage).value
-  val ret   = (frontend / Compile / compile).value
-  stage match {
-    case Stage.FullOpt =>
-      (frontend / Compile / fullOptJS).map {
-        file =>
-          Seq("./node_modules/.bin/esbuild", file.data.getAbsolutePath, "--outfile=build/app.js", "--bundle", "--minify").!
-          ret
-      }
-
-    case Stage.FastOpt =>
-      (frontend / Compile / fastOptJS).map {
-        file =>
-          Seq("./node_modules/.bin/esbuild", file.data.getAbsolutePath, "--outfile=build/app.js", "--bundle").!
-          ret
-      }
-  }
-}.value
-
-`service-worker` / compile := Def.taskDyn {
-  val stage = (`service-worker` / Compile / scalaJSStage).value
-  val ret   = (`service-worker` / Compile / compile).value
-  val buildFrontendTask = stage match {
-    case Stage.FullOpt => (`service-worker` / Compile / fullOptJS)
-    case Stage.FastOpt => (`service-worker` / Compile / fastOptJS)
-  }
-  streams.value.log.info(s"integrating frontend (${stage})")
-  buildFrontendTask.map {
-    buildFrontend =>
-      val outputFile = "build/sw.js"
-      Seq("cp", buildFrontend.data.toString, outputFile).!!
-      ret
-  }
-}.value
-
-root / Compile / compile := Def
-  .sequential(
-    (frontend / Compile / compile),
-    (`service-worker` / Compile / compile)
-  )
-  .value
 
 // dependencies
 
