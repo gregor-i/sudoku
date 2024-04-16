@@ -38,7 +38,8 @@
         };
 
         dockerImage = pkgs.dockerTools.buildLayeredImage {
-          name = "sudoku";
+          name = "gregor23/sudoku";
+          tag = self.rev or "dirty";
           config.Cmd = [
             "${pkgs.static-web-server}/bin/static-web-server"
             "-p"
