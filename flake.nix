@@ -14,19 +14,20 @@
         mkSbtDerivation = sbtDerivation.mkSbtDerivation.${system};
         sbt = pkgs.sbt;
 
-        compiledScalaFrontend =
-          import nix/compiled-frontend.nix { inherit mkSbtDerivation fs sbt; };
-        bundledScalaFrontend = import nix/bundled-frontend.nix {
+        compiledScalaFrontend = pkgs.callPackage nix/compiled-frontend.nix {
+          inherit mkSbtDerivation fs sbt;
+        };
+        bundledScalaFrontend = pkgs.callPackage nix/bundled-frontend.nix {
           inherit fs pkgs compiledScalaFrontend;
         };
-        styles = import nix/styles.nix { inherit fs pkgs; };
+        styles = pkgs.callPackage nix/styles.nix { inherit fs pkgs; };
 
         assetsWithoutServiceWorker = pkgs.symlinkJoin {
           name = "assets";
           paths = [ bundledScalaFrontend styles ./frontend/src/main/static ];
         };
 
-        serviceWorker = (import nix/service-worker.nix) {
+        serviceWorker = pkgs.callPackage nix/service-worker.nix {
           inherit mkSbtDerivation fs sbt;
           assets = assetsWithoutServiceWorker;
         };
@@ -36,17 +37,15 @@
           paths = [ assetsWithoutServiceWorker serviceWorker ];
         };
 
-        dockerImage = pkgs.dockerTools.buildImage {
+        dockerImage = pkgs.dockerTools.buildLayeredImage {
           name = "sudoku";
-
-          copyToRoot = pkgs.buildEnv {
-            name = "image-root";
-            paths = [ pkgs.static-web-server assets ];
-            pathsToLink = [ "/bin" ];
-          };
-
-          config = { Cmd = [ "static-web-server" "-p" "8080" "-d" assets ]; };
-
+          config.Cmd = [
+            "${pkgs.static-web-server}/bin/static-web-server"
+            "-p"
+            "8080"
+            "-d"
+            assets
+          ];
         };
 
       in {
