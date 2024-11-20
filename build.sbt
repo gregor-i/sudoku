@@ -3,7 +3,7 @@ import org.scalajs.sbtplugin.Stage
 
 name := "sudoku"
 
-ThisBuild / scalaVersion := "3.2.1"
+ThisBuild / scalaVersion := "3.2.2"
 ThisBuild / scalacOptions ++= Seq("-feature", "-deprecation")
 
 // projects
