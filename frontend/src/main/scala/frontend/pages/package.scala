@@ -1,3 +1,3 @@
 package frontend
 
-package object pages extends snabbdom.Syntax with frontend.Syntax
+package object pages extends frontend.Syntax

@@ -53,7 +53,7 @@
         devShells.default = pkgs.mkShell {
           packages = [ pkgs.sbt pkgs.static-web-server ];
           shellHook = ''
-            echo shellhook
+            static-web-server -p 8080 -d ./build --cache-control-headers=false &
           '';
         };
 

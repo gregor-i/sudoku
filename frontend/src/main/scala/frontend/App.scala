@@ -1,63 +1,66 @@
 package frontend
 
-import frontend.pages.PuzzleState
+import frontend.pages.{LoadingState, PuzzleState}
 import io.circe.parser
 import io.circe.syntax.*
 import org.scalajs.dom
 import org.scalajs.dom.Element
-import snabbdom.{PatchFunction, Snabbdom, VNode}
 
 import scala.scalajs.js.{UndefOr, |}
 import scala.util.Random
+import com.raquo.laminar.api.L.{*, given}
 
 class App(container: Element) {
 
-  var node: Element | VNode = container
-  var timeout: Option[Int]  = None
+  val globalState: Var[GlobalState] = Var {
+    loadGlobalState().getOrElse(GlobalState.initial)
+  }
 
-  val patch: PatchFunction = Snabbdom.init(
-    classModule = true,
-    attributesModule = true,
-    styleModule = true,
-    eventlistenersModule = true,
-    propsModule = true
-  )
+  val pageState: Var[PageState] = Var {
+    given GlobalState = globalState.now()
+    LoadingState()
+  }
+
+  pageState.signal.foreach(println)(using unsafeWindowOwner)
+
+  locally {
+    given GlobalState = globalState.now()
+    globalState.now().lastPuzzle match {
+      case Some(lastPuzzle) =>
+        pageState.set(
+          PuzzleState.forBoard(lastPuzzle)
+        )
+      case None =>
+        PuzzleState.setAsync(
+          seed = Random.nextLong(),
+          desiredDifficulty = globalState.now().difficulty,
+          dimensions = globalState.now().dimensions,
+          storage = pageState
+        )
+    }
+  }
 
   private def saveGlobalState(globalState: GlobalState): Unit =
     dom.window.localStorage.setItem("globalState", globalState.asJson.noSpaces)
 
   private def loadGlobalState(): Option[GlobalState] =
-    dom.window.localStorage
-      .getItem("globalState")
-      .asInstanceOf[UndefOr[String]]
-      .toOption
+    Option(dom.window.localStorage.getItem("globalState"))
       .flatMap(parser.decode[GlobalState](_).toOption)
 
-  def start(): Unit = {
-    val globalState = loadGlobalState().getOrElse(GlobalState.initial)
+  locally {
+    dom.window.onpopstate = _ => ()
 
-    val pageState = globalState.lastPuzzle match {
-      case Some(lastPuzzle) => PuzzleState.forBoard(lastPuzzle)(using globalState)
-      case None =>
-        PuzzleState.loading(
-          seed = Random.nextLong(),
-          desiredDifficulty = globalState.difficulty,
-          dimensions = globalState.dimensions
-        )(using globalState)
-    }
+    globalState.signal.foreach(saveGlobalState)(using unsafeWindowOwner)
 
-    renderState(pageState)
+    val wrapped = div(
+      child <-- pageState.signal.map {
+        state =>
+          val context = Context(state, _ => ())
+          Pages.ui(context)
+      }
+    )
+
+    render(container, wrapped)
   }
 
-  def renderState(state: PageState): Unit = {
-    saveGlobalState(state.globalState)
-
-    val context = Context(state, renderState)
-
-    node = patch(node, Pages.ui(context).toVNode)
-  }
-
-  dom.window.onpopstate = _ => ()
-
-  start()
 }

@@ -1,6 +1,6 @@
 name := "sudoku"
 
-ThisBuild / scalaVersion := "3.2.1"
+ThisBuild / scalaVersion := "3.3.0"
 ThisBuild / scalacOptions ++= Seq("-feature", "-deprecation")
 ThisBuild / fork := true
 
@@ -24,7 +24,19 @@ lazy val frontend = project
       _.withModuleKind(ModuleKind.ESModule)
     }
   )
-  .settings(monocle, scalatest, snabbdom, circe)
+  .settings(monocle, scalatest, laminar, circe)
+  .settings(
+    //Compile / fastOptJS / artifactPath  := (ThisBuild / baseDirectory).value / "build" / "app.js",
+    (Compile / fastOptJS) := {
+      val result = (Compile / fastOptJS).value
+
+      val file   = result.data
+      val target = baseDirectory.value / ".." / "build" / "app.js"
+      IO.copyFile(result.data, target)
+      println(target)
+      result
+    }
+  )
 
 val `service-worker` = project
   .in(file("service-worker"))
@@ -72,9 +84,5 @@ def scalatest =
 def scalaJsDom =
   libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "2.4.0"
 
-def snabbdom = Seq(
-  resolvers += "jitpack" at "https://jitpack.io",
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "scalajs-snabbdom" % "1.3.0" cross CrossVersion.for3Use2_13,
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-toasts"  % "1.3.0" cross CrossVersion.for3Use2_13,
-  libraryDependencies += "com.github.gregor-i.scalajs-snabbdom" %%% "snabbdom-components" % "1.3.0" cross CrossVersion.for3Use2_13
-)
+def laminar =
+  libraryDependencies += "com.raquo" %%% "laminar" % "16.0.0"

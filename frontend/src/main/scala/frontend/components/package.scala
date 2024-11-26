@@ -1,3 +1,3 @@
 package frontend
 
-package object components extends snabbdom.Syntax with frontend.Syntax
+package object components extends frontend.Syntax
