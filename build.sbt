@@ -55,7 +55,7 @@ def monocle = {
 }
 
 def circe = {
-  val version = "0.14.1"
+  val version = "0.14.4"
   libraryDependencies ++= Seq(
     "io.circe" %%% "circe-core"    % version,
     "io.circe" %%% "circe-generic" % version,
