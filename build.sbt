@@ -65,7 +65,7 @@ def circe = {
 
 def scalatest =
   Seq(
-    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.2.14" % Test,
+    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.2.19" % Test,
     testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
   )
 
