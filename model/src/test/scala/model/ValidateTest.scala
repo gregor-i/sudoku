@@ -5,7 +5,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class ValidateTest extends AnyFunSuite {
   test("noError checks for rule violations in the subsets of a single position") {
-    val dim = Dimensions(2, 2)
+    val dim         = Dimensions(2, 2)
     val Some(board) = SudokuBoard.fromString(dim)(
       """
         |1 4 2 _
