@@ -34,7 +34,7 @@ object LoadingPage extends Page[LoadingState] {
         _ =>
           pageState.process.onComplete {
             case Success(newState) => context.update(newState)
-            case Failure(error) =>
+            case Failure(error)    =>
               context.update(
                 ErrorState(s"unexpected problem while initializing app: ${error.getMessage}")(globalState)
               )
