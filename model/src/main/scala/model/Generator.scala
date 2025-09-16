@@ -9,7 +9,7 @@ object Generator {
   def apply(dim: Dimensions, seed: Long, difficulty: Difficulty): FreshSudokuPuzzle = {
     val random = new Random(seed)
 
-    val fristRow = random.shuffle(SudokuBoard.values(dim))
+    val fristRow    = random.shuffle(SudokuBoard.values(dim))
     val seededBoard =
       SudokuBoard.fill(dim) {
         case (x, 0) => Some(fristRow(x))
