@@ -1,6 +1,6 @@
 name := "sudoku"
 
-ThisBuild / scalaVersion := "3.2.1"
+ThisBuild / scalaVersion := "3.7.3"
 ThisBuild / scalacOptions ++= Seq("-feature", "-deprecation")
 ThisBuild / fork := true
 

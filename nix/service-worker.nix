@@ -2,7 +2,7 @@
 mkSbtDerivation {
   pname = "sudoku-service-worker";
   version = "0.1.0";
-  depsSha256 = "sha256-7EHJF9cVz7b9Z53oZPh1wywm15SnmYhQlOF9xWVohyY=";
+  depsSha256 = "sha256-d33GS2Smz6iMaDm1BzoCwUqvKozPnnWE82q7cK/d7F0=";
 
   src = fs.toSource {
     root = ./..;
@@ -27,6 +27,6 @@ mkSbtDerivation {
 
   installPhase = ''
     mkdir -p $out
-    cp -r service-worker/target/scala-3.2.1/service-worker-opt/main.js $out/sw.js
+    cp -r service-worker/target/scala-3.7.3/service-worker-opt/main.js $out/sw.js
   '';
 }

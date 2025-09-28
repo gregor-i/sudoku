@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     utils.url = "github:numtide/flake-utils";
     sbtDerivation.url = "github:zaninime/sbt-derivation";
     sbtDerivation.inputs.nixpkgs.follows = "nixpkgs";
@@ -37,18 +37,6 @@
           paths = [ assetsWithoutServiceWorker serviceWorker ];
         };
 
-        dockerImage = pkgs.dockerTools.buildLayeredImage {
-          name = "gregor23/sudoku";
-          tag = self.rev or "dirty";
-          config.Cmd = [
-            "${pkgs.static-web-server}/bin/static-web-server"
-            "-p"
-            "8080"
-            "-d"
-            assets
-          ];
-        };
-
       in {
         devShells.default = pkgs.mkShell {
           packages = [ pkgs.sbt pkgs.static-web-server ];
@@ -59,7 +47,7 @@
 
         packages = {
           default = assets;
-          inherit assets assetsWithoutServiceWorker dockerImage;
+          inherit assets assetsWithoutServiceWorker;
         };
 
         formatter = pkgs.nixfmt;
