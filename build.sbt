@@ -7,7 +7,7 @@ ThisBuild / fork := true
 // projects
 lazy val root = project
   .in(file("."))
-  .aggregate(model.js, frontend, `service-worker`)
+  .aggregate(model.js, frontend)
 
 lazy val model = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
@@ -20,24 +20,9 @@ lazy val frontend = project
   .enablePlugins(ScalaJSPlugin)
   .settings(
     scalaJSUseMainModuleInitializer := true,
-    scalaJSLinkerConfig ~= {
-      _.withModuleKind(ModuleKind.ESModule)
-    }
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) }
   )
   .settings(monocle, scalatest, snabbdom, circe)
-
-val `service-worker` = project
-  .in(file("service-worker"))
-  .enablePlugins(ScalaJSPlugin)
-  .settings(scalaJSUseMainModuleInitializer := true)
-  .enablePlugins(BuildInfoPlugin)
-  .settings(
-    buildInfoKeys := Seq(
-      BuildInfoKey.action("buildTime") { System.currentTimeMillis },
-      BuildInfoKey.action("assetFiles") { sys.env.getOrElse("ASSET_FILES", "") }
-    )
-  )
-  .settings(scalaJsDom)
 
 val analytics = project
   .in(file("analytics"))

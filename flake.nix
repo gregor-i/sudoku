@@ -22,19 +22,9 @@
         };
         styles = pkgs.callPackage nix/styles.nix { inherit fs pkgs; };
 
-        assetsWithoutServiceWorker = pkgs.symlinkJoin {
-          name = "assets";
-          paths = [ bundledScalaFrontend styles ./frontend/src/main/static ];
-        };
-
-        serviceWorker = pkgs.callPackage nix/service-worker.nix {
-          inherit mkSbtDerivation fs sbt;
-          assets = assetsWithoutServiceWorker;
-        };
-
         assets = pkgs.symlinkJoin {
           name = "assets";
-          paths = [ assetsWithoutServiceWorker serviceWorker ];
+          paths = [ bundledScalaFrontend styles ./frontend/src/main/static ];
         };
 
       in {
@@ -47,7 +37,7 @@
 
         packages = {
           default = assets;
-          inherit assets assetsWithoutServiceWorker;
+          inherit assets;
         };
 
         formatter = pkgs.nixfmt;
