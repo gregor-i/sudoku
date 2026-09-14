@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     utils.url = "github:numtide/flake-utils";
     sbtDerivation.url = "github:zaninime/sbt-derivation";
     sbtDerivation.inputs.nixpkgs.follows = "nixpkgs";
@@ -22,31 +22,9 @@
         };
         styles = pkgs.callPackage nix/styles.nix { inherit fs pkgs; };
 
-        assetsWithoutServiceWorker = pkgs.symlinkJoin {
-          name = "assets";
-          paths = [ bundledScalaFrontend styles ./frontend/src/main/static ];
-        };
-
-        serviceWorker = pkgs.callPackage nix/service-worker.nix {
-          inherit mkSbtDerivation fs sbt;
-          assets = assetsWithoutServiceWorker;
-        };
-
         assets = pkgs.symlinkJoin {
           name = "assets";
-          paths = [ assetsWithoutServiceWorker serviceWorker ];
-        };
-
-        dockerImage = pkgs.dockerTools.buildLayeredImage {
-          name = "gregor23/sudoku";
-          tag = self.rev or "dirty";
-          config.Cmd = [
-            "${pkgs.static-web-server}/bin/static-web-server"
-            "-p"
-            "8080"
-            "-d"
-            assets
-          ];
+          paths = [ bundledScalaFrontend styles ./frontend/src/main/static ];
         };
 
       in {
@@ -59,7 +37,7 @@
 
         packages = {
           default = assets;
-          inherit assets assetsWithoutServiceWorker dockerImage;
+          inherit assets;
         };
 
         formatter = pkgs.nixfmt;

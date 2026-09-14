@@ -2,7 +2,7 @@
 mkSbtDerivation {
   pname = "sudoku-frontend";
   version = "0.1.0";
-  depsSha256 = "sha256-ClqDunYzF+mwakvKSemcnWxAs8MS/ydOlMLGC1pXN5c=";
+  depsSha256 = "sha256-gOH9Mc6UCv/5vm4H90SFUmZP3ezqctcsxAm2QiS2Iys=";
 
   src = fs.toSource {
     root = ./..;
@@ -21,6 +21,6 @@ mkSbtDerivation {
   buildPhase = "sbt frontend/fullLinkJS";
 
   installPhase = ''
-    cp -r frontend/target/scala-3.2.1/frontend-opt $out
+    cp -r frontend/target/scala-3.7.3/frontend-opt $out
   '';
 }
