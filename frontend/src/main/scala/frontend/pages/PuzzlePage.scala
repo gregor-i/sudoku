@@ -1,13 +1,12 @@
 package frontend.pages
 
-import frontend.components.Header
+import frontend.components.{Header, SudokuBoardSVG}
 import frontend.util.AsyncUtil
 import frontend.{Context, GlobalState, Page, PageState}
 import model.*
 import model.infinite.ContinuePuzzle
 import model.solver.{Hint, NextInputHint, WrongInputHint}
 import monocle.Lens
-
 import com.raquo.laminar.api.L.{*, given}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -49,7 +48,11 @@ object PuzzlePage extends Page[PuzzleState] {
       Header.renderHeader(),
       div(
         cls := "grid-main",
-        context.local.toString
+        SudokuBoardSVG(context.local.board)
+//          .extendRects(contextMenuTriggerExtension(pageState.board))
+//          .extendRects(hintExtension(pageState.hint))
+          .toNode
+//          .classes("grid-main-svg")
       )
     )
 //    Node("div.grid-layout.no-scroll")

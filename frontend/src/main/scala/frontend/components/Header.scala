@@ -1,7 +1,7 @@
 package frontend.components
 
 import frontend.Context
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.{textToTextNode, *, given}
 
 object Header {
   def renderHeader()(using context: Context[_]): Node =
@@ -13,7 +13,9 @@ object Header {
             cls := "image is-32x32",
             img(src := Images.logo)
           ),
-          span("Sudoku")
+          span(
+            textToTextNode("Sudoku")
+          )
         ),
         div(
           button(
