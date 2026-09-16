@@ -1,25 +1,54 @@
-//package frontend.components
-//
-//import frontend.util.AsyncUtil
-//import model.{Dimensions, Position, SudokuBoard}
-//import org.scalajs.dom.{Element, KeyboardEvent, document}
-//import org.scalajs.dom
-//import snabbdom.{Event, Node, VNode}
-//import scala.concurrent.ExecutionContext.Implicits.global
-//import scala.scalajs.js
-//
-//object InputContextMenu {
-//  def apply(
-//      focus: Position,
-//      dim: Dimensions,
-//      reference: Element,
-//      setFocus: Option[Position] => Unit,
-//      setValue: Option[Int] => Unit
-//  ): Node = {
-//    val scale      = 1.1
-//    val clientRect = reference.getBoundingClientRect()
-//    val width      = clientRect.width * dim.width * scale
-//    val height     = clientRect.height * (dim.height + 1) * scale
+package frontend.components
+
+import frontend.util.AsyncUtil
+import model.{Dimensions, Position, SudokuBoard}
+import org.scalajs.dom.{Element, KeyboardEvent, document}
+import org.scalajs.dom
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.scalajs.js
+import com.raquo.laminar.api.L.{componentToNode, *, given}
+import com.raquo.laminar.api.L
+import com.raquo.laminar.codecs.StringAsIsCodec
+import com.raquo.laminar.modifiers.KeySetter.{StyleSetter, SvgAttrSetter}
+import com.raquo.laminar.nodes.ReactiveHtmlElement
+
+import frontend.LaminarHelpers.*
+
+object InputContextMenu {
+  def apply(
+      focus: Position,
+      dim: Dimensions,
+      reference: Element,
+      setFocus: Option[Position] => Unit,
+      setValue: Option[Int] => Unit
+  ): ReactiveHtmlElement[?] = {
+    val scale      = 1.1
+    val clientRect = reference.getBoundingClientRect()
+    val width      = clientRect.width * dim.width * scale
+    val height     = clientRect.height * (dim.height + 1) * scale
+    div(
+      cls := "is-overlay",
+      InputNumberSVG(
+        dim,
+        interaction = setValue,
+        modifier = seqToModifier(
+          Seq(
+            styleAsStyle(position.absolute),
+            styleAsStyle(
+              left := s"min(calc(100vw - ${width}px), max(0px, ${clientRect.left + (clientRect.width - width) / 2.0}px))"
+            ),
+            styleAsStyle(
+              top := s"min(calc(100vh - ${height}px), max(0px, ${clientRect.top + (clientRect.height - height) / 2.0}px))"
+            ),
+            styleAsStyle(L.width    := s"${width}px"),
+            styleAsStyle(background := "white"),
+            styleAsStyle(boxShadow  := "2px 2px 3px 4px rgba(0,0,0,0.2)"),
+            styleAsStyle(animation  := "fade-in 0.1s linear 1 forwards")
+          )
+        )
+      )
+    )
 //    Node("div.is-overlay")
 //      .event[Event]("click", _ => setFocus(None))
 //      .child {
@@ -31,8 +60,8 @@
 //              "top"      -> s"min(calc(100vh - ${height}px), max(0px, ${clientRect.top + (clientRect.height - height) / 2.0}px))",
 //              "width"    -> s"${width}px",
 //              "background" -> "white",
-//              "box-shadow" -> "2px 2px 3px 4px rgba(0,0,0,0.2)",
-//              "animation"  -> "fade-in 0.1s linear 1 forwards"
+//              "box-shadow" -> ,
+//              "animation"  ->
 //            )
 //          )
 //      }
@@ -40,8 +69,8 @@
 //      .hookPostpatch((_, _) => setupKeyboardHook(focus, dim, setValue, setFocus))
 //      .hookDestroy(_ => destroyKeyboardHook())
 //      .hookRemove(removeHook)
-//  }
-//
+  }
+
 //  private def setupKeyboardHook(
 //      focus: Position,
 //      dim: Dimensions,
@@ -85,4 +114,4 @@
 //      node.elm.foreach(_.style.animation = "fade-out 0.1s linear 1 forwards")
 //      AsyncUtil.sleep(150).foreach(_ => trigger())
 //    }
-//}
+}

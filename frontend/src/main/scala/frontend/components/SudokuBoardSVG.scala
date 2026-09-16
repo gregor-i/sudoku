@@ -5,28 +5,39 @@ import model.*
 import com.raquo.laminar.api.L.{componentToNode, *, given}
 import com.raquo.laminar.codecs.StringAsIsCodec
 import com.raquo.laminar.modifiers.KeySetter.SvgAttrSetter
+import com.raquo.laminar.nodes.ReactiveSvgElement
+import org.scalajs.dom.SVGRectElement
 
-case class SudokuBoardSVG(board: SudokuPuzzle, extension: Extension = SudokuBoardSVG.emptyExtension) {
+import frontend.LaminarHelpers.*
+
+case class SudokuBoardSVG(
+    board: SudokuPuzzle,
+    extensions: Extension = SudokuBoardSVG.emptyExtension,
+    classes: Seq[String] = Nil
+) {
   private val strokeWidth  = 1.0 / 30.0
   private val borderRadius = 1d / 10d
 
   val myOpacity: SvgAttr[String]       = svg.svgAttr("opacity", StringAsIsCodec, None)
   val myPointerEvents: SvgAttr[String] = svg.svgAttr("pointer-events", StringAsIsCodec, None)
 
-  def extendRects(extension: Extension): SudokuBoardSVG =
-    copy(extension = SudokuBoardSVG.and(this.extension, extension))
+  def extendRects(extensions: Extension): SudokuBoardSVG =
+    copy(extensions = SudokuBoardSVG.and(this.extensions, extensions))
+
+  def addClasses(classes: String*): SudokuBoardSVG =
+    copy(classes = this.classes ++ classes)
 
   def toNode: Node = {
     val dim = board.dim
 
     svg.svg(
       svg.cls     := "sudoku-board",
+      svg.cls     := classes.mkString(" "),
       svg.xmlns   := "http://www.w3.org/2000/svg",
       svg.viewBox := s"${-strokeWidth / 2} ${-strokeWidth / 2} ${dim.blockSize + strokeWidth} ${dim.blockSize + strokeWidth}",
       grid(),
       rects()
     )
-//      .children(rects(), grid())
   }
 
   private def grid(): Node = {
@@ -44,10 +55,8 @@ case class SudokuBoardSVG(board: SudokuPuzzle, extension: Extension = SudokuBoar
             svg.y2          := dim.blockSize.toString,
             svg.stroke      := "currentColor",
             svg.strokeWidth := strokeWidth.toString,
-            myOpacity.maybe {
-              if column % dim.width != 0 then Some("0.2")
-              else None
-            }
+            if column % dim.width != 0 then styleAsStyle(opacity := "0.2")
+            else emptyMod
           )
       },
       seqToModifier {
@@ -59,10 +68,8 @@ case class SudokuBoardSVG(board: SudokuPuzzle, extension: Extension = SudokuBoar
             svg.y2          := row.toString,
             svg.stroke      := "currentColor",
             svg.strokeWidth := strokeWidth.toString,
-            myOpacity.maybe {
-              if row % dim.height != 0 then Some("0.2")
-              else None
-            }
+            if row % dim.height != 0 then styleAsStyle(opacity := "0.2")
+            else emptyMod
           )
       },
       svg.rect(
@@ -91,8 +98,8 @@ case class SudokuBoardSVG(board: SudokuPuzzle, extension: Extension = SudokuBoar
               svg.y      := "0",
               svg.width  := "1",
               svg.height := "1",
-              svg.stroke := "none"
-              // todo: extension(pos, _)
+              svg.stroke := "none",
+              seqToModifier(extensions(pos))
             ),
             numberNode(board.get(pos)).getOrElse(emptyMod)
           )
@@ -124,9 +131,9 @@ case class SudokuBoardSVG(board: SudokuPuzzle, extension: Extension = SudokuBoar
 }
 
 object SudokuBoardSVG {
-  type Extension = (Position, Node) => Node
+  type Extension = Position => Seq[Modifier[ReactiveSvgElement.Base]]
 
-  val emptyExtension: Extension = (pos, node) => node
+  val emptyExtension: Extension = pos => Seq.empty
 
-  private[SudokuBoardSVG] def and(left: Extension, right: Extension): Extension = (pos, node) => right(pos, left(pos, node))
+  private[SudokuBoardSVG] def and(left: Extension, right: Extension): Extension = pos => left(pos) ++ right(pos)
 }

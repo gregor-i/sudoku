@@ -1,6 +1,6 @@
 package frontend.pages
 
-import frontend.components.{Header, SudokuBoardSVG}
+import frontend.components.{Header, InputContextMenu, SudokuBoardSVG}
 import frontend.util.AsyncUtil
 import frontend.{Context, GlobalState, Page, PageState}
 import model.*
@@ -8,6 +8,8 @@ import model.infinite.ContinuePuzzle
 import model.solver.{Hint, NextInputHint, WrongInputHint}
 import monocle.Lens
 import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.nodes.ReactiveHtmlElement
+import org.scalajs.dom.document
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -49,31 +51,28 @@ object PuzzlePage extends Page[PuzzleState] {
       div(
         cls := "grid-main",
         SudokuBoardSVG(context.local.board)
-//          .extendRects(contextMenuTriggerExtension(pageState.board))
+//          .extendRects{
+//            pos => Seq(onClick.mapToUnit.-->(_ => println(pos)))
+//          }
+          .extendRects(contextMenuTriggerExtension(context.local.board))
 //          .extendRects(hintExtension(pageState.hint))
+          .addClasses("grid-main-svg")
           .toNode
-//          .classes("grid-main-svg")
-      )
+      ),
+      contextMenu() match {
+        case Some(menu) => menu
+        case None       => emptyMod
+      }
     )
-//    Node("div.grid-layout.no-scroll")
-//      .child(Header.renderHeader())
-//      .child(
-//        Node("div.grid-main")
-//          .child(
-//            SudokuBoardSVG(pageState.board)
-//              .extendRects(contextMenuTriggerExtension(pageState.board))
-//              .extendRects(hintExtension(pageState.hint))
-//              .toNode
-//              .classes("grid-main-svg")
-//          )
-//      )
 //      .child(buttonBar().classes("grid-footer"))
-//      .child(contextMenu())
 
-//  private def contextMenuTriggerExtension(board: SudokuPuzzle)(using context: Context): SudokuBoardSVG.Extension =
-//    (pos, node) =>
-//      node
-//        .maybeModify(board.get(pos).isNotGiven)(_.event("click", action(PuzzleState.focus.replace(Some(pos)))))
+  private def contextMenuTriggerExtension(board: SudokuPuzzle)(using context: Context): SudokuBoardSVG.Extension =
+    pos =>
+      if board.get(pos).isNotGiven then
+        Seq(
+          onClick.-->(_ => context.update(PuzzleState.focus.replace(Some(pos))(context.local)))
+        )
+      else Nil
 
 //  private def hintExtension(hint: Option[Hint]): SudokuBoardSVG.Extension =
 //    hint match {
@@ -100,23 +99,23 @@ object PuzzlePage extends Page[PuzzleState] {
 //    state.copy(hint = hint)(state.globalState)
 //  }
 
-//  private def contextMenu()(using context: Context): Option[Node] =
-//    pageState.focus
-//      .map {
-//        pos =>
-//          InputContextMenu(
-//            focus = pos,
-//            dim = pageState.board.dim,
-//            reference = document.getElementById(s"cell_${pos._1}_${pos._2}"),
-//            setFocus = pos => context.update(PuzzleState.focus.replace(pos)(pageState)),
-//            setValue = value => inputValue(pos, value)
-//          )
-//      }
+  private def contextMenu()(using context: Context): Option[ReactiveHtmlElement[?]] =
+    context.local.focus
+      .map {
+        pos =>
+          InputContextMenu(
+            focus = pos,
+            dim = context.local.board.dim,
+            reference = document.getElementById(s"cell_${pos._1}_${pos._2}"),
+            setFocus = pos => context.update(PuzzleState.focus.replace(pos)(context.local)),
+            setValue = value => inputValue(pos, value)
+          )
+      }
 
-//  private def inputValue(pos: Position, value: Option[Int])(using context: Context): Unit = {
-//    val updatedBoard = pageState.board.mod(pos, _.input(value))
-//
-//    val newState = if (updatedBoard.data.forall(_.isCorrectAndFilled) && !globalState.infinitePuzzles) {
+  private def inputValue(pos: Position, value: Option[Int])(using context: Context): Unit = {
+    val updatedBoard = context.local.board.mod(pos, _.input(value))
+
+//    val newState = if (updatedBoard.data.forall(_.isCorrectAndFilled) && !context.global.infinitePuzzles) {
 //      FinishedPuzzleState(board = updatedBoard.map {
 //        case cell: PuzzleCell.Given        => cell
 //        case cell: PuzzleCell.CorrectInput => cell
@@ -139,7 +138,12 @@ object PuzzlePage extends Page[PuzzleState] {
 //        board = updatedBoard
 //      )(GlobalState.lastPuzzle.replace(Some(updatedBoard))(globalState))
 //    }
-//
 //    context.update(newState)
-//  }
+    context.update(
+      context.local.copy(
+        board = updatedBoard,
+        focus = None
+      )(using context.global)
+    )
+  }
 }

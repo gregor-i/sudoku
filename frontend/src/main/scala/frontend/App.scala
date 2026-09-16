@@ -55,7 +55,7 @@ class App(container: Element) {
     val wrapped = div(
       child <-- pageState.signal.map {
         state =>
-          val context = Context(state, _ => ())
+          val context = Context(state, globalState.now(), newState => pageState.set(newState))
           Pages.ui(context)
       }
     )
