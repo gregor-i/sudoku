@@ -29,42 +29,25 @@ object InputContextMenu {
     val height     = clientRect.height * (dim.height + 1) * scale
     div(
       cls := "is-overlay",
+      onClick --> (_ => setFocus(None)),
       InputNumberSVG(
         dim,
         interaction = setValue,
-        modifier = seqToModifier(
-          Seq(
-            styleAsStyle(position.absolute),
-            styleAsStyle(
-              left := s"min(calc(100vw - ${width}px), max(0px, ${clientRect.left + (clientRect.width - width) / 2.0}px))"
-            ),
-            styleAsStyle(
-              top := s"min(calc(100vh - ${height}px), max(0px, ${clientRect.top + (clientRect.height - height) / 2.0}px))"
-            ),
-            styleAsStyle(L.width    := s"${width}px"),
-            styleAsStyle(background := "white"),
-            styleAsStyle(boxShadow  := "2px 2px 3px 4px rgba(0,0,0,0.2)"),
-            styleAsStyle(animation  := "fade-in 0.1s linear 1 forwards")
-          )
+        modifier = Seq(
+          styleAsStyle(position.absolute),
+          styleAsStyle(
+            left := s"min(calc(100vw - ${width}px), max(0px, ${clientRect.left + (clientRect.width - width) / 2.0}px))"
+          ),
+          styleAsStyle(
+            top := s"min(calc(100vh - ${height}px), max(0px, ${clientRect.top + (clientRect.height - height) / 2.0}px))"
+          ),
+          styleAsStyle(L.width    := s"${width}px"),
+          styleAsStyle(background := "white"),
+          styleAsStyle(boxShadow  := "2px 2px 3px 4px rgba(0,0,0,0.2)"),
+          styleAsStyle(animation  := "fade-in 0.1s linear 1 forwards")
         )
       )
     )
-//    Node("div.is-overlay")
-//      .event[Event]("click", _ => setFocus(None))
-//      .child {
-//        InputNumberSVG(dim, interaction = (value, node) => node.event[Event]("click", _ => setValue(value)))
-//          .styles(
-//            Seq(
-//              "position" -> "absolute",
-//              "left"     -> s"min(calc(100vw - ${width}px), max(0px, ${clientRect.left + (clientRect.width - width) / 2.0}px))",
-//              "top"      -> s"min(calc(100vh - ${height}px), max(0px, ${clientRect.top + (clientRect.height - height) / 2.0}px))",
-//              "width"    -> s"${width}px",
-//              "background" -> "white",
-//              "box-shadow" -> ,
-//              "animation"  ->
-//            )
-//          )
-//      }
 //      .hookInsert(_ => setupKeyboardHook(focus, dim, setValue, setFocus))
 //      .hookPostpatch((_, _) => setupKeyboardHook(focus, dim, setValue, setFocus))
 //      .hookDestroy(_ => destroyKeyboardHook())

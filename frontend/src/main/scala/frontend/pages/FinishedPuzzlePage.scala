@@ -1,20 +1,18 @@
-//package frontend.pages
-//
-//import frontend.components.{Header, Icons, SudokuBoardSVG}
-//import frontend.{Page, PageState}
-//import model._
-//import monocle.Lens
-//import org.scalajs.dom
-//import snabbdom.Node
-//import snabbdom.components.{Button, ButtonList, Modal}
-//
-//import scala.util.Random
-//import monocle.syntax.all._
-//import frontend.GlobalState
-//
-//case class FinishedPuzzleState(board: FinishedSudokuPuzzle)(implicit val globalState: GlobalState) extends PageState {
-//  def setGlobalState(globalState: GlobalState): FinishedPuzzleState = copy()(globalState = globalState)
-//}
+package frontend.pages
+
+import frontend.components.{Header, Icons, SudokuBoardSVG}
+import frontend.{Page, PageState}
+import model._
+import monocle.Lens
+import org.scalajs.dom
+
+import scala.util.Random
+import monocle.syntax.all._
+import frontend.GlobalState
+
+case class FinishedPuzzleState(board: FinishedSudokuPuzzle)(implicit val globalState: GlobalState) extends PageState {
+  def setGlobalState(globalState: GlobalState): FinishedPuzzleState = copy()(globalState = globalState)
+}
 //
 //object FinishedPuzzlePage extends Page[FinishedPuzzleState] {
 //

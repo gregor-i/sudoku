@@ -46,32 +46,28 @@ case class SudokuBoardSVG(
     svg.g(
       svg.idAttr      := "grid",
       myPointerEvents := "none",
-      seqToModifier {
-        for (column <- 1 until dim.blockSize)
-          yield svg.line(
-            svg.x1          := column.toString,
-            svg.x2          := column.toString,
-            svg.y1          := "0",
-            svg.y2          := dim.blockSize.toString,
-            svg.stroke      := "currentColor",
-            svg.strokeWidth := strokeWidth.toString,
-            if column % dim.width != 0 then styleAsStyle(opacity := "0.2")
-            else emptyMod
-          )
-      },
-      seqToModifier {
-        for (row <- 1 until dim.blockSize)
-          yield svg.line(
-            svg.x1          := "0",
-            svg.x2          := dim.blockSize.toString,
-            svg.y1          := row.toString,
-            svg.y2          := row.toString,
-            svg.stroke      := "currentColor",
-            svg.strokeWidth := strokeWidth.toString,
-            if row % dim.height != 0 then styleAsStyle(opacity := "0.2")
-            else emptyMod
-          )
-      },
+      for (column <- 1 until dim.blockSize)
+        yield svg.line(
+          svg.x1          := column.toString,
+          svg.x2          := column.toString,
+          svg.y1          := "0",
+          svg.y2          := dim.blockSize.toString,
+          svg.stroke      := "currentColor",
+          svg.strokeWidth := strokeWidth.toString,
+          if column % dim.width != 0 then styleAsStyle(opacity := "0.2")
+          else emptyMod
+        ),
+      for (row <- 1 until dim.blockSize)
+        yield svg.line(
+          svg.x1          := "0",
+          svg.x2          := dim.blockSize.toString,
+          svg.y1          := row.toString,
+          svg.y2          := row.toString,
+          svg.stroke      := "currentColor",
+          svg.strokeWidth := strokeWidth.toString,
+          if row % dim.height != 0 then styleAsStyle(opacity := "0.2")
+          else emptyMod
+        ),
       svg.rect(
         svg.x           := "0",
         svg.y           := "0",
@@ -88,22 +84,20 @@ case class SudokuBoardSVG(
   private def rects(): Node =
     svg.g(
       svg.idAttr := "rects",
-      seqToModifier {
-        for (pos <- SudokuBoard.positions(board.dim))
-          yield svg.g(
-            svg.transform := s"translate(${pos._1} ${pos._2})",
-            svg.rect(
-              svg.idAttr := s"cell_${pos._1}_${pos._2}",
-              svg.x      := "0",
-              svg.y      := "0",
-              svg.width  := "1",
-              svg.height := "1",
-              svg.stroke := "none",
-              seqToModifier(extensions(pos))
-            ),
-            numberNode(board.get(pos)).getOrElse(emptyMod)
-          )
-      }
+      for (pos <- SudokuBoard.positions(board.dim))
+        yield svg.g(
+          svg.transform := s"translate(${pos._1} ${pos._2})",
+          svg.rect(
+            svg.idAttr := s"cell_${pos._1}_${pos._2}",
+            svg.x      := "0",
+            svg.y      := "0",
+            svg.width  := "1",
+            svg.height := "1",
+            svg.stroke := "none",
+            extensions(pos)
+          ),
+          numberNode(board.get(pos)).getOrElse(emptyMod)
+        )
     )
 
   private def numberNode(cell: PuzzleCell): Option[Node] = {

@@ -1,8 +1,8 @@
 package frontend.pages
 
-import frontend.components.{Header, InputContextMenu, SudokuBoardSVG}
+import frontend.components.{Button, ButtonList, Header, Icons, InputContextMenu, SudokuBoardSVG}
 import frontend.util.AsyncUtil
-import frontend.{Context, GlobalState, Page, PageState}
+import frontend.{Context, GlobalState, Page, PageState, Syntax}
 import model.*
 import model.infinite.ContinuePuzzle
 import model.solver.{Hint, NextInputHint, WrongInputHint}
@@ -13,6 +13,7 @@ import org.scalajs.dom.document
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import frontend.Syntax.*
 
 case class PuzzleState(
     board: SudokuPuzzle,
@@ -51,20 +52,17 @@ object PuzzlePage extends Page[PuzzleState] {
       div(
         cls := "grid-main",
         SudokuBoardSVG(context.local.board)
-//          .extendRects{
-//            pos => Seq(onClick.mapToUnit.-->(_ => println(pos)))
-//          }
           .extendRects(contextMenuTriggerExtension(context.local.board))
-//          .extendRects(hintExtension(pageState.hint))
+          .extendRects(hintExtension(pageState.hint))
           .addClasses("grid-main-svg")
           .toNode
       ),
       contextMenu() match {
         case Some(menu) => menu
         case None       => emptyMod
-      }
+      },
+      buttonBar(classes = "grid-footer")
     )
-//      .child(buttonBar().classes("grid-footer"))
 
   private def contextMenuTriggerExtension(board: SudokuPuzzle)(using context: Context): SudokuBoardSVG.Extension =
     pos =>
@@ -74,30 +72,38 @@ object PuzzlePage extends Page[PuzzleState] {
         )
       else Nil
 
-//  private def hintExtension(hint: Option[Hint]): SudokuBoardSVG.Extension =
-//    hint match {
-//      case Some(hint: NextInputHint) =>
-//        (pos, node) =>
-//          node
-//            .maybeModify(pos == hint.position)(_.classes("highlight-strong"))
-//            .maybeModify(hint.blockingPositions.contains(pos))(_.classes("highlight-weak"))
-//      case Some(hint: WrongInputHint) =>
-//        (pos, node) =>
-//          node
-//            .maybeModify(pos == hint.position)(_.classes("wrong-value"))
-//            .maybeModify(hint.relatedPositions.contains(pos))(_.classes("wrong-value-weak"))
-//      case None => SudokuBoardSVG.emptyExtension
-//    }
+  private def hintExtension(hint: Option[Hint]): SudokuBoardSVG.Extension =
+    hint match {
+      case Some(hint: NextInputHint) =>
+        pos =>
+          if pos == hint.position then
+            Seq(svg.cls := "highlight-strong")
+          else if hint.blockingPositions.contains(pos) then
+            Seq(svg.cls := "highlight-weak")
+          else Seq.empty
+      case Some(hint: WrongInputHint) =>
+        pos =>
+          if pos == hint.position then
+            Seq(svg.cls := "wrong-value")
+          else if hint.relatedPositions.contains(pos) then
+            Seq(svg.cls := "wrong-value-weak")
+          else
+          Seq.empty
+      case None => SudokuBoardSVG.emptyExtension
+    }
 
-//  private def buttonBar()(using context: Context): Node =
-//    ButtonList
-//      .right(Button(localized.hint, Icons.hint, action(giveHint)))
-//      .classes("my-2")
+  private def buttonBar(classes: String)(using context: Context): Node =
+    ButtonList
+      .right(
+        cls := classes,
+        cls := "my-2",
+        Button(localized.hint, Icons.hint, Syntax.action(giveHint))
+      )
 
-//  private def giveHint(state: PuzzleState): PuzzleState = {
-//    val hint = Hint.of(state.board)
-//    state.copy(hint = hint)(state.globalState)
-//  }
+  private def giveHint(state: PuzzleState): PuzzleState = {
+    val hint = Hint.of(state.board)
+    state.copy(hint = hint)(state.globalState)
+  }
 
   private def contextMenu()(using context: Context): Option[ReactiveHtmlElement[?]] =
     context.local.focus
@@ -115,35 +121,29 @@ object PuzzlePage extends Page[PuzzleState] {
   private def inputValue(pos: Position, value: Option[Int])(using context: Context): Unit = {
     val updatedBoard = context.local.board.mod(pos, _.input(value))
 
-//    val newState = if (updatedBoard.data.forall(_.isCorrectAndFilled) && !context.global.infinitePuzzles) {
-//      FinishedPuzzleState(board = updatedBoard.map {
-//        case cell: PuzzleCell.Given        => cell
-//        case cell: PuzzleCell.CorrectInput => cell
-//        case _                             => throw new Error(s"this can't be")
-//      })(GlobalState.lastPuzzle.replace(None)(globalState))
-//
-//    } else if (globalState.infinitePuzzles) {
-//      val continutedBoard =
-//        ContinuePuzzle.maybeContinue(updatedBoard, seed = scala.util.Random.nextInt(), globalState.difficulty)
-//      pageState.copy(
-//        focus = None,
-//        hint = None,
-//        board = continutedBoard.getOrElse(updatedBoard)
-//      )(GlobalState.lastPuzzle.replace(Some(updatedBoard))(globalState))
-//
-//    } else {
-//      pageState.copy(
-//        focus = None,
-//        hint = None,
-//        board = updatedBoard
-//      )(GlobalState.lastPuzzle.replace(Some(updatedBoard))(globalState))
-//    }
-//    context.update(newState)
-    context.update(
-      context.local.copy(
-        board = updatedBoard,
-        focus = None
-      )(using context.global)
-    )
+    val newState = if (updatedBoard.data.forall(_.isCorrectAndFilled) && !context.global.infinitePuzzles) {
+      FinishedPuzzleState(board = updatedBoard.map {
+        case cell: PuzzleCell.Given        => cell
+        case cell: PuzzleCell.CorrectInput => cell
+        case _                             => throw new Error(s"this can't be")
+      })(GlobalState.lastPuzzle.replace(None)(globalState))
+
+    } else if (globalState.infinitePuzzles) {
+      val continutedBoard =
+        ContinuePuzzle.maybeContinue(updatedBoard, seed = scala.util.Random.nextInt(), globalState.difficulty)
+      pageState.copy(
+        focus = None,
+        hint = None,
+        board = continutedBoard.getOrElse(updatedBoard)
+      )(GlobalState.lastPuzzle.replace(Some(updatedBoard))(globalState))
+
+    } else {
+      pageState.copy(
+        focus = None,
+        hint = None,
+        board = updatedBoard
+      )(GlobalState.lastPuzzle.replace(Some(updatedBoard))(globalState))
+    }
+    context.update(newState)
   }
 }

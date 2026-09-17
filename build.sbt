@@ -70,4 +70,4 @@ def scalaJsDom =
   libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "2.4.0"
 
 def laminar =
-  libraryDependencies += "com.raquo" %%% "laminar" % "16.0.0"
+  libraryDependencies += "com.raquo" %%% "laminar" % "17.2.1"

@@ -12,8 +12,6 @@ import scala.scalajs.js
 
 object LaminarHelpers {
 
-  type SvgStyleSetter = KeySetter[StyleProp[?], String, ReactiveSvgElement.Base]
-
   def styleAsAttribute(style: StyleProp[String]): SvgAttr[String] = svg.svgAttr(style.name, StringAsIsCodec, None)
   def styleAsAttribute(style: StyleSetter): SvgAttrSetter[String] =
     svg.svgAttr(style.key.name, StringAsIsCodec, None) := style.value
@@ -26,5 +24,4 @@ object LaminarHelpers {
         el.ref.asInstanceOf[js.Dynamic].style.setProperty(key.name, value)
       }
     )
-//    svg.svgAttr(style.key.name, StringAsIsCodec, None) := style.value
 }
