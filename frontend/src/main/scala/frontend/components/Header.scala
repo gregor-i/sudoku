@@ -2,6 +2,7 @@ package frontend.components
 
 import frontend.Context
 import com.raquo.laminar.api.L.{textToTextNode, *, given}
+import frontend.pages.SettingsState
 
 object Header {
   def renderHeader()(using context: Context[_]): Node =
@@ -23,12 +24,9 @@ object Header {
             textDecoration.none,
             i(
               cls := s"fa ${Icons.settings}"
-            )
+            ),
+            onClick --> setState(SettingsState(oldGlobalState = globalState)(using globalState))
           )
-//          Button
-//            .icon(Icons.settings, setState(SettingsState(oldGlobalState = globalState)(using globalState)))
-//            .classes("is-text", "has-text-primary")
-//            .style("text-decoration", "none")
         )
       )
     )

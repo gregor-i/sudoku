@@ -26,18 +26,4 @@ object LoadingPage extends Page[LoadingState] {
         fontSize.rem   := 10
       )
     )
-
-//    Node("div")
-//      .child(Header.renderHeader())
-//      .key(pageState.process.hashCode())
-//      .hookInsert {
-//        _ =>
-//          pageState.process.onComplete {
-//            case Success(newState) => context.update(newState)
-//            case Failure(error) =>
-//              context.update(
-//                ErrorState(s"unexpected problem while initializing app: ${error.getMessage}")(globalState)
-//              )
-//          }
-//      }
 }

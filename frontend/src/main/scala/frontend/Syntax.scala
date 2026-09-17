@@ -5,6 +5,8 @@ import frontend.language.Language
 trait Syntax {
   export com.raquo.laminar.api.L.{*, given}
 
+  given (using context: Context[?]): GlobalState = context.global
+
   inline final def pageState[S <: PageState](using context: Context[S]): S = context.local
   inline final def globalState(using Context[?]): GlobalState              = pageState.globalState
   inline final def localized(using Context[?]): Language                   = summon[Context[?]].local.globalState.language

@@ -1,145 +1,158 @@
-//package frontend.pages
-//
-//import frontend.components.{Header, Icons}
-//import frontend.{Context, GlobalState, Page, PageState}
-//import model.{SudokuPuzzle, Difficulty, Dimensions}
-//import monocle.{Lens, PLens}
-//import snabbdom.{Event, Node}
-//import snabbdom.components.{Button, Modal}
-//
-//import scala.util.Random
-//
-//case class SettingsState(oldGlobalState: GlobalState)(implicit val globalState: GlobalState) extends PageState {
-//  def setGlobalState(globalState: GlobalState): SettingsState = copy()(globalState = globalState)
-//
-//  def changesAllowContinuing: Boolean =
-//    oldGlobalState.dimensions == globalState.dimensions &&
-//      oldGlobalState.difficulty == globalState.difficulty
-//}
-//
-//object SettingsPage extends Page[SettingsState] {
-//
-//  override def render(using context: Context): Node =
-//    "div.grid-layout"
+package frontend.pages
+
+import frontend.components.{Button, Header, Icons}
+import frontend.{Context, GlobalState, Page, PageState, Syntax}
+import model.{Difficulty, Dimensions, SudokuPuzzle}
+import monocle.{Lens, PLens}
+import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.nodes.ReactiveHtmlElement
+
+import scala.util.Random
+
+case class SettingsState(oldGlobalState: GlobalState)(implicit val globalState: GlobalState) extends PageState {
+  def setGlobalState(globalState: GlobalState): SettingsState = copy()(globalState = globalState)
+
+  def changesAllowContinuing: Boolean =
+    oldGlobalState.dimensions == globalState.dimensions &&
+      oldGlobalState.difficulty == globalState.difficulty
+}
+
+object SettingsPage extends Page[SettingsState] {
+
+  override def render(using context: Context): ReactiveHtmlElement.Base =
+    div(
+      cls := "grid-layout",
 //      .key("SettingsPage")
-//      .child(Header.renderHeader())
-//      .child(
-//        "div.grid-main.my-2"
-//          .children(
-//            "h1.title".text(localized.settings),
-//            difficultyButtons(),
-//            dimensionButtons(),
-//            infinitePuzzles()
-//          )
-//      )
-//      .child(
-//        "div.grid-footer.my-2.buttons".child(buttons(globalState.lastPuzzle))
-//      )
-//
-//  private def buttons(lastPuzzle: Option[SudokuPuzzle])(using Context) = {
-//    val playButton = Button(
-//      text = localized.playNewGame,
-//      icon = Icons.generate,
-//      onclick = setState(
-//        PuzzleState.loading(seed = Random.nextLong(), globalState.difficulty, globalState.dimensions)(using globalState)
-//      )
-//    ).style("flex", "auto 1")
-//
-//    val continueButton = lastPuzzle match {
-//      case Some(decoratedBoard) if pageState.changesAllowContinuing =>
-//        Button(
-//          text = localized.continueLastGame,
-//          icon = Icons.continue,
-//          onclick = setState(PuzzleState.forBoard(decoratedBoard)(using globalState))
-//        ).classes("is-primary", "is-outlined", "is-light")
-//          .style("flex", "auto 1")
-//      case _ =>
-//        Button(
-//          text = localized.continueLastGame,
-//          icon = Icons.continue,
-//          onclick = _ => ()
-//        )
-//          .boolAttr("disabled", true)
-//          .style("flex", "auto 1")
-//    }
-//
-//    Node("div.buttons.my-2")
-//      .style("display", "flex")
-//      .style("width", "100%")
-//      .child(playButton)
-//      .child(continueButton)
-//  }
-//
-//  private def infinitePuzzles()(using Context): Seq[Node] = {
-//    val options = Seq(
-//      localized.yes -> true,
-//      localized.no  -> false
-//    )
-//
-//    Seq(
-//      "div.label".text(localized.infinitePuzzles),
-//      Node("div.buttons")
-//        .style("display", "flex")
-//        .child(
-//          options.map {
-//            (text, value) =>
-//              Button(
-//                text = text,
-//                onclick = action(PageState.globalState.andThen(GlobalState.infinitePuzzles).replace(value))
-//              ).style("flex", "auto 1")
-//                .maybeModify(globalState.infinitePuzzles == value)(markButtonAsActive)
-//          }
-//        )
-//    )
-//  }
-//
-//  private def difficultyButtons()(using context: Context) = {
-//    val difficulties = Seq(Difficulty.Easy, Difficulty.Medium, Difficulty.Hard)
-//
-//    Seq(
-//      "div.label".text(localized.difficultyLabel),
-//      Node("div.buttons")
-//        .style("display", "flex")
-//        .child(
-//          difficulties.map {
-//            diff =>
-//              Button(
-//                text = localized.difficulty(diff),
-//                icon = Icons.difficulty(diff),
-//                onclick = action(PageState.globalState.andThen(GlobalState.difficulty).replace(diff))
-//              ).style("flex", "auto 1")
-//                .maybeModify(globalState.difficulty == diff)(markButtonAsActive)
-//          }
-//        )
-//    )
-//  }
-//
-//  private def dimensionButtons()(using context: Context) = {
-//    val dimensions = Seq(
-//      Dimensions(2, 2),
-//      Dimensions(2, 3),
-//      Dimensions(3, 3),
-//      Dimensions(3, 4)
-//    )
-//
-//    Seq(
-//      Node("div.label").text(localized.sizeLabel),
-//      Node("div.buttons")
-//        .style("display", "flex")
-//        .child(
-//          dimensions.map {
-//            dim =>
-//              Button(
-//                text = s"1–${dim.blockSize}",
-//                onclick = action(PageState.globalState.andThen(GlobalState.dimensions).replace(dim))
-//              ).style("flex", "auto 1")
-//                .maybeModify(globalState.dimensions == dim)(markButtonAsActive)
-//          }
-//        )
-//    )
-//  }
-//
-//  private val markButtonAsActive: Node => Node =
-//    _.classes("is-active").style("border-width", "2px")
-//
-//}
+      Header.renderHeader(),
+      div(
+        cls := "grid-main my-2",
+        h1(cls := "title", textToTextNode(localized.settings)),
+        difficultyButtons(),
+        dimensionButtons(),
+        infinitePuzzles()
+      ),
+      div(
+        cls := "grid-footer my-2 buttons",
+        buttons(globalState.lastPuzzle)
+      )
+    )
+
+  private def buttons(lastPuzzle: Option[SudokuPuzzle])(using Context): ReactiveHtmlElement.Base = {
+    val playButton = Button(
+      localized.playNewGame,
+      Icons.generate,
+      setState(
+        PuzzleState.loading(seed = Random.nextLong(), globalState.difficulty, globalState.dimensions)
+      ),
+      flex := "auto 1"
+    )
+
+    val continueButton = lastPuzzle match {
+      case Some(decoratedBoard) if pageState.changesAllowContinuing =>
+        Button(
+          localized.continueLastGame,
+          Icons.continue,
+          setState(PuzzleState.forBoard(decoratedBoard)(using globalState)),
+          cls  := "is-primary is-outlined is-light",
+          flex := "auto 1"
+        )
+      case _ =>
+        Button(
+          localized.continueLastGame,
+          Icons.continue,
+          _ => (),
+          disabled := true,
+          flex     := "auto 1"
+        )
+    }
+
+    div(
+      cls := "buttons my-2",
+      display.flex,
+      width := "100%",
+      playButton,
+      continueButton
+    )
+  }
+
+  private def infinitePuzzles()(using Context): Seq[ReactiveHtmlElement.Base] = {
+    val options = Seq(
+      localized.yes -> true,
+      localized.no  -> false
+    )
+
+    Seq(
+      div(cls := "label", textToTextNode(localized.infinitePuzzles)),
+      div(
+        cls := "buttons",
+        display.flex,
+        options.map {
+          (text, value) =>
+            Button(
+              text,
+              Syntax.action(PageState.globalState.andThen(GlobalState.infinitePuzzles).replace(value)),
+              flex := "auto 1",
+              if globalState.infinitePuzzles == value then markButtonAsActive else emptyMod
+            )
+        }
+      )
+    )
+  }
+
+  private def difficultyButtons()(using context: Context): Seq[ReactiveHtmlElement.Base] = {
+    val difficulties = Seq(Difficulty.Easy, Difficulty.Medium, Difficulty.Hard)
+
+    Seq(
+      div(cls := "label", textToTextNode(localized.difficultyLabel)),
+      div(
+        cls := "buttons",
+        display.flex,
+        difficulties.map {
+          diff =>
+            Button(
+              localized.difficulty(diff),
+              Icons.difficulty(diff),
+              Syntax.action(PageState.globalState.andThen(GlobalState.difficulty).replace(diff)),
+              flex := "auto 1",
+              if globalState.difficulty == diff then markButtonAsActive else emptyMod
+            )
+        }
+      )
+    )
+  }
+
+  private def dimensionButtons()(using context: Context): Seq[ReactiveHtmlElement.Base] = {
+    val dimensions = Seq(
+      Dimensions(2, 2),
+      Dimensions(2, 3),
+      Dimensions(3, 3),
+      Dimensions(3, 4)
+    )
+
+    Seq(
+      div(cls := "abel", textToTextNode(localized.sizeLabel)),
+      div(
+        cls := "buttons",
+        display.flex,
+        dimensions.map {
+          dim =>
+            Button(
+              s"1–${dim.blockSize}",
+              Syntax.action(PageState.globalState.andThen(GlobalState.dimensions).replace(dim)),
+              flex := "auto 1",
+              if globalState.dimensions == dim then markButtonAsActive else emptyMod
+            )
+        }
+      )
+    )
+  }
+
+  private val markButtonAsActive: Modifier[ReactiveHtmlElement.Base] =
+    seqToModifier(
+      Seq[Modifier[ReactiveHtmlElement.Base]](
+        cls         := "is-active",
+        borderWidth := "2px"
+      )
+    )
+
+}

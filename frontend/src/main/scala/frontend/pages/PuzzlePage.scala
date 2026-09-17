@@ -13,7 +13,7 @@ import org.scalajs.dom.document
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import frontend.Syntax.*
+import frontend.Syntax.{*, given}
 
 case class PuzzleState(
     board: SudokuPuzzle,
@@ -42,6 +42,11 @@ object PuzzleState {
       val state = forBoard(board)
       storage.set(state)
     }
+
+  def loading(seed: Long, desiredDifficulty: Difficulty, dimensions: Dimensions)(using Context[?]): LoadingState = {
+    setAsync(seed, desiredDifficulty, dimensions, summon[Context[?]].localVar)
+    LoadingState()
+  }
 }
 
 object PuzzlePage extends Page[PuzzleState] {
@@ -76,19 +81,14 @@ object PuzzlePage extends Page[PuzzleState] {
     hint match {
       case Some(hint: NextInputHint) =>
         pos =>
-          if pos == hint.position then
-            Seq(svg.cls := "highlight-strong")
-          else if hint.blockingPositions.contains(pos) then
-            Seq(svg.cls := "highlight-weak")
+          if pos == hint.position then Seq(svg.cls := "highlight-strong")
+          else if hint.blockingPositions.contains(pos) then Seq(svg.cls := "highlight-weak")
           else Seq.empty
       case Some(hint: WrongInputHint) =>
         pos =>
-          if pos == hint.position then
-            Seq(svg.cls := "wrong-value")
-          else if hint.relatedPositions.contains(pos) then
-            Seq(svg.cls := "wrong-value-weak")
-          else
-          Seq.empty
+          if pos == hint.position then Seq(svg.cls := "wrong-value")
+          else if hint.relatedPositions.contains(pos) then Seq(svg.cls := "wrong-value-weak")
+          else Seq.empty
       case None => SudokuBoardSVG.emptyExtension
     }
 

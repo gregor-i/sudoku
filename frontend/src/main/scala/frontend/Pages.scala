@@ -7,10 +7,10 @@ import com.raquo.laminar.nodes
 object Pages {
   val all: Seq[Page[_]] = Seq(
 //    ErrorPage,
-//    LoadingPage,
-//    PuzzlePage,
+    LoadingPage,
+    PuzzlePage,
 //    FinishedPuzzlePage,
-//    SettingsPage
+    SettingsPage
   )
 
   def ui(context: Context[PageState]): nodes.ReactiveElement.Base = context.local match {
@@ -19,6 +19,6 @@ object Pages {
     case _: LoadingPage.State => LoadingPage.render(using context.asInstanceOf)
     case _: PuzzlePage.State  => PuzzlePage.render(using context.asInstanceOf)
 //    case _: FinishedPuzzlePage.State => FinishedPuzzlePage.render(using context.asInstanceOf)
-//    case _: SettingsPage.State       => SettingsPage.render(using context.asInstanceOf)
+    case _: SettingsPage.State => SettingsPage.render(using context.asInstanceOf)
   }
 }
