@@ -38,7 +38,7 @@ class App(container: Element) {
 
     val pageState = globalState.lastPuzzle match {
       case Some(lastPuzzle) => PuzzleState.forBoard(lastPuzzle)(using globalState)
-      case None =>
+      case None             =>
         PuzzleState.loading(
           seed = Random.nextLong(),
           desiredDifficulty = globalState.difficulty,

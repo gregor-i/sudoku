@@ -47,7 +47,7 @@ object SudokuBoard {
 
   def row(y: Int)(dim: Dimensions): Subset    = for (x <- 0 until dim.blockSize) yield (x, y)
   def column(x: Int)(dim: Dimensions): Subset = for (y <- 0 until dim.blockSize) yield (x, y)
-  def block(i: Int)(dim: Dimensions): Subset =
+  def block(i: Int)(dim: Dimensions): Subset  =
     for {
       y <- 0 until dim.height
       x <- 0 until dim.width
@@ -60,7 +60,7 @@ object SudokuBoard {
 
   def rowOf(position: Position)(dim: Dimensions): Subset    = row(position._2)(dim)
   def columnOf(position: Position)(dim: Dimensions): Subset = column(position._1)(dim)
-  def blockOf(position: Position)(dim: Dimensions): Subset =
+  def blockOf(position: Position)(dim: Dimensions): Subset  =
     block((position._2 / dim.height) * dim.height + (position._1 / dim.width) % dim.height)(dim)
   def allSubsetsOf(position: Position)(dim: Dimensions): Seq[Subset] =
     Seq(rowOf(position)(dim), columnOf(position)(dim), blockOf(position)(dim))

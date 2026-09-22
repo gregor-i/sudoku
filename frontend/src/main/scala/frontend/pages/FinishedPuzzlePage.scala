@@ -60,7 +60,7 @@ object FinishedPuzzlePage extends Page[FinishedPuzzleState] {
 
     val dim = sudokuBoard.dim
 
-    val random = new Random(sudokuBoard.hashCode())
+    val random       = new Random(sudokuBoard.hashCode())
     val bloomOrigins = Iterator.continually {
       val i = random.nextInt(dim.boardSize)
       SudokuBoard.positions(dim)(i)
